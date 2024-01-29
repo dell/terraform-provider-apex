@@ -23,9 +23,9 @@ import (
 	"net/http"
 	"strings"
 
-	poller "github.com/dell/terraform-provider-aex/internal/jobs"
-	client "github.com/dell/terraform-provider-aex/pkg/gen/apex/client"
-	jmsClient "github.com/dell/terraform-provider-aex/pkg/gen/jobapi/client"
+	poller "github.com/dell/terraform-provider-apex/internal/jobs"
+	client "github.com/dell/terraform-provider-apex/pkg/gen/apex/client"
+	jmsClient "github.com/dell/terraform-provider-apex/pkg/gen/jobapi/client"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

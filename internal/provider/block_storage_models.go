@@ -19,7 +19,7 @@ package provider
 import (
 	"fmt"
 
-	"github.com/dell/terraform-provider-aex/pkg/gen/apex/client"
+	"github.com/dell/terraform-provider-apex/pkg/gen/apex/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 

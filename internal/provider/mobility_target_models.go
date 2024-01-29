@@ -17,7 +17,7 @@ limitations under the License.
 package provider
 
 import (
-	client "github.com/dell/terraform-provider-aex/pkg/gen/apex/client"
+	client "github.com/dell/terraform-provider-apex/pkg/gen/apex/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"

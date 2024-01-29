@@ -25,7 +25,7 @@ import (
 
 	"net/http"
 
-	"github.com/dell/terraform-provider-aex/pkg/gen/jobapi/client"
+	"github.com/dell/terraform-provider-apex/pkg/gen/jobapi/client"
 )
 
 // Poller interface

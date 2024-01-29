@@ -1,4 +1,4 @@
-module github.com/dell/terraform-provider-aex
+module github.com/dell/terraform-provider-apex
 
 go 1.21
 
