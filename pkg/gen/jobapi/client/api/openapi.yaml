@@ -1,0 +1,951 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: apex.mars@dell.com
+    name: Platform Services - APEX Orchestration Platform
+    url: https://confluence.cec.lab.emc.com/display/OII/APEX+Orchestration+Platform
+  description: Provides management and visibility for APEX Orchestration Platform
+    Jobs
+  license:
+    name: Dell Confidential Internal Use
+    url: https://www.dell.com/learn/us/en/uscorp1/legal_terms-conditions_dellwebpage/apex-agreement
+  title: APEX Orchestration Platform - Job Management System (JMS) API
+  version: IGNORED - see resource tag's x-api-version for the specific version of
+    this resource.
+servers:
+- url: https://localhost:8080
+tags:
+- description: "The jobs resource, for configuring and managing jobs for the system.\
+    \ Jobs are generally created\nas a side effect of requests/commands to the system.\n\
+    A job is a record of one command execution. At least non-GET REST requests should\
+    \ be represented\nas jobs. Implementations may and should expose other system\
+    \ activity as jobs if they are\nappropriate and useful for customer consumption.\n\
+    Jobs do not have recurrence schedules. schedule will be a different REST resource\
+    \ to handle that\naspect. An individual job can be in a SCHEDULED state - that\
+    \ simply means that the job has a \nspecific start time is still in the future.\n\
+    Jobs can be hierarchical, meaning that a job can have subjobs that break up the\
+    \ larger operation\ninto smaller ones that are worth exposing to customers.\n"
+  name: Jobs
+  x-api-version: 1.0.0
+  x-definition-prefix: Jobs
+paths:
+  /rest/v1/jobs:
+    get:
+      description: Query jobs.
+      operationId: jobs--collection
+      parameters:
+      - description: The limit on the number of items returned per page
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 1000
+          type: integer
+        style: form
+      - description: The zero based index of the first item in the page of results
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+        style: form
+      - description: Sort the jobs based on the specified parameter and order the
+          jobs in ascending or descending order
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          default: timeCreated.dsc
+          pattern: "^[a-zA-z]+(\\.asc|\\.dsc)$"
+          type: string
+        style: form
+      - description: |
+          Filter the jobs based on provided query.
+          Format: (state in (RUNNING,FAILED)) and (text like "provision") and (affectedResourceEntities.actionType eq type)
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsCollection'
+          description: OK
+        "206":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedJobsCollection'
+          description: Partial Content
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid Request
+      summary: Collection Query
+      tags:
+      - Jobs
+  /rest/v1/jobs/{id}:
+    get:
+      description: Get the specified job instance information.
+      operationId: jobs--instance
+      parameters:
+      - description: Unique identifier of the jobs instance.
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsInstance'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+      summary: Instance Query
+      tags:
+      - Jobs
+  /rest/v1/jobs/{id}/pause:
+    post:
+      description: "Pause a job. This suspends execution of a job in the QUEUED or\
+        \ RUNNING state until the resume \noperation is used. The pause_message property\
+        \ will be empty when this explicit pause is called.\nWhen the system pauses\
+        \ a job the pause_message will be set to describe what needs to be done\n\
+        before resuming the job. If the job cannot be resumed after a system pause,\
+        \ the message should\nsay to cancel the job and resubmit a corrected request\
+        \ if desired.\n"
+      operationId: jobs--pause
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsInstance'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Operation Failed
+      summary: Pause
+      tags:
+      - Jobs
+  /rest/v1/jobs/{id}/resume:
+    post:
+      description: Resume a job. This continues execution of a job in the PAUSED state.
+      operationId: jobs--resume
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsInstance'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Operation Failed
+      summary: Resume
+      tags:
+      - Jobs
+  /rest/v1/jobs/{id}/cancel:
+    post:
+      description: "Cancel a job. This stops and rolls back execution of a job in\
+        \ the SCHEDULED, QUEUED, or RUNNING states. \nCancel must be treated as an\
+        \ execution error by the affected job, resulting (after any necessary rollback)\n\
+        with the job in FAILED state with a message saying it was cancelled. As with\
+        \ any FAILED job, it could have \nadditional messages enumerating any rollback\
+        \ errors or side effects that weren't rolled back.\nThe cancel itself may\
+        \ not be cancelled. Only some kinds of resource actions will normally support\
+        \ cancellation. \nFor example, anything that cannot roll back such as a delete,\
+        \ should not be cancellable, at least not\nonce execution has passed the point\
+        \ where undo is feasible. \nIf cancel is not supported, the cancel request\
+        \ will fail and the affected job will continue.\n"
+      operationId: jobs--cancel
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsInstance'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Operation Failed
+      summary: Cancel
+      tags:
+      - Jobs
+components:
+  responses:
+    Code400:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid Request
+    Code404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Not Found
+    Code403:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Forbidden
+    Code422:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Operation Failed
+  schemas:
+    RequestContent:
+      description: |
+        Generic request object. This is used as a generic type for request bodies that job instances preserve for clients to query in the future.
+      example:
+        openapi_type: openapi_type
+        body: "{}"
+      properties:
+        openapi_type:
+          description: |
+            This is the name of the OpenAPI definition of the specific request body in the request_body property.
+            For example "LDAPCreate", "LocalAccountModify", etc...
+          type: string
+        body:
+          description: The request body that invoked this job.
+          type: object
+      type: object
+    ResponseContent:
+      description: |
+        Generic response object. This is used as a generic type for response bodies that job instances must preserve
+        for clients to query in the future.
+      example:
+        openapi_type: openapi_type
+        body: "{}"
+      properties:
+        openapi_type:
+          description: |
+            This is the name of the OpenAPI definition of the specific response body in the response_body property.
+          type: string
+        body:
+          description: |
+            The response body that is returned by this job. Available when in a terminal
+            state (SUCCEEDED, FAILED, COMPLETED_WITH_MESSAGES).
+          type: object
+      type: object
+    JobStateEnum:
+      description: "Current status of the job.\n* SCHEDULED - Waiting for start time.\n\
+        * QUEUED - Job is ready to run but waiting because too many other jobs are\
+        \ already running.\n* RUNNING - Job is in progress.\n* PAUSING - Job is attempting\
+        \ to pause.\n* PAUSED - Job is paused.\n* RESUMING - Job is attempting to\
+        \ resume.\n* CANCELLING - Job is attempting to cancel.\n* CANCELLED - Job\
+        \ is cancelled.\n* SUCCEEDED - Job has successfully completed. Status must\
+        \ be 200, 201, or 204.\n* COMPLETED_WITH_MESSAGES - Job has completed, but\
+        \ with only partial success. The status will be 299, and the\n  response body\
+        \ will be the standard ErrorResponse, extended as necessary fo any other response\
+        \ data \n  (such as the created instance in the case of a create operation\
+        \ in COMPLETED_WITH_MESSAGES state).\n* FAILED - Job has failed, and rolled\
+        \ back any configuration changes if possible. Status will be 4xx or 5xx.\n"
+      enum:
+      - SCHEDULED
+      - QUEUED
+      - RUNNING
+      - PAUSING
+      - PAUSED
+      - RESUMING
+      - CANCELLING
+      - CANCELLED
+      - SUCCEEDED
+      - COMPLETED_WITH_MESSAGES
+      - FAILED
+      type: string
+    JobsInstance:
+      description: Information about a job.
+      example:
+        request:
+          openapi_type: openapi_type
+          body: "{}"
+        is_internal: true
+        is_pausable: true
+        requested_end_time: 2000-01-23T04:56:07.000+00:00
+        description_l10n: description_l10n
+        estimated_completion_time: 2000-01-23T04:56:07.000+00:00
+        children:
+        - null
+        - null
+        resource_action_other_name: resource_action_other_name
+        root_id: root_id
+        id: id
+        state: null
+        client_address: client_address
+        pause_message:
+          severity: null
+          code: code
+          message_l10n: message_l10n
+          arguments:
+          - arguments
+          - arguments
+          message: message
+          timestamp: 2000-01-23T04:56:07.000+00:00
+        create_time: 2000-01-23T04:56:07.000+00:00
+        response_status: null
+        resource:
+          resource_url: http://example.com/aeiou
+          name: name
+          id: id
+          type: null
+        requested_start_time: 2000-01-23T04:56:07.000+00:00
+        step_order: 6
+        end_time: 2000-01-23T04:56:07.000+00:00
+        request_definition_name: request_definition_name
+        response_definition_name: response_definition_name
+        start_time: 2000-01-23T04:56:07.000+00:00
+        user_id: user_id
+        is_cancellable: true
+        parent_id: parent_id
+        response:
+          openapi_type: openapi_type
+          body: "{}"
+        name: name
+        resource_action: null
+        progress: 0
+        correlation_id: correlation_id
+        family_ids:
+        - family_ids
+        - family_ids
+      properties:
+        id:
+          description: Unique identifier of the job.
+          type: string
+        name:
+          description: "Name of the job, if not provided it will default to <resource_type>.<resource_action>."
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceRef'
+        resource_action:
+          $ref: '#/components/schemas/ResourceActionEnum'
+        resource_action_other_name:
+          description: "When resource_action==OTHER_ACTION, this value should be a\
+            \ single token that names a product \nspecific action. This should _only_\
+            \ be used for resource types of OTHER_RESOURCE, \nrepresenting native\
+            \ APIs outside of the /dtapi REST namespace.\n"
+          type: string
+        description_l10n:
+          description: Description of the job.
+          type: string
+        state:
+          $ref: '#/components/schemas/JobStateEnum'
+        is_pausable:
+          description: Whether or not the pause operation is possible on this job.
+          type: boolean
+        is_cancellable:
+          description: Whether or not the cancel operation is possible on this job.
+          type: boolean
+        create_time:
+          description: "Date and time when the job was instantiated, whether due to\
+            \ an external request or other reason."
+          format: date-time
+          type: string
+        start_time:
+          description: Date and time when the job execution started.
+          format: date-time
+          type: string
+        end_time:
+          description: "Date and time when the job execution completed, if succeeded,\
+            \ completed, or failed."
+          format: date-time
+          type: string
+        requested_start_time:
+          description: Date and time when the job should start.
+          format: date-time
+          type: string
+        requested_end_time:
+          description: "Date and time past which job execution should not be allowed\
+            \ to continue. If the job is \ncancellable then it will be cancelled if\
+            \ it has not completed by this tme. Since not all \njobs can be cancelled,\
+            \ a job could run past the requested_end_time.\n"
+          format: date-time
+          type: string
+        estimated_completion_time:
+          description: "Estimated completion date and time, if not completed or failed."
+          format: date-time
+          type: string
+        progress:
+          description: |
+            Approximate percent complete of the job. This may be percentage relative to number of required
+            operations and not reflect time
+          type: integer
+          x-units: PERCENT
+        parent_id:
+          description: "Unique identifier of the parent job, if applicable."
+          type: string
+          x-ref: jobs
+        children:
+          description: "List of child jobs. This list can be _either_ a list of other\
+            \ job resource instances\nwhose parent_id is this job, _or_ a list of\
+            \ jobs without id values, that are \nqueriable only as children of this\
+            \ job, but not a mix of both types.\n"
+          items:
+            $ref: '#/components/schemas/JobsInstance'
+          type: array
+        root_id:
+          description: "Unique identifier of the root job, if applicable. \nThe root\
+            \ job is the job at the top of the parent hierarchy.\n"
+          type: string
+          x-ref: jobs
+          x-inverse-name: family_ids
+        family_ids:
+          description: |
+            List of jobs in this family. A job family is all the jobs sharing the same root_id.
+            Only the root job (the one with the root_id) has this property.
+          items:
+            description: The id of one job in this job family.
+            type: string
+            x-ref: jobs
+          type: array
+          x-inverse-name: root_id
+        user_id:
+          description: Unique id of the administrative user responsible for the job.
+          type: string
+        request:
+          $ref: '#/components/schemas/RequestContent'
+        request_definition_name:
+          description: "Name of the OpenAPI object definition in the request property\
+            \ above. Normally will be called \n<ResourceType><ResourceAction>, such\
+            \ as JobDelete or X509CertificateGenerateCSR.\n"
+          type: string
+        response:
+          $ref: '#/components/schemas/ResponseContent'
+        response_definition_name:
+          description: "Name of the OpenAPI object definition in the response property\
+            \ above. Normally will be called \n<ResourceType><ResourceAction>Response,\
+            \ such as X509CertificateGenerateCSRResponse for 200\nstatus responses.\
+            \ Null for 204 status. ErrorResponse for 4xx/5xx responses.\n"
+          type: string
+        response_status:
+          $ref: '#/components/schemas/HTTPStatusEnum'
+        client_address:
+          description: "IP address from which the job request originated, if external\
+            \ to the system."
+          format: ip-address-46n
+          type: string
+        step_order:
+          description: |
+            Start order of a given job step with respect to its siblings within the job hierarchy.
+            Even jobs run concurrently will start in some specific order.
+          type: integer
+          x-units: COUNT
+        is_internal:
+          description: Indicates whether a command is internal or visible to the end
+            user.
+          type: boolean
+          x-visibility: INTERNAL
+        pause_message:
+          $ref: '#/components/schemas/ErrorMessage'
+        correlation_id:
+          description: "Opaque value that may be set by request originator. It is\
+            \ persisted with the job and may be used for: \n* Filtering a job query\
+            \ to find an async job (whether intentional or an unintentional disconnect).\
+            \ \n* To retry a request. If a request is made with a duplicate correlationId\
+            \ value, then the system must \n  return the result of the initial invocation\
+            \ with that correlationId, waiting for that initial job to \n  finish\
+            \ if necessary. This does not apply when a completed or failed jobs has\
+            \ already expired and \n  been deleted.\n* The platform _should_ log this\
+            \ value anywhere log entries occur during the execution of the request.\n"
+          type: string
+      type: object
+    JobsCollection:
+      description: The collection of jobs
+      example:
+        results:
+        - request:
+            openapi_type: openapi_type
+            body: "{}"
+          is_internal: true
+          is_pausable: true
+          requested_end_time: 2000-01-23T04:56:07.000+00:00
+          description_l10n: description_l10n
+          estimated_completion_time: 2000-01-23T04:56:07.000+00:00
+          children:
+          - null
+          - null
+          resource_action_other_name: resource_action_other_name
+          root_id: root_id
+          id: id
+          state: null
+          client_address: client_address
+          pause_message:
+            severity: null
+            code: code
+            message_l10n: message_l10n
+            arguments:
+            - arguments
+            - arguments
+            message: message
+            timestamp: 2000-01-23T04:56:07.000+00:00
+          create_time: 2000-01-23T04:56:07.000+00:00
+          response_status: null
+          resource:
+            resource_url: http://example.com/aeiou
+            name: name
+            id: id
+            type: null
+          requested_start_time: 2000-01-23T04:56:07.000+00:00
+          step_order: 6
+          end_time: 2000-01-23T04:56:07.000+00:00
+          request_definition_name: request_definition_name
+          response_definition_name: response_definition_name
+          start_time: 2000-01-23T04:56:07.000+00:00
+          user_id: user_id
+          is_cancellable: true
+          parent_id: parent_id
+          response:
+            openapi_type: openapi_type
+            body: "{}"
+          name: name
+          resource_action: null
+          progress: 0
+          correlation_id: correlation_id
+          family_ids:
+          - family_ids
+          - family_ids
+        - request:
+            openapi_type: openapi_type
+            body: "{}"
+          is_internal: true
+          is_pausable: true
+          requested_end_time: 2000-01-23T04:56:07.000+00:00
+          description_l10n: description_l10n
+          estimated_completion_time: 2000-01-23T04:56:07.000+00:00
+          children:
+          - null
+          - null
+          resource_action_other_name: resource_action_other_name
+          root_id: root_id
+          id: id
+          state: null
+          client_address: client_address
+          pause_message:
+            severity: null
+            code: code
+            message_l10n: message_l10n
+            arguments:
+            - arguments
+            - arguments
+            message: message
+            timestamp: 2000-01-23T04:56:07.000+00:00
+          create_time: 2000-01-23T04:56:07.000+00:00
+          response_status: null
+          resource:
+            resource_url: http://example.com/aeiou
+            name: name
+            id: id
+            type: null
+          requested_start_time: 2000-01-23T04:56:07.000+00:00
+          step_order: 6
+          end_time: 2000-01-23T04:56:07.000+00:00
+          request_definition_name: request_definition_name
+          response_definition_name: response_definition_name
+          start_time: 2000-01-23T04:56:07.000+00:00
+          user_id: user_id
+          is_cancellable: true
+          parent_id: parent_id
+          response:
+            openapi_type: openapi_type
+            body: "{}"
+          name: name
+          resource_action: null
+          progress: 0
+          correlation_id: correlation_id
+          family_ids:
+          - family_ids
+          - family_ids
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/JobsInstance'
+          type: array
+      type: object
+    PagedJobsCollection:
+      properties:
+        paging:
+          $ref: '#/components/schemas/PagingInformation'
+        results:
+          items:
+            $ref: '#/components/schemas/JobsInstance'
+          type: array
+      type: object
+    ErrorResponse:
+      description: A standard response body used for all non-2xx REST responses.
+      properties:
+        http_status_code:
+          $ref: '#/components/schemas/HTTPStatusEnum'
+        messages:
+          description: "A list of messages describing the failure encountered by this\
+            \ request. At least \none will be of Error severity because Info and Warning\
+            \ conditions do not cause \nthe request to fail.\n"
+          items:
+            $ref: '#/components/schemas/ErrorMessage'
+          type: array
+      type: object
+    HTTPStatusEnum:
+      description: |
+        Possible HTTP status values of completed or failed jobs.
+        * 200 - OK - Successful completion, with a response body.
+        * 201 - Created - Successful completion of a create request (POST to collection resource).
+        * 202 - Accepted - Job has been started. Response body is a job resource instance. Response status and body are available from job when it completes.
+        * 204 - No Content - Successful completion, without a response body.
+        * 206 - Partial Content - Paged response to a collection query.
+        * 299 - Completed with Messages - Core request completed but has messages for client. Ancillary portions of request may have failed. Few requests should be able to return this, as the intent is for requests to be atomic - to either succeed or roll back on failure.
+        * 400 - Invalid Request - The request is incorrect. To the extent possible, validate requests up front and use this code. Details in the response body.
+        * 401 - Unauthorized - The request cannot be authenticated.
+        * 403 - Forbidden - The request is not allowed for this client.
+        * 404 - Not Found - The id value in the request URL is not valid.
+        * 422 - Operation Failed - The request failed during execution.
+        * 429 - Too Many Requests - This particular client needs to slow down and take it easy. Retry after a delay.
+        * 500 - Internal Error - This means the product has a bug and customer should contact support.
+        * 503 - Service Unavailable - The service is temporarily unavailable. Try again later.
+      enum:
+      - 200
+      - 201
+      - 202
+      - 204
+      - 206
+      - 299
+      - 400
+      - 401
+      - 403
+      - 404
+      - 422
+      - 429
+      - 500
+      - 503
+      type: integer
+      x-units: FACT
+    ErrorMessage:
+      description: "A message describing the failure, a contributing factor to the\
+        \ failure, or possibly the aftermath of the failure."
+      example:
+        severity: null
+        code: code
+        message_l10n: message_l10n
+        arguments:
+        - arguments
+        - arguments
+        message: message
+        timestamp: 2000-01-23T04:56:07.000+00:00
+      properties:
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        code:
+          description: "Identifier for this kind of message. This is a string that\
+            \ can be used to look up \nadditional information on the support website.\
+            \ (Note - specific format can be determined \nby platform - hex value\
+            \ codes are common in midrange storage.)\n"
+          type: string
+        message:
+          description: Message string in English.
+          type: string
+        timestamp:
+          description: The time at which the error occurred.
+          format: date-time
+          type: string
+        message_l10n:
+          description: Localized message string.
+          type: string
+          x-implementation-note: "Required when server or client l10n is supported,\
+            \ otherwise optional."
+        arguments:
+          description: "Ordered list of substitution args for the error message. Must\
+            \ match up with \nthe {0}, {1}, etc... actually in the message referenced\
+            \ by the message code \nabove, if any.\n"
+          items:
+            type: string
+          type: array
+          x-implementation-note: "Required when server or client l10n is supported,\
+            \ otherwise optional."
+          x-visibility: INTERNAL
+      type: object
+      x-implementation-required:
+      - severity
+      - code
+      - message
+      - timestamp
+    SeverityEnum:
+      description: |
+        The severity of the condition.
+        * INFO - Information that may be of use in understanding the failure. It is not a problem to fix.
+        * WARNING - A condition that isn't a failure, but may be unexpected or a contributing factor. It may be necessary to fix the condition to successfully retry the request.
+        * ERROR - An actual failure condition through which the request could not continue.
+        * CRITICAL - A failure with significant impact to the system. Normally failed commands roll back and are just ERROR, but may be used for exceptional cases.
+      enum:
+      - INFO
+      - WARNING
+      - ERROR
+      - CRITICAL
+      type: string
+    ResourceRef:
+      description: |
+        A ResourceRef contains type and identifier information that is used to reference an
+        instance of any resource. Type and id are required when a client is referring to a
+        resource in a request, and type=OTHER_RESOURCE, name, and resource_url are not valid
+        in that context.
+      example:
+        resource_url: http://example.com/aeiou
+        name: name
+        id: id
+        type: null
+      properties:
+        type:
+          $ref: '#/components/schemas/ResourceTypeEnum'
+        id:
+          description: Unique identifier of the resource on which the job is operating.
+          type: string
+        name:
+          description: "The name of the referenced resource, if applicable. This is\
+            \ copied from the resource as a convenience for clients."
+          type: string
+        resource_url:
+          description: "The URL of the referenced resource instance. For specific\
+            \ resource types in ResourceType enum, the URL will be of the form <base_uri>/<type>/<id>.\
+            \ When the type is OTHER_RESOURCE, the value can be any valid URI that\
+            \ resolves to the referenced resource."
+          format: url
+          type: string
+      required:
+      - id
+      - type
+      type: object
+    ResourceTypeEnum:
+      description: Type of resource on which the job is operating. *OTHER_RESOURCE*
+        is a special resource type value that allows referencing a instance from a
+        different API suite by using the full resource URL suitable for GET as the
+        resource_id value.
+      enum:
+      - OTHER_RESOURCE
+      - alerts
+      - audit-events
+      - basic-system-info
+      - cert-role-mappings
+      - cert-local-account-mappings
+      - dns-config
+      - events
+      - federated-elements
+      - initial-config
+      - jobs
+      - kmip-services
+      - ldaps
+      - ldap-role-mappings
+      - licenses
+      - licenses-config
+      - local-accounts
+      - local-accounts-config
+      - login
+      - metric-metadata
+      - metrics
+      - mfa-cacpivs
+      - mfa-securids
+      - oauth2-services
+      - oidc-services
+      - resource-tags
+      - roles
+      - saml-services
+      - scv
+      - security-config
+      - smtp-services
+      - smtp-email-subscriptions
+      - snmp-services
+      - snmp-trap-subscriptions
+      - software-packages
+      - support-connectivity-config
+      - support-customer-contacts
+      - support-materials
+      - syslogs
+      - syslog-subscriptions
+      - tags
+      - time-config
+      - webhook-targets
+      - webhook-subscriptions
+      - webhook-messages
+      - x509-certificates
+      - aws-accounts
+      - aws-permission-policies
+      - storage-products
+      - storage-product-options
+      - mobility-targets
+      - mobility-groups
+      - clones
+      - storage-system-tokens
+      - storage-systems
+      type: string
+      x-implementation-note: |
+        Extend to include all (and only) the resource types defined in the OpenAPI for a platform's REST model in the same URL namespace (base URI) as these common ISG APIs. This should be generated at build time from the entire openapi.json file.
+
+        These are literal resource names from the URL so they don't follow the normal uppercase enum value rule.
+    ResourceActionEnum:
+      description: User-specified action to be performed on the given resource.
+      enum:
+      - OTHER_ACTION
+      - create
+      - modify
+      - delete
+      - pause
+      - resume
+      - cancel
+      - login
+      - logout
+      - generate-csr
+      - generate-csr-pkcs10
+      - query
+      - report-failed-messages
+      - test
+      - resend
+      - challenge-proof-of-possession
+      - configure
+      - extend-trial
+      - check-for-entitlements
+      - send-test-alert
+      - install
+      - check-for-updates
+      - pre-upgrade-health-check
+      - download
+      - generate-trust-policy
+      - refresh
+      - unmap
+      - map
+      - copy
+      - initialize-trust
+      - activate
+      type: string
+      x-implementation-note: |
+        Extend to include all (and only) the operations defined in the OpenAPI for a platform's REST model.
+
+        These are literal action names from the URL (except create, modify, delete, OTHER_ACTION) so they don't follow the normal uppercase enum value rule.
+    PagingInformation:
+      description: "Information provided in paged collection query responses, only\
+        \ when the response is partial, meaning that not all queried instances are\
+        \ returned. The return code will be 206 when this is returned."
+      properties:
+        total_instances:
+          description: "The number of instances in the complete queried collection\
+            \ (not just the size of the current response). If the request was filtered,\
+            \ then this is the size of the complete filtered collection."
+          type: integer
+          x-units: COUNT
+        first:
+          description: The URL to fetch the first page of this collection (including
+            filtering and sorting parameters).
+          format: uri
+          type: string
+        last:
+          description: The URL to fetch the last page of this collection (including
+            filtering and sorting parameters).
+          format: uri
+          type: string
+        next:
+          description: The URL to fetch the next page of this collection (including
+            filtering and sorting parameters). This will not be returned with the
+            last page of a collection.
+          format: uri
+          type: string
+        prev:
+          description: The URL to fetch the previous page of this collection (including
+            filtering and sorting parameters). This will not be returned with the
+            first page of a collection.
+          format: uri
+          type: string
+      type: object

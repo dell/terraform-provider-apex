@@ -1,0 +1,45 @@
+ 
+.DS_Store
+bin
+vendor
+terraform-provider-apex
+.scannerwork
+dist/
+
+#vscode files
+.vscode/*
+.vscode
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+terraform
+.git-authors
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*/.terraform.lock.hcl
+
+# Crash log files
+crash.log
+*.log
+testlogfile
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars file
+*.tfvars
+
+# Local .terraform directories
+**/.terraform/*
+
+# Coverage Test Files
+cover.*
+c.out
+*.out
