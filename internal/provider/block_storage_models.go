@@ -19,7 +19,7 @@ package provider
 import (
 	"fmt"
 
-	"eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/cirrusv1/client"
+	"eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/apex/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
