@@ -25,7 +25,7 @@ import (
 
 	"net/http"
 
-	"eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/jobapi/client"
+	"github.com/dell/terraform-provider-aex/pkg/gen/jobapi/client"
 )
 
 // Poller interface

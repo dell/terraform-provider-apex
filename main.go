@@ -7,7 +7,7 @@ import (
 	"flag"
 	"log"
 
-	"eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/internal/provider"
+	"github.com/dell/terraform-provider-aex/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 

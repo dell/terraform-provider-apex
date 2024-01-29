@@ -23,9 +23,9 @@ import (
 	"net/http"
 	"strings"
 
-	poller "eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/internal/jobs"
-	client "eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/apex/client"
-	jmsClient "eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/jobapi/client"
+	poller "github.com/dell/terraform-provider-aex/internal/jobs"
+	client "github.com/dell/terraform-provider-aex/pkg/gen/apex/client"
+	jmsClient "github.com/dell/terraform-provider-aex/pkg/gen/jobapi/client"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

@@ -1,4 +1,4 @@
-module eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers
+module github.com/dell/terraform-provider-aex
 
 go 1.21
 

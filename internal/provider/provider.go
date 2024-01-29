@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/apex/client"
-	jmsClient "eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/jobapi/client"
+	"github.com/dell/terraform-provider-aex/pkg/gen/apex/client"
+	jmsClient "github.com/dell/terraform-provider-aex/pkg/gen/jobapi/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"

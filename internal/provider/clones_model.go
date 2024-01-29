@@ -17,7 +17,7 @@ limitations under the License.
 package provider
 
 import (
-	"eos2git.cec.lab.emc.com/CIRRUS/cirrus-terraform-providers/pkg/gen/apex/client"
+	"github.com/dell/terraform-provider-aex/pkg/gen/apex/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
