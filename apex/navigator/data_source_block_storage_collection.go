@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"time"
 
-	client "github.com/dell/terraform-provider-apex/client/apex"
+	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"

@@ -19,7 +19,7 @@ package navigator
 import (
 	"fmt"
 
-	client "github.com/dell/terraform-provider-apex/client/apex"
+	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 

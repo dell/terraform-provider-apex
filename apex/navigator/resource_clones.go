@@ -23,8 +23,8 @@ import (
 	"regexp"
 
 	poller "github.com/dell/terraform-provider-apex/apex/jobs"
-	client "github.com/dell/terraform-provider-apex/client/apex"
-	jmsClient "github.com/dell/terraform-provider-apex/client/jobs"
+	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
+	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
