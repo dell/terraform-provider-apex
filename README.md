@@ -1,7 +1,7 @@
 # Terraform Provider Apex Navigator
 
 ##
-Provider is in Beta. Support is limited.
+Provider is in Alpha. Support is limited.
 
 ## Requirements
 

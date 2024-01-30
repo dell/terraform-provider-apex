@@ -7,7 +7,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/dell/terraform-provider-apex/internal/provider"
+	"github.com/dell/terraform-provider-apex/apex/navigator"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
@@ -28,7 +28,7 @@ func main() {
 		Debug:   debug,
 	}
 
-	err := providerserver.Serve(context.Background(), provider.New(version), opts)
+	err := providerserver.Serve(context.Background(), navigator.New(version), opts)
 
 	if err != nil {
 		log.Fatal(err.Error())
