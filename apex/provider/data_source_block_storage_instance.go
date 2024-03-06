@@ -70,7 +70,7 @@ func (d *blockStorageInstanceDataSource) Read(ctx context.Context, req datasourc
 
 	// needs nested for loop for deployment details
 	// Map response body to model
-	storageSystemsState := models.GetBlockStorageSystem(*storageSystem)
+	storageSystemsState := helper.GetBlockStorageSystem(*storageSystem)
 	if storageSystem.DeploymentDetails != nil {
 		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil {
 			storageSystemsState.DeploymentDetails.SystemPublicCloud.VirtualPrivateCloud = types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.VirtualPrivateCloud)

@@ -19,7 +19,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"math"
 	"net/http"
 	"strings"
 
@@ -32,7 +31,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -64,6 +62,7 @@ func (r *blockStorageResource) Schema(_ context.Context, _ resource.SchemaReques
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
+				Optional: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -464,8 +463,6 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// Create new Block storage system
-	req2 := r.client.StorageSystemsAPI.StorageSystemsCreate(ctx)
 	var systemCreateInput client.StorageSystemDeploymentRequest
 	switch {
 	case plan.DeploymentDetails == nil:
@@ -562,10 +559,8 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		)
 		return
 	}
-	req2 = req2.StorageSystemDeploymentRequest(systemCreateInput)
+	job, status, err := helper.CreateBlockStorage(r.client.StorageSystemsAPI.StorageSystemsCreate(ctx), systemCreateInput)
 
-	// Executing Job Request
-	job, status, err := req2.Async(true).Execute()
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -574,73 +569,52 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		)
 		return
 	}
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
-	if err != nil {
+	resourceID, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
+	if jobErr != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			helper.ResourceRetrieveError+jobErr.Error(),
 		)
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Block storage after Job Completes
-	storageSystem, status, err := r.client.StorageSystemsAPI.StorageSystemsInstance(ctx, resourceID).Execute()
+	storageSystem, status, err := helper.GetBlockStorageInstance(r.client, resourceID)
 	if (err != nil) || (status.StatusCode != http.StatusOK) {
-		if err := status.Body.Close(); err != nil {
-			fmt.Print("Error Closing response body:", err)
-		}
 		// Try again with POWERFLEX- prefix
 		if status.StatusCode == http.StatusNotFound {
 			resourceIDWithPrefix := "POWERFLEX-" + resourceID
-			storageSystem, status, err = r.client.StorageSystemsAPI.StorageSystemsInstance(ctx, resourceIDWithPrefix).Execute()
+			storageSystem, status, err = helper.GetBlockStorageInstance(r.client, resourceIDWithPrefix)
 			if (err != nil) || (status.StatusCode != http.StatusOK) {
+				newErr := helper.GetErrorString(err, status)
 				resp.Diagnostics.AddError(
 					"Error retrieving created Block storage",
-					"Could not retrieve created Block storage, unexpected error: "+err.Error(),
+					"Could not retrieve created Block storage, unexpected error: "+newErr,
 				)
 				return
 			}
-			if err := status.Body.Close(); err != nil {
-				fmt.Print("Error Closing response body:", err)
-			}
 		} else {
+			newErr := helper.GetErrorString(err, status)
 			resp.Diagnostics.AddError(
 				"Error retrieving created Block storage",
-				"Could not retrieve created Block storage, unexpected error: "+err.Error(),
+				"Could not retrieve created Block storage, unexpected error: "+newErr,
 			)
 			return
 		}
 	}
 
 	// Updating TFState with Block Storage info
-	result := models.GetBlockStorageSystem(*storageSystem)
+	result := helper.GetBlockStorageSystem(*storageSystem)
 
 	if strings.Contains(result.Version.ValueString(), plan.ProductVersion.ValueString()) {
 		result.ProductVersion = plan.ProductVersion
 	}
-	if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil {
-		result.DeploymentDetails.SystemPublicCloud.SSHKeyName = plan.DeploymentDetails.SystemPublicCloud.SSHKeyName
-		result.DeploymentDetails.SystemPublicCloud.Vpc = plan.DeploymentDetails.SystemPublicCloud.Vpc
-		result.DeploymentDetails.SystemPublicCloud.MinimumCapacity = basetypes.NewInt64Value(result.DeploymentDetails.SystemPublicCloud.MinimumCapacity.ValueInt64() / (int64)(math.Pow(1024, 4)))
-		result.DeploymentDetails.SystemPublicCloud.MinimumIops = basetypes.NewInt64Value(result.DeploymentDetails.SystemPublicCloud.MinimumIops.ValueInt64() / 1000)
-
-		for _, subnetOption := range plan.DeploymentDetails.SystemPublicCloud.SubnetOptions {
-			result.DeploymentDetails.SystemPublicCloud.SubnetOptions = append(result.DeploymentDetails.SystemPublicCloud.SubnetOptions, models.SubnetOptionModel{
-				SubnetID:   subnetOption.SubnetID,
-				CidrBlock:  subnetOption.CidrBlock,
-				SubnetType: subnetOption.SubnetType,
-			})
-		}
+	// Need to check for cloud deployment details
+	if plan.DeploymentDetails != nil &&
+		plan.DeploymentDetails.SystemPublicCloud != nil {
+		helper.SetCloudConfigSubnetAndVpc(plan, result)
 	}
 
 	if result.DeploymentDetails == nil {
@@ -669,7 +643,7 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	// Get refreshed storage systems value from Apex Navigator
-	storageSystem, status, err := r.client.StorageSystemsAPI.StorageSystemsInstance(context.Background(), state.ID.ValueString()).Execute()
+	storageSystem, status, err := helper.GetBlockStorageInstance(r.client, state.ID.ValueString())
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -680,7 +654,17 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	// Overwrite items with refreshed state
-	state = models.GetBlockStorageSystem(*storageSystem)
+	result := helper.GetBlockStorageSystem(*storageSystem)
+
+	if strings.Contains(result.Version.ValueString(), state.ProductVersion.ValueString()) {
+		result.ProductVersion = state.ProductVersion
+	}
+
+	// Need to check for on prem deployment details
+	if state.DeploymentDetails != nil &&
+		state.DeploymentDetails.SystemPublicCloud != nil {
+		helper.SetCloudConfigSubnetAndVpc(state, result)
+	}
 
 	if state.DeploymentDetails == nil {
 		resp.Diagnostics.AddError(
@@ -690,7 +674,7 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	// Set refresdhed state
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -706,8 +690,21 @@ func (r *blockStorageResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Retrieve values from state
+	var state models.BlockStorageModel
+	diagsState := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diagsState...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	// TODO : return with errors ?
+	if state != plan {
+		resp.Diagnostics.AddError(
+			"Unable to update Apex Navigator block storage",
+			"Update of Block Storage is not supported, please create a new resource",
+		)
+		return
+	}
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
@@ -733,24 +730,16 @@ func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
-	if err != nil || resourceID == "" {
+	resourceID, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
+	if jobErr != nil || resourceID == "" {
 		resp.Diagnostics.AddError(
 			"Error getting Delete Job ID",
-			"Could not retrieve delete job id, unexpected error: "+err.Error(),
+			"Could not retrieve delete job id, unexpected error: "+jobErr.Error(),
 		)
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 }
 
 func (r *blockStorageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
