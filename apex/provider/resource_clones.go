@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/dell/terraform-provider-apex/apex/helper"
+	helper "github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
@@ -182,8 +182,6 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	// Create new Clone
-	req2 := r.client.ClonesAPI.ClonesCreate(ctx)
 
 	cloneCreateInput := *client.NewCloneCreateInput(plan.Name.ValueString(), plan.MobilityTargetID.ValueString())
 
@@ -203,10 +201,8 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 		}
 	}
 
-	req2 = req2.CloneCreateInput(cloneCreateInput)
-
-	// Executing Job Request
-	job, status, err := req2.Async(true).Execute()
+	// Create new Clone
+	job, status, err := helper.CreateClone(r.client.ClonesAPI.ClonesCreate(ctx), cloneCreateInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -215,28 +211,21 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
-
 	if err := status.Body.Close(); err != nil {
 		fmt.Print("Error Closing response body:", err)
 	}
-
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
-	if err != nil {
+	resourceID, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
+	if jobErr != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			helper.ResourceRetrieveError+jobErr.Error(),
 		)
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Clone after Job Completes
-	clone, status, err := r.client.ClonesAPI.ClonesInstance(ctx, resourceID).Execute()
+	clone, status, err := helper.GetCloneInstance(r.client, resourceID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -245,11 +234,9 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
-
 	if err := status.Body.Close(); err != nil {
 		fmt.Print("Error Closing response body:", err)
 	}
-
 	// Updating TFState with Clone info
 	result := models.GetClonesModel(*clone)
 
@@ -274,7 +261,7 @@ func (r *clonesResource) Read(ctx context.Context, req resource.ReadRequest, res
 	getID := state.ID.ValueString()
 
 	// Get refreshed clones value from Apex Navigator
-	clone, status, err := r.client.ClonesAPI.ClonesInstance(context.Background(), getID).Execute()
+	clone, status, err := helper.GetCloneInstance(r.client, getID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -330,7 +317,7 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	clone, status, _ := r.client.ClonesAPI.ClonesInstance(ctx, plan.ID.ValueString()).Execute()
+	clone, status, _ := helper.GetCloneInstance(r.client, plan.ID.ValueString())
 	if isInvalidUpdate(clone, plan) {
 		resp.Diagnostics.AddError(
 			"Error updating Clones",
@@ -344,15 +331,13 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Update existing clones
-	req2 := r.client.ClonesAPI.ClonesModify(context.Background(), plan.ID.ValueString())
-	u := client.UpdateCloneInput{
+	updateInput := client.UpdateCloneInput{
 		Name:        plan.Name.ValueStringPointer(),
 		Description: plan.Description.ValueStringPointer(),
 	}
-	req2 = req2.UpdateCloneInput(u)
 
 	// Execute Update Job
-	job, status, err := req2.Async(true).Execute()
+	job, status, err := helper.UpdateClone(r.client.ClonesAPI.ClonesModify(ctx, plan.ID.ValueString()), updateInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -367,8 +352,7 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
+	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -378,7 +362,7 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Fetching Clone after Job Completes
-	clone, status, err = r.client.ClonesAPI.ClonesInstance(ctx, resourceID).Execute()
+	clone, status, err = helper.GetCloneInstance(r.client, resourceID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
