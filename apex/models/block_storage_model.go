@@ -17,16 +17,14 @@ limitations under the License.
 package models
 
 import (
-	"fmt"
-
-	"github.com/dell/terraform-provider-apex/apex/helper"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type deploymentDetailsModel struct {
-	SystemOnPrem      *systemOnPremDeploymentDetailsModel      `tfsdk:"system_on_prem"`
-	SystemPublicCloud *systemPublicCloudDeploymentDetailsModel `tfsdk:"system_public_cloud"`
+// DeploymentDetailsModel maps storage system schema data.
+type DeploymentDetailsModel struct {
+	SystemOnPrem      *SystemOnPremDeploymentDetailsModel      `tfsdk:"system_on_prem"`
+	SystemPublicCloud *SystemPublicCloudDeploymentDetailsModel `tfsdk:"system_public_cloud"`
 }
 
 // BlockStoragesDataSourceModel maps storage system schema data.
@@ -35,7 +33,8 @@ type BlockStoragesDataSourceModel struct {
 	ID            types.String        `tfsdk:"id"`
 }
 
-type systemOnPremDeploymentDetailsModel struct {
+// SystemOnPremDeploymentDetailsModel maps storage system schema data.
+type SystemOnPremDeploymentDetailsModel struct {
 	DeploymentType *client.SystemDeploymentTypeEnum `tfsdk:"deployment_type"`
 	SiteName       types.String                     `tfsdk:"site_name"`
 	Location       types.String                     `tfsdk:"location"`
@@ -46,7 +45,9 @@ type systemOnPremDeploymentDetailsModel struct {
 	StreetAddress2 types.String                     `tfsdk:"street_address_2"`
 	ZipCode        types.String                     `tfsdk:"zip_code"`
 }
-type systemPublicCloudDeploymentDetailsModel struct {
+
+// SystemPublicCloudDeploymentDetailsModel maps storage system schema data.
+type SystemPublicCloudDeploymentDetailsModel struct {
 	DeploymentType           *client.SystemDeploymentTypeEnum     `tfsdk:"deployment_type"`
 	CloudType                *client.CloudProviderEnum            `tfsdk:"cloud_type"`
 	CloudAccount             types.String                         `tfsdk:"cloud_account"`
@@ -125,103 +126,6 @@ type BlockStorageModel struct {
 	Vendor                          types.String            `tfsdk:"vendor"`
 	ProductVersion                  types.String            `tfsdk:"product_version"`
 	Version                         types.String            `tfsdk:"version"`
-	DeploymentDetails               *deploymentDetailsModel `tfsdk:"deployment_details"`
+	DeploymentDetails               *DeploymentDetailsModel `tfsdk:"deployment_details"`
 	CirrusDeployed                  types.Bool              `tfsdk:"cirrus_deployed"`
-}
-
-// GetBlockStorageSystem returns a storage systems model based on the given storage system instance
-func GetBlockStorageSystem(storageSystem client.StorageSystemsInstance) (blockStorageState BlockStorageModel) {
-	blockStorageState = BlockStorageModel{
-		ID:                              types.StringValue(storageSystem.Id),
-		SystemID:                        types.StringPointerValue(storageSystem.SystemId),
-		SystemType:                      types.StringPointerValue(storageSystem.SystemType),
-		Bandwidth:                       types.Int64PointerValue(storageSystem.Bandwidth),
-		CapacityImpact:                  types.Int64PointerValue(storageSystem.CapacityImpact),
-		CapacityIssueCount:              types.Int64PointerValue(storageSystem.CapacityIssueCount),
-		CompressionSavings:              types.Float64PointerValue(storageSystem.CompressionSavings),
-		ConfigurationImpact:             types.Int64PointerValue(storageSystem.ConfigurationImpact),
-		ConfigurationIssueCount:         types.Int64PointerValue(storageSystem.ConfigurationIssueCount),
-		ConfiguredSize:                  types.Int64PointerValue(storageSystem.ConfiguredSize),
-		ConnectivityStatus:              types.StringPointerValue(storageSystem.ConnectivityStatus),
-		LicenseType:                     types.StringPointerValue(storageSystem.LicenseType),
-		LicenseExpirationDateTimestamp:  types.StringValue(helper.ConvertTimeToString(storageSystem.LicenseExpirationDateTimestamp)),
-		ContractCoverageType:            types.StringPointerValue(storageSystem.ContractCoverageType),
-		ContractExpirationDateTimestamp: types.StringValue(helper.ConvertTimeToString(storageSystem.ContractExpirationDateTimestamp)),
-		DataProtectionImpact:            types.Int64PointerValue(storageSystem.DataProtectionImpact),
-		DataProtectionIssueCount:        types.Int64PointerValue(storageSystem.DataProtectionIssueCount),
-		DisplayIdentifier:               types.StringPointerValue(storageSystem.DisplayIdentifier),
-		FreePercent:                     types.Float64PointerValue(storageSystem.FreePercent),
-		FreeSize:                        types.Int64PointerValue(storageSystem.FreeSize),
-		HealthConnectivityStatus:        types.StringPointerValue(storageSystem.HealthConnectivityStatus),
-		HealthIssueCount:                types.Int64PointerValue(storageSystem.HealthIssueCount),
-		HealthScore:                     types.Int64PointerValue(storageSystem.HealthScore),
-		HealthState:                     types.StringPointerValue(storageSystem.HealthState),
-		Iops:                            types.Int64PointerValue(storageSystem.Iops),
-		Ipv4Address:                     types.StringPointerValue(storageSystem.Ipv4Address),
-		Ipv6Address:                     types.StringPointerValue(storageSystem.Ipv6Address),
-		LastContactTimestamp:            types.StringValue(helper.ConvertTimeToString(storageSystem.LastContactTimestamp)),
-		Latency:                         types.Int64PointerValue(storageSystem.Latency),
-		LogicalSize:                     types.Int64PointerValue(storageSystem.LogicalSize),
-		Model:                           types.StringPointerValue(storageSystem.Model),
-		Name:                            types.StringPointerValue(storageSystem.Name),
-		OverallEfficiency:               types.Float64PointerValue(storageSystem.OverallEfficiency),
-		PerformanceImpact:               types.Int64PointerValue(storageSystem.PerformanceImpact),
-		PerformanceIssueCount:           types.Int64PointerValue(storageSystem.PerformanceIssueCount),
-		SerialNumber:                    types.StringPointerValue(storageSystem.SerialNumber),
-		SiteName:                        types.StringPointerValue(storageSystem.SiteName),
-		SnapsSavings:                    types.Float64PointerValue(storageSystem.SnapsSavings),
-		SystemHealthImpact:              types.Int64PointerValue(storageSystem.SystemHealthImpact),
-		SystemHealthIssueCount:          types.Int64PointerValue(storageSystem.SystemHealthIssueCount),
-		ThinSavings:                     types.Float64PointerValue(storageSystem.ThinSavings),
-		TotalSize:                       types.Int64PointerValue(storageSystem.TotalSize),
-		UnconfiguredSize:                types.Int64PointerValue(storageSystem.UnconfiguredSize),
-		UsedPercent:                     types.Float64PointerValue(storageSystem.UsedPercent),
-		UsedSize:                        types.Int64PointerValue(storageSystem.UsedSize),
-		Vendor:                          types.StringPointerValue(storageSystem.Vendor),
-		Version:                         types.StringPointerValue(storageSystem.Version),
-		CirrusDeployed:                  types.BoolPointerValue(storageSystem.CirrusDeployed),
-	}
-
-	switch {
-	case storageSystem.DeploymentDetails == nil:
-	case storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails != nil:
-		blockStorageState.DeploymentDetails = &deploymentDetailsModel{
-			SystemOnPrem: &systemOnPremDeploymentDetailsModel{
-				DeploymentType: (storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.DeploymentType),
-				SiteName:       types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.SiteName),
-				Location:       types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.Location),
-				Country:        types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.Country),
-				State:          types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.State),
-				City:           types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.City),
-				StreetAddress1: types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.StreetAddress1),
-				StreetAddress2: types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.StreetAddress2),
-				ZipCode:        types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.ZipCode),
-			},
-		}
-	case storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil:
-		blockStorageState.DeploymentDetails = &deploymentDetailsModel{
-			SystemPublicCloud: &systemPublicCloudDeploymentDetailsModel{
-				DeploymentType:         (storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.DeploymentType),
-				CloudAccount:           types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudAccount),
-				CloudRegion:            types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudRegion),
-				VirtualPrivateCloud:    types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.VirtualPrivateCloud),
-				CloudManagementAddress: types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudManagementAddress),
-				MinimumIops:            types.Int64PointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.MinimumIops),
-				MinimumCapacity:        types.Int64PointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.MinimumCapacity),
-				TierType:               types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.TierType),
-			},
-		}
-
-		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType != nil {
-			blockStorageState.DeploymentDetails.SystemPublicCloud.CloudType = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType
-		}
-		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology != nil {
-			blockStorageState.DeploymentDetails.SystemPublicCloud.AvailabilityZoneTopology = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology
-		}
-
-	default:
-		fmt.Printf("Unexpected system type")
-	}
-
-	return blockStorageState
 }

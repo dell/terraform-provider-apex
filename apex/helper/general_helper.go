@@ -18,9 +18,12 @@ limitations under the License.
 package helper
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"time"
+
+	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
 )
 
 // ConvertTimeToString converts time to string
@@ -43,4 +46,11 @@ func GetErrorString(err error, status *http.Response) string {
 		newErr = newErr + " " + string(bodyBytes)
 	}
 	return newErr
+}
+
+// WaitForJobToComplete returns the job status and waits for the job to complete
+func WaitForJobToComplete(ctx context.Context, jobsClient *jmsClient.APIClient, jobID string) (string, error) {
+	// Fetching Job Status
+	poller := NewPoller(jobsClient)
+	return poller.WaitForResource(ctx, jobID)
 }
