@@ -22,6 +22,7 @@ import (
 	"net/http"
 
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 // GetCloneCollection is a collection of clones
@@ -44,4 +45,16 @@ func CreateClone(request client.ApiClonesCreateRequest, input client.CloneCreate
 func UpdateClone(request client.ApiClonesModifyRequest, input client.UpdateCloneInput) (*client.Job, *http.Response, error) {
 	request = request.UpdateCloneInput(input)
 	return request.Async(true).Execute()
+}
+
+// MapClones maps clones to a host
+func MapClones(ctx context.Context, mapReq client.ApiClonesMapRequest, cloneID string, hosts []basetypes.StringValue) (*client.Job, *http.Response, error) {
+	// Create Clones POST request
+	hostIds := make([]string, 0, len(hosts))
+	for _, mapping := range hosts {
+		hostIds = append(hostIds, mapping.ValueString())
+	}
+	mapInput := *client.NewMapInput(hostIds)
+	mapReq = mapReq.MapInput(mapInput)
+	return mapReq.Async(true).Execute()
 }

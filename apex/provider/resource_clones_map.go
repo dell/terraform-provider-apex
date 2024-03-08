@@ -25,7 +25,6 @@ import (
 	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -35,9 +34,8 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &clonesMapResource{}
-	_ resource.ResourceWithConfigure   = &clonesMapResource{}
-	_ resource.ResourceWithImportState = &clonesMapResource{}
+	_ resource.Resource              = &clonesMapResource{}
+	_ resource.ResourceWithConfigure = &clonesMapResource{}
 )
 
 // NewClonesMapResource returns a storage system resource object
@@ -113,15 +111,9 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 
 	// Create Clones POST request
 	mapReq := r.client.ClonesAPI.ClonesMap(ctx, plan.CloneID.ValueString())
-	hostIds := make([]string, 0, len(plan.HostMappings))
-	for _, mapping := range plan.HostMappings {
-		hostIds = append(hostIds, mapping.ValueString())
-	}
-	mapInput := *client.NewMapInput(hostIds)
-	mapReq = mapReq.MapInput(mapInput)
 
 	// Executing map request request
-	job, status, err := mapReq.Async(true).Execute()
+	job, status, err := helper.MapClones(ctx, mapReq, plan.CloneID.ValueString(), plan.HostMappings)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -131,13 +123,8 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Waiting for job to complete
-	poller := helper.NewPoller(r.jobsClient)
-	_, err = poller.WaitForResource(ctx, job.Id)
+	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -147,7 +134,7 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	// Fetching Job Status
-	jobStatus, err := poller.GetJob(ctx, job.Id)
+	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting job",
@@ -211,9 +198,4 @@ func (r *clonesMapResource) Delete(_ context.Context, _ resource.DeleteRequest, 
 		"Deletes are not supported for this resource",
 		"Deletes are not supported for this resource",
 	)
-}
-
-func (r *clonesMapResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

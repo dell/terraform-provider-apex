@@ -54,3 +54,10 @@ func WaitForJobToComplete(ctx context.Context, jobsClient *jmsClient.APIClient, 
 	poller := NewPoller(jobsClient)
 	return poller.WaitForResource(ctx, jobID)
 }
+
+// GetJobStatus returns the job status
+func GetJobStatus(ctx context.Context, jobsClient *jmsClient.APIClient, jobID string) (*jmsClient.JobsInstance, error) {
+	// Fetching Job Status
+	poller := NewPoller(jobsClient)
+	return poller.GetJob(ctx, jobID)
+}
