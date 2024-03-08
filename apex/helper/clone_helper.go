@@ -33,3 +33,15 @@ func GetCloneCollection(client *client.APIClient) (*client.ClonesCollection200Re
 func GetCloneInstance(client *client.APIClient, id string) (*client.Clone, *http.Response, error) {
 	return client.ClonesAPI.ClonesInstance(context.Background(), id).Execute()
 }
+
+// CreateClone sends the create clone request
+func CreateClone(request client.ApiClonesCreateRequest, input client.CloneCreateInput) (*client.Job, *http.Response, error) {
+	request = request.CloneCreateInput(input)
+	return request.Async(true).Execute()
+}
+
+// UpdateClone sends the update clone request
+func UpdateClone(request client.ApiClonesModifyRequest, input client.UpdateCloneInput) (*client.Job, *http.Response, error) {
+	request = request.UpdateCloneInput(input)
+	return request.Async(true).Execute()
+}
