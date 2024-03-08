@@ -33,7 +33,8 @@ var ProviderConfig = ""
 
 // Used for Mocking responses from functions
 var FunctionMocker *Mocker
-
+var cloneHost = setDefault(os.Getenv("CLONE_HOST"), "test_clone_host")
+var cloneID = setDefault(os.Getenv("CLONE_ID"), "test_clone_id")
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"apex": providerserver.NewProtocol6WithError(New("test")()),
@@ -68,4 +69,11 @@ func testAccPreCheck(t *testing.T) {
 	if FunctionMocker != nil {
 		FunctionMocker.UnPatch()
 	}
+}
+
+func setDefault(osInput string, defaultStr string) string {
+	if osInput == "" {
+		return defaultStr
+	}
+	return osInput
 }
