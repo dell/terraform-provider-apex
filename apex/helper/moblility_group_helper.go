@@ -118,3 +118,9 @@ func GetMobilityGroupModel(mobilityGroup client.MobilityGroup) (model models.Mob
 	}
 	return model
 }
+
+// CopyMobilityGroups copies a Mobility Group
+func CopyMobilityGroups(request client.ApiMobilityGroupsCopyRequest, input client.StartCopyInput) (*client.Job, *http.Response, error) {
+	request = request.StartCopyInput(input)
+	return request.Async(true).Execute()
+}

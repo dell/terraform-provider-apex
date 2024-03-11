@@ -42,6 +42,8 @@ var mobilityName = setDefault(os.Getenv("MOBILITY_NAME"), "test_mobility_name")
 var systemID = setDefault(os.Getenv("SYSTEM_ID"), "test_system_id")
 var volumeID = setDefault(os.Getenv("VOLUME_ID"), "test_volume_id")
 
+var mobilitySourceID = setDefault(os.Getenv("MOBILITY_SOURCE_ID"), "test_mobility_source_id")
+var mobilityTargetID = setDefault(os.Getenv("MOBILITY_TARGET_ID"), "test_mobility_target_id")
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"apex": providerserver.NewProtocol6WithError(New("test")()),
