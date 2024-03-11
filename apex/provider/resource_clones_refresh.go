@@ -25,7 +25,6 @@ import (
 	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -35,9 +34,8 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &clonesRefreshResource{}
-	_ resource.ResourceWithConfigure   = &clonesRefreshResource{}
-	_ resource.ResourceWithImportState = &clonesRefreshResource{}
+	_ resource.Resource              = &clonesRefreshResource{}
+	_ resource.ResourceWithConfigure = &clonesRefreshResource{}
 )
 
 // NewClonesRefreshResource returns a storage system resource object
@@ -111,7 +109,7 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	refreshReq := r.client.ClonesAPI.ClonesRefresh(ctx, plan.CloneID.ValueString())
 
 	// Executing refresh request request
-	job, status, err := refreshReq.Async(true).Execute()
+	job, status, err := helper.RefreshClone(refreshReq)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -121,13 +119,8 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Waiting for job to complete
-	poller := helper.NewPoller(r.jobsClient)
-	_, err = poller.WaitForResource(ctx, job.Id)
+	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -137,7 +130,7 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Fetching Job Status
-	jobStatus, err := poller.GetJob(ctx, job.Id)
+	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting job",
@@ -199,9 +192,4 @@ func (r *clonesRefreshResource) Delete(_ context.Context, _ resource.DeleteReque
 		"Deletes are not supported for this resource",
 		"Deletes are not supported for this resource",
 	)
-}
-
-func (r *clonesRefreshResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

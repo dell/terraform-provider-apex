@@ -58,3 +58,9 @@ func MapClones(ctx context.Context, mapReq client.ApiClonesMapRequest, cloneID s
 	mapReq = mapReq.MapInput(mapInput)
 	return mapReq.Async(true).Execute()
 }
+
+// RefreshClone refreshes a clone
+func RefreshClone(refreshReq client.ApiClonesRefreshRequest) (*client.Job, *http.Response, error) {
+	// Executing refresh request request
+	return refreshReq.Async(true).Execute()
+}
