@@ -64,3 +64,14 @@ func RefreshClone(refreshReq client.ApiClonesRefreshRequest) (*client.Job, *http
 	// Executing refresh request request
 	return refreshReq.Async(true).Execute()
 }
+
+// UnmapClones unmaps clones from a host
+func UnmapClones(unmapReq client.ApiClonesUnmapRequest, hosts []basetypes.StringValue) (*client.Job, *http.Response, error) {
+	hostIds := make([]string, 0, len(hosts))
+	for _, mapping := range hosts {
+		hostIds = append(hostIds, mapping.ValueString())
+	}
+	unmapInput := *client.NewUnmapInput(hostIds)
+	unmapReq = unmapReq.UnmapInput(unmapInput)
+	return unmapReq.Async(true).Execute()
+}

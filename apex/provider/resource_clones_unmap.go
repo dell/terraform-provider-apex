@@ -25,7 +25,6 @@ import (
 	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -35,9 +34,8 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &clonesUnmapResource{}
-	_ resource.ResourceWithConfigure   = &clonesUnmapResource{}
-	_ resource.ResourceWithImportState = &clonesUnmapResource{}
+	_ resource.Resource              = &clonesUnmapResource{}
+	_ resource.ResourceWithConfigure = &clonesUnmapResource{}
 )
 
 // NewClonesUnmapResource returns a storage system resource object
@@ -111,17 +109,11 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	// Create Clones POST request
+	// Create Clones Unmap POST request
 	unmapReq := r.client.ClonesAPI.ClonesUnmap(ctx, plan.CloneID.ValueString())
-	hostIds := make([]string, 0, len(plan.HostMappings))
-	for _, mapping := range plan.HostMappings {
-		hostIds = append(hostIds, mapping.ValueString())
-	}
-	unmapInput := *client.NewUnmapInput(hostIds)
-	unmapReq = unmapReq.UnmapInput(unmapInput)
 
 	// Executing unmap request request
-	job, status, err := unmapReq.Async(true).Execute()
+	job, status, err := helper.UnmapClones(unmapReq, plan.HostMappings)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -136,8 +128,7 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Waiting for job to complete
-	poller := helper.NewPoller(r.jobsClient)
-	_, err = poller.WaitForResource(ctx, job.Id)
+	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -147,7 +138,7 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Fetching Job Status
-	jobStatus, err := poller.GetJob(ctx, job.Id)
+	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting job",
@@ -211,9 +202,4 @@ func (r *clonesUnmapResource) Delete(_ context.Context, _ resource.DeleteRequest
 		"Deletes are not supported for this resource",
 		"Deletes are not supported for this resource",
 	)
-}
-
-func (r *clonesUnmapResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

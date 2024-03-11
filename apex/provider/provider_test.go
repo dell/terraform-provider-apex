@@ -36,6 +36,8 @@ var FunctionMocker *Mocker
 var cloneHost = setDefault(os.Getenv("CLONE_HOST"), "test_clone_host")
 var cloneID = setDefault(os.Getenv("CLONE_ID"), "test_clone_id")
 var cloneRefreshID = setDefault(os.Getenv("CLONE_REFRESH_ID"), "test_clone_refresh_id")
+var cloneUnmapID = setDefault(os.Getenv("CLONE_UNMAP_ID"), "test_clone_unmap_id")
+var cloneUnmapHost = setDefault(os.Getenv("CLONE_UNMAP_HOST"), "test_clone_unmap_host")
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"apex": providerserver.NewProtocol6WithError(New("test")()),
