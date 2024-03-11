@@ -18,7 +18,6 @@ package models
 
 import (
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -39,44 +38,4 @@ type MobilityGroupModel struct {
 type MobilityGroupsDataSourceModel struct {
 	MobilityGroups []MobilityGroupModel `tfsdk:"mobility_groups"`
 	ID             types.String         `tfsdk:"id"`
-}
-
-// GetMobilityGroupModel returns a new mobilityGroupModel based on data from the given mobilityGroup
-func GetMobilityGroupModel(mobilityGroup client.MobilityGroup) (model MobilityGroupModel) {
-	model = MobilityGroupModel{
-		ID:                types.StringValue(mobilityGroup.Id),
-		Name:              types.StringValue(mobilityGroup.Name),
-		Description:       types.StringValue(*mobilityGroup.Description),
-		SystemID:          types.StringValue(mobilityGroup.SystemId),
-		SystemType:        (&mobilityGroup.SystemType),
-		CreationTimeStamp: types.StringValue(mobilityGroup.CreationTimestamp),
-	}
-	attrTypes := map[string]attr.Type{
-		"id":   types.StringType,
-		"name": types.StringType,
-		"size": types.StringType,
-	}
-	var groupValues []attr.Value
-
-	if mobilityGroup.Members != nil { //nolint:dupl
-		for _, member := range mobilityGroup.Members {
-			attrValues := map[string]attr.Value{
-				"id":   types.StringValue(member.Id),
-				"name": types.StringValue(member.Name),
-				"size": types.StringValue(member.Size),
-			}
-			// TF Object representing a group member
-			object, _ := types.ObjectValue(attrTypes, attrValues)
-			groupValues = append(groupValues, object)
-		}
-		newObjectType := types.ObjectType{}
-		newObjectType.AttrTypes = map[string]attr.Type{
-			"id":   types.StringType,
-			"name": types.StringType,
-			"size": types.StringType,
-		}
-
-		model.Members = basetypes.NewListValueMust(newObjectType, groupValues)
-	}
-	return model
 }

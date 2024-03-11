@@ -68,7 +68,7 @@ func (d *mobilityGroupInstanceDataSource) Read(ctx context.Context, req datasour
 	}
 
 	// Map response body to model
-	mobilityGroupsState := models.GetMobilityGroupModel(*mobilityGroup)
+	mobilityGroupsState := helper.GetMobilityGroupModel(*mobilityGroup)
 
 	state.ID = types.StringValue("placeholder")
 

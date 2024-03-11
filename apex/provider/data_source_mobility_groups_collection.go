@@ -82,7 +82,7 @@ func (d *mobilityGroupsDataSource) Read(ctx context.Context, req datasource.Read
 
 	// Map response body to model
 	for _, mobilityGroup := range mobilityGroups.Results {
-		mobilityGroupsState := models.GetMobilityGroupModel(mobilityGroup)
+		mobilityGroupsState := helper.GetMobilityGroupModel(mobilityGroup)
 
 		state.MobilityGroups = append(state.MobilityGroups, mobilityGroupsState)
 	}
