@@ -119,10 +119,9 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		mobilityTargetIDArray = append(mobilityTargetIDArray, targetID.ValueString())
 	}
 	startCopyInput.SetMobilityTargetIds(mobilityTargetIDArray)
-	createReq = createReq.StartCopyInput(startCopyInput)
 
 	// Executing copy request request
-	job, status, err := createReq.Async(true).Execute()
+	job, status, err := helper.CopyMobilityGroups(createReq, startCopyInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -137,8 +136,7 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Waiting for job to complete
-	poller := helper.NewPoller(r.jobsClient)
-	_, err = poller.WaitForResource(ctx, job.Id)
+	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -148,7 +146,7 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Fetching Job Status
-	jobStatus, err := poller.GetJob(ctx, job.Id)
+	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting job",
