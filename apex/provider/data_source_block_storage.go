@@ -64,6 +64,18 @@ func (d *blockStoragesDataSource) Schema(_ context.Context, _ datasource.SchemaR
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"filter": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"ids": schema.SetAttribute{
+						Description:         "Filter by ids",
+						MarkdownDescription: "Filter by ids",
+						Optional:            true,
+						ElementType:         types.StringType,
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -72,12 +84,34 @@ func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadR
 	var state models.BlockStoragesDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
 
-	storageSystems, status, err := helper.GetBlockStorageCollection(d.client)
+	// Check that the filter is valid
+	filter := ""
+	filterUsed := false
+	if state.Filter != nil && state.Filter.IDs != nil && len(state.Filter.IDs) > 0 {
+		filterUsed = true
+		filteredNames := make([]string, 0)
+		for _, ids := range state.Filter.IDs {
+			filteredNames = append(filteredNames, ids.ValueString())
+		}
+		filter = helper.CreateFilter(filteredNames, "id")
+	}
+
+	storageSystems, status, err := helper.GetBlockStorageCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
 			"Unable to Read Apex Navigator Block Storage"+newErr,
 			err.Error(),
+		)
+		return
+	}
+
+	// If the returned filtered values does not equal the length of the filter
+	// Then one or more of the filtered values are invalid
+	if filterUsed && len(storageSystems.Results) != len(state.Filter.IDs) {
+		resp.Diagnostics.AddError(
+			"Failed to filter block storage.",
+			"one more more of the ids set in the filter is invalid.",
 		)
 		return
 	}

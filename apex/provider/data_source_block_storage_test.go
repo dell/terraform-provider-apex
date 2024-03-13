@@ -121,8 +121,47 @@ func TestBlockStorageCollectionDataSource(t *testing.T) {
 				Config:      ProviderConfig + configBlockStorage,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Block Storage*.`),
 			},
+			// Filter testing single block storage
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + configFilteredBlockSingleStorage,
+			},
+			// Filter testing multiple block storage
+			{
+				Config: ProviderConfig + configFilteredBlockMultipleStorage,
+			},
+			// Error getting block storage
+			{
+				Config:      ProviderConfig + configFilteredInvalidStorage,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var configBlockStorage = `data "apex_navigator_block_storages" "test" {}`
+
+var configFilteredBlockSingleStorage = `
+data "apex_navigator_block_storages" "example" {
+	   filter {
+	     ids = ["POWERFLEX-ELMSIO0523STQ3-Mock"] 
+	   }
+}`
+
+var configFilteredBlockMultipleStorage = `
+data "apex_navigator_block_storages" "example" {
+	   filter {
+	     ids = ["POWERFLEX-ELMSIO0523STQ3-Mock", "POWERFLEX-ELMSIO0523STQ3-Mock2"] 
+	   }
+}`
+
+var configFilteredInvalidStorage = `
+data "apex_navigator_block_storages" "example" {
+	   filter {
+	     ids = ["invalid-id"] 
+	   }
+}`

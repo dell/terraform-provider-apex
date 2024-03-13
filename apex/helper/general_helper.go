@@ -61,3 +61,16 @@ func GetJobStatus(ctx context.Context, jobsClient *jmsClient.APIClient, jobID st
 	poller := NewPoller(jobsClient)
 	return poller.GetJob(ctx, jobID)
 }
+
+// CreateFilter creates a filter query string
+func CreateFilter(filter []string, key string) string {
+	filterString := ""
+	for k, value := range filter {
+		if k == len(filter)-1 {
+			filterString += `(` + key + ` eq "` + value + `")`
+		} else {
+			filterString += `(` + key + ` eq "` + value + `") or `
+		}
+	}
+	return filterString
+}
