@@ -38,6 +38,10 @@ var cloneID = setDefault(os.Getenv("CLONE_ID"), "test_clone_id")
 var cloneRefreshID = setDefault(os.Getenv("CLONE_REFRESH_ID"), "test_clone_refresh_id")
 var cloneUnmapID = setDefault(os.Getenv("CLONE_UNMAP_ID"), "test_clone_unmap_id")
 var cloneUnmapHost = setDefault(os.Getenv("CLONE_UNMAP_HOST"), "test_clone_unmap_host")
+var mobilityName = setDefault(os.Getenv("MOBILITY_NAME"), "test_mobility_name")
+var systemID = setDefault(os.Getenv("SYSTEM_ID"), "test_system_id")
+var volumeID = setDefault(os.Getenv("VOLUME_ID"), "test_volume_id")
+
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"apex": providerserver.NewProtocol6WithError(New("test")()),

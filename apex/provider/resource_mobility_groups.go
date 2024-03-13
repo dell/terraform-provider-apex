@@ -146,24 +146,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	// Create Mobility Groups POST request
-	var createReq client.ApiMobilityGroupsCreateRequest
-
-	createReq = r.client.MobilityGroupsAPI.MobilityGroupsCreate(ctx)
-
-	var members []string
-	if plan.VolumeID != nil {
-		for _, member := range plan.VolumeID {
-			members = append(members, member.ValueString())
-		}
-	}
-
-	mobilityGroupsInput := *client.NewSourceMobilityGroupInput(plan.Name.ValueString(), plan.SystemID.ValueString(), *plan.SystemType, members)
-	mobilityGroupsInput.Description = plan.Description.ValueStringPointer()
-	createReq = createReq.SourceMobilityGroupInput(mobilityGroupsInput)
-
 	// Executing job request
-	job, status, err := createReq.Async(true).Execute()
+	job, status, err := helper.CreateMobilityGroup(ctx, r.client, plan)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -173,13 +157,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
+	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -188,12 +167,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Mobility group after Job Completes
-	mobilityGroup, status, err := r.client.MobilityGroupsAPI.MobilityGroupsInstance(ctx, resourceID).Execute()
+	mobilityGroup, status, err := helper.GetMobilityGroup(r.client, resourceID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -203,12 +178,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Updating TFState with Mobility group info
-	result := models.GetMobilityGroupModel(*mobilityGroup)
+	result := helper.GetMobilityGroupModel(*mobilityGroup)
 	if plan.VolumeID != nil {
 		result.VolumeID = append(result.VolumeID, plan.VolumeID...)
 	}
@@ -232,7 +203,7 @@ func (r *mobilityGroupsResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	// Get refreshed mobility group value from Apex Navigator
-	mobilityGroup, status, err := r.client.MobilityGroupsAPI.MobilityGroupsInstance(context.Background(), state.ID.ValueString()).Execute()
+	mobilityGroup, status, err := helper.GetMobilityGroup(r.client, state.ID.ValueString())
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -243,10 +214,14 @@ func (r *mobilityGroupsResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	// Overwrite items with refreshed state
-	state = models.GetMobilityGroupModel(*mobilityGroup)
+	result := helper.GetMobilityGroupModel(*mobilityGroup)
+
+	if state.VolumeID != nil {
+		result.VolumeID = append(result.VolumeID, state.VolumeID...)
+	}
 
 	// Set refresded state
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -263,24 +238,24 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	// Create the update request
-	req2 := r.client.MobilityGroupsAPI.MobilityGroupsModify(ctx, plan.ID.ValueString())
-
-	updateInput := client.UpdateMobilityGroupInput{
-		Name:        plan.Name.ValueStringPointer(),
-		Description: plan.Description.ValueStringPointer(),
+	// Get current state
+	var state models.MobilityGroupModel
+	diagsState := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diagsState...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	if plan.VolumeID != nil {
-		for _, member := range plan.VolumeID {
-			updateInput.Members = append(updateInput.Members, member.ValueString())
-		}
+	if state.SystemID.ValueString() != plan.SystemID.ValueString() || *state.SystemType != *plan.SystemType {
+		resp.Diagnostics.AddError(
+			"Error updating Mobility Group",
+			"Cannot update Mobility Group, attempted to update unchangeable attribute [SystemID, SystemType]",
+		)
+		return
 	}
-
-	req2 = req2.UpdateMobilityGroupInput(updateInput)
 
 	// Execute Update Job
-	job, status, err := req2.Async(true).Execute()
+	job, status, err := helper.UpdateMobilityGroup(ctx, r.client, plan)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -290,13 +265,8 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
+	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -306,7 +276,7 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	}
 
 	// Fetching Clone after Job Completes
-	mobilityGroup, status, err := r.client.MobilityGroupsAPI.MobilityGroupsInstance(ctx, resourceID).Execute()
+	mobilityGroup, status, err := helper.GetMobilityGroup(r.client, resourceID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -316,21 +286,11 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
-	if mobilityGroup.SystemId != plan.SystemID.ValueString() || mobilityGroup.SystemType != *plan.SystemType {
-		resp.Diagnostics.AddError(
-			"Error updating Mobility Group",
-			"Cannot update Mobility Group, attempted to update unchangeable attribute [SystemID, SystemType]",
-		)
-		return
-	}
-
 	// Updating TFState with Mobility Group info
-	result := models.GetMobilityGroupModel(*mobilityGroup)
-	result.VolumeID = append(result.VolumeID, plan.VolumeID...)
+	result := helper.GetMobilityGroupModel(*mobilityGroup)
+	if plan.VolumeID != nil {
+		result.VolumeID = append(result.VolumeID, plan.VolumeID...)
+	}
 
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -362,12 +322,7 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
+	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if (err != nil) || (resourceID == "") {
 		resp.Diagnostics.AddError(
 			"Error getting Delete Job ID",
@@ -376,9 +331,6 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 }
 
 func (r *mobilityGroupsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
