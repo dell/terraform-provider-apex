@@ -29,8 +29,9 @@ type DeploymentDetailsModel struct {
 
 // BlockStoragesDataSourceModel maps storage system schema data.
 type BlockStoragesDataSourceModel struct {
-	BlockStorages []BlockStorageModel `tfsdk:"block_storages"`
-	ID            types.String        `tfsdk:"id"`
+	BlockStorages []BlockStorageModel     `tfsdk:"block_storages"`
+	ID            types.String            `tfsdk:"id"`
+	Filter        *BlockStorageFilterType `tfsdk:"filter"`
 }
 
 // SystemOnPremDeploymentDetailsModel maps storage system schema data.
@@ -44,6 +45,11 @@ type SystemOnPremDeploymentDetailsModel struct {
 	StreetAddress1 types.String                     `tfsdk:"street_address_1"`
 	StreetAddress2 types.String                     `tfsdk:"street_address_2"`
 	ZipCode        types.String                     `tfsdk:"zip_code"`
+}
+
+// BlockStorageFilterType describes the filter data model.
+type BlockStorageFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }
 
 // SystemPublicCloudDeploymentDetailsModel maps storage system schema data.

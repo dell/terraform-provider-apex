@@ -36,7 +36,19 @@ variable "HOST" {
   type = string
 }
 
+# Returns all of the block storages
 data "apex_navigator_block_storages" "example" {}
+
+output "examples_block_storages" {
+  value = data.apex_navigator_block_storages.example
+}
+
+# Returns a filtered list of block storages
+# data "apex_navigator_block_storages" "example" {
+#   filter {
+#     ids = ["block-storage-id"] 
+#   }
+# }
 
 output "examples_block_storages" {
   value = data.apex_navigator_block_storages.example

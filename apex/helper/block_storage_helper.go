@@ -30,8 +30,8 @@ import (
 )
 
 // GetBlockStorageCollection gets list of block storage instances
-func GetBlockStorageCollection(client *client.APIClient) (*client.StorageSystemsCollection200Response, *http.Response, error) {
-	return client.StorageSystemsAPI.StorageSystemsCollection(context.Background()).Limit(500).Execute()
+func GetBlockStorageCollection(client *client.APIClient, filter string) (*client.StorageSystemsCollection200Response, *http.Response, error) {
+	return client.StorageSystemsAPI.StorageSystemsCollection(context.Background()).Limit(500).Filter(filter).Execute()
 }
 
 // GetBlockStorageInstance gets block storage instance
