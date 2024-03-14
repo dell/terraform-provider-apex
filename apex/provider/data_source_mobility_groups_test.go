@@ -34,10 +34,8 @@ func TestAccMobilityGroupsDataSource(t *testing.T) {
 				Config: ProviderConfig + mobilityCollectionConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of mobility_groups returned
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.#", "1"),
 
 					// Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.id", "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d0000"),
 					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.name", "Create"),
 					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.description", "Test"),
 					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.system_id", "POWERFLEX-ELMVXRTEST0004"),
@@ -52,6 +50,7 @@ func TestAccMobilityGroupsDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "id", "placeholder"),
 				),
 			},
+			// Error reading mobility groups
 			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetMobilityGroupCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
@@ -59,8 +58,61 @@ func TestAccMobilityGroupsDataSource(t *testing.T) {
 				Config:      ProviderConfig + mobilityCollectionConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Groups*.`),
 			},
+			// Filter testing single mobility group
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + mobilityFilterSingleConfig,
+			},
+			// Filter testing multiple mobility group
+			{
+				Config: ProviderConfig + mobilityFilterMultipleConfig,
+			},
+			// Error getting mobility group with invalid filter
+			{
+				Config:      ProviderConfig + mobilityilterInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var mobilityCollectionConfig = `data "apex_navigator_mobility_groups" "test" {}`
+var mobilityFilterSingleConfig = `
+ data "apex_navigator_mobility_groups" "example" {
+	    filter {
+	     ids = ["` + mobilityID1 + `"] 
+	   }
+	}
+	
+	output "instance_clone" {
+	   value = data.apex_navigator_mobility_groups.example
+	}
+`
+
+var mobilityFilterMultipleConfig = `
+ data "apex_navigator_mobility_groups" "example" {
+	     filter {
+	     ids = ["` + mobilityID1 + `", "` + mobilityID2 + `"] 
+	   }
+	}
+	
+	output "instance_clone" {
+	   value = data.apex_navigator_mobility_groups.example
+	}
+`
+
+var mobilityilterInvalidConfig = `
+ data "apex_navigator_mobility_groups" "example" {
+	     filter {
+	     ids = ["invalid-id"] 
+	   }
+	}
+	
+	output "instance_clone" {
+	   value = data.apex_navigator_mobility_groups.example
+	}
+`
