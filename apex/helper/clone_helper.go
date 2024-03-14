@@ -26,8 +26,8 @@ import (
 )
 
 // GetCloneCollection is a collection of clones
-func GetCloneCollection(client *client.APIClient) (*client.ClonesCollection200Response, *http.Response, error) {
-	return client.ClonesAPI.ClonesCollection(context.Background()).Limit(500).Execute()
+func GetCloneCollection(client *client.APIClient, filter string) (*client.ClonesCollection200Response, *http.Response, error) {
+	return client.ClonesAPI.ClonesCollection(context.Background()).Limit(500).Filter(filter).Execute()
 }
 
 // GetCloneInstance is a clone

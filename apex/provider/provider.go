@@ -283,7 +283,6 @@ func (p *myProvider) DataSources(_ context.Context) []func() datasource.DataSour
 		NewStorageProductsDataSource,
 		NewPoolsDataSource,
 		NewClonesDataSource,
-		NewCloneInstancesDataSource,
 		NewBlockStoragesDataSource,
 		NewMobilityGroupsDataSource,
 		NewMobilityTargetsDataSource,

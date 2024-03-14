@@ -50,6 +50,6 @@ output "examples_block_storages" {
 #   }
 # }
 
-output "examples_block_storages" {
-  value = data.apex_navigator_block_storages.example
-}
+# output "examples_block_storages" {
+#   value = data.apex_navigator_block_storages.example
+# }

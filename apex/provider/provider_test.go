@@ -46,6 +46,11 @@ var volumeID = setDefault(os.Getenv("VOLUME_ID"), "test_volume_id")
 
 var mobilitySourceID = setDefault(os.Getenv("MOBILITY_SOURCE_ID"), "test_mobility_source_id")
 var mobilityTargetID = setDefault(os.Getenv("MOBILITY_TARGET_ID"), "test_mobility_target_id")
+var blockStorageID1 = setDefault(os.Getenv("BLOCK_STORAGE_ID_1"), "POWERFLEX-ELMSIO0523STQ3-Mock")
+var blockStorageID2 = setDefault(os.Getenv("BLOCK_STORAGE_ID_2"), "POWERFLEX-ELMSIO0523STQ3-Mock2")
+var cloneID1 = setDefault(os.Getenv("CLONE_ID_1"), "clone_read_Id")
+var cloneID2 = setDefault(os.Getenv("CLONE_ID_2"), "clone_read_Id_2")
+
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"apex": providerserver.NewProtocol6WithError(New("test")()),

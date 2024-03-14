@@ -64,18 +64,56 @@ func (d *clonesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"filter": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"ids": schema.SetAttribute{
+						Description:         "Filter by ids",
+						MarkdownDescription: "Filter by ids",
+						Optional:            true,
+						ElementType:         types.StringType,
+					},
+				},
+			},
+		},
 	}
 }
 
 // Read method is used to refresh the Terraform state based on the schema data.
-func (d *clonesDataSource) Read(ctx context.Context, _ datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *clonesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state models.ClonesDataSourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	clones, status, err := helper.GetCloneCollection(d.client)
+	// Check that the filter is valid
+	filter := ""
+	filterUsed := false
+	if state.Filter != nil && state.Filter.IDs != nil && len(state.Filter.IDs) > 0 {
+		filterUsed = true
+		filteredNames := make([]string, 0)
+		for _, ids := range state.Filter.IDs {
+			filteredNames = append(filteredNames, ids.ValueString())
+		}
+		filter = helper.CreateFilter(filteredNames, "id")
+	}
+
+	clones, status, err := helper.GetCloneCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
 			"Unable to Read Apex Navigator Clones",
 			err.Error(),
+		)
+		return
+	}
+
+	// If the returned filtered values does not equal the length of the filter
+	// Then one or more of the filtered values are invalid
+	if filterUsed && len(clones.Results) != len(state.Filter.IDs) {
+		resp.Diagnostics.AddError(
+			"Failed to filter clones.",
+			"one more more of the ids set in the filter is invalid.",
 		)
 		return
 	}

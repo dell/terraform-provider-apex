@@ -34,13 +34,18 @@ type ClonesModel struct {
 	ImageTimestamp    types.String        `tfsdk:"image_timestamp"`
 	CloneVolumes      basetypes.ListValue `tfsdk:"clone_volumes"`
 	HostMappings      basetypes.ListValue `tfsdk:"host_mappings"`
-	// HostMappings      []cloneToHostMappingModel `tfsdk:"host_mappings"`
 }
 
 // ClonesDataSourceModel maps the data source schema data.
 type ClonesDataSourceModel struct {
-	Clones []ClonesModel `tfsdk:"clones"`
-	ID     types.String  `tfsdk:"id"`
+	Clones []ClonesModel    `tfsdk:"clones"`
+	ID     types.String     `tfsdk:"id"`
+	Filter *CloneFilterType `tfsdk:"filter"`
+}
+
+// CloneFilterType describes the filter data model.
+type CloneFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }
 
 // ClonesRefreshModel defines the attribute names and types for a Clones Refresh TF model
