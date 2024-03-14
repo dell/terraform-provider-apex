@@ -50,6 +50,9 @@ var blockStorageID1 = setDefault(os.Getenv("BLOCK_STORAGE_ID_1"), "POWERFLEX-ELM
 var blockStorageID2 = setDefault(os.Getenv("BLOCK_STORAGE_ID_2"), "POWERFLEX-ELMSIO0523STQ3-Mock2")
 var cloneID1 = setDefault(os.Getenv("CLONE_ID_1"), "clone_read_Id")
 var cloneID2 = setDefault(os.Getenv("CLONE_ID_2"), "clone_read_Id_2")
+var sourceMobilityTargetGroupID = setDefault(os.Getenv("SOURCE_MOBILITY_TARGET_GROUP_ID"), "test_source_group_id")
+var mobilityTargetOptions = setDefault(os.Getenv("MOBILITY_TARGET_OPTIONS"), "test_target_options")
+var mobilityTargetSystemID = setDefault(os.Getenv("MOBILITY_TARGET_SYSTEM_ID"), "test_system_id")
 
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){

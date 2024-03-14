@@ -25,11 +25,11 @@ import (
 	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -185,10 +185,9 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	mobilityTargetsInput := *client.NewCreateTargetInput(plan.SourceMobilityGroupID.ValueString(), plan.Name.ValueString(), plan.SystemID.ValueString(), *plan.SystemType.Ptr(), targetSystemOptions)
-	createReq = createReq.CreateTargetInput(mobilityTargetsInput)
 
 	// Executing job request
-	job, status, err := createReq.Async(true).Execute()
+	job, status, err := helper.CreateMobilityTarget(createReq, mobilityTargetsInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -198,13 +197,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
+	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -213,12 +207,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Mobility group after Job Completes
-	mobilityTarget, status, err := r.client.MobilityTargetsAPI.MobilityTargetsInstance(ctx, resourceID).Execute()
+	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, resourceID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -228,12 +218,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Updating TFState with Mobility target info
-	result := models.GetMobilityTargetModel(*mobilityTarget)
+	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	// Updating TFState to include target system options
 	result.TargetSystemOptions = plan.TargetSystemOptions
 
@@ -256,7 +242,7 @@ func (r *mobilityTargetsResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	// Get refreshed mobility group value from Apex Navigator
-	mobilityTarget, status, err := r.client.MobilityTargetsAPI.MobilityTargetsInstance(context.Background(), state.ID.ValueString()).Execute()
+	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, state.ID.ValueString())
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -275,10 +261,11 @@ func (r *mobilityTargetsResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	// Overwrite items with refreshed state
-	state = models.GetMobilityTargetModel(*mobilityTarget)
+	result := helper.GetMobilityTargetModel(*mobilityTarget)
+	result.TargetSystemOptions = state.TargetSystemOptions
 
 	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -296,7 +283,7 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	// Create the update request
-	req2 := r.client.MobilityTargetsAPI.MobilityTargetsModify(ctx, plan.ID.ValueString())
+	updateReq := r.client.MobilityTargetsAPI.MobilityTargetsModify(ctx, plan.ID.ValueString())
 	limit := int32(plan.BandwidthLimit.ValueInt64())
 
 	updateInput := client.UpdateMobilityTargetInput{
@@ -308,10 +295,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 		updateInput.BandwidthLimit = nil
 	}
 
-	req2 = req2.UpdateMobilityTargetInput(updateInput)
-
 	// Execute Update Job
-	job, status, err := req2.Async(true).Execute()
+	job, status, err := helper.UpdateMobilityTarget(updateReq, updateInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -320,14 +305,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 		)
 		return
 	}
-
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Job Status
-	poller := helper.NewPoller(r.jobsClient)
-	resourceID, err := poller.WaitForResource(ctx, job.Id)
+	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
@@ -337,7 +316,7 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	// Fetching Clone after Job Completes
-	mobilityTarget, status, err := r.client.MobilityTargetsAPI.MobilityTargetsInstance(ctx, resourceID).Execute()
+	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, resourceID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -347,12 +326,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Updating TFState with Mobility Target info
-	result := models.GetMobilityTargetModel(*mobilityTarget)
+	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = plan.TargetSystemOptions
 
 	diags = resp.State.Set(ctx, result)
@@ -386,9 +361,6 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 	poller := helper.NewPoller(r.jobsClient)
 	resourceID, err := poller.WaitForResource(ctx, job.Id)
 	if (err != nil) || (resourceID == "") {
@@ -399,12 +371,27 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 }
 
+// ImportState imports the Terraform resource
 func (r *mobilityTargetsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	id := req.ID
+	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, id)
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error getting Mobility Target",
+			"Could not retrieve Mobility Target during import, unexpected error: "+newErr,
+		)
+		return
+	}
+	result := helper.GetMobilityTargetModel(*mobilityTarget)
+	result.TargetSystemOptions = types.StringValue("")
+
+	diags := resp.State.Set(ctx, &result)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
