@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -220,13 +221,21 @@ func (d *volumesDataSource) Read(ctx context.Context, _ datasource.ReadRequest, 
 		fmt.Print("Error Closing response body:", err)
 	}
 
+	tflog.Info(ctx, "Volumes", map[string]interface{}{
+		"hasData": volumes.GetResults(),
+	})
 	// Map response body to model
+
 	for _, volume := range volumes.GetResults() {
+		tflog.Info(ctx, "volume", map[string]interface{}{
+			"id":       volume.Id,
+			"SystemId": *volume.SystemId,
+		})
 		volumeState := volumesModel{
-			ID:                      types.StringValue(volume.Id),
-			SystemID:                types.StringValue(*volume.SystemId),
-			SystemType:              types.StringValue(*volume.SystemType),
-			AllocatedSize:           types.Int64Value(*volume.AllocatedSize),
+			ID:         types.StringValue(volume.Id),
+			SystemID:   types.StringValue(*volume.SystemId),
+			SystemType: types.StringValue(*volume.SystemType),
+			/*AllocatedSize:           types.Int64Value(*volume.AllocatedSize),
 			Bandwidth:               types.Int64Value(*volume.Bandwidth),
 			ConsistencyGroupName:    types.StringValue(*volume.ConsistencyGroupName),
 			DataReductionPercent:    types.Float64Value(*volume.DataReductionPercent),
@@ -235,26 +244,26 @@ func (d *volumesDataSource) Read(ctx context.Context, _ datasource.ReadRequest, 
 			IoLimitPolicyName:       types.StringValue(*volume.IoLimitPolicyName),
 			Iops:                    types.Int64Value(*volume.Iops),
 			IsCompressedOrDeduped:   types.StringValue(*volume.IsCompressedOrDeduped),
-			IsThinEnabled:           types.BoolValue(*volume.IsThinEnabled),
-			IssueCount:              types.Int64Value(*volume.IssueCount),
-			Latency:                 types.Int64Value(*volume.Latency),
-			LogicalSize:             types.Int64Value(*volume.LogicalSize),
-			Name:                    types.StringValue(*volume.Name),
-			NativeID:                types.StringValue(*volume.NativeId),
-			Type:                    types.StringValue(*volume.Type),
-			PoolID:                  types.StringValue(*volume.PoolId),
+			IsThinEnabled:           types.BoolValue(*volume.IsThinEnabled),*/
+			IssueCount: types.Int64Value(*volume.IssueCount),
+			//Latency:                 types.Int64Value(*volume.Latency),
+			//LogicalSize:             types.Int64Value(*volume.LogicalSize),
+			Name:     types.StringValue(*volume.Name),
+			NativeID: types.StringValue(*volume.NativeId),
+			Type:     types.StringValue(*volume.Type),
+			/*PoolID:                  types.StringValue(*volume.PoolId),
 			PoolName:                types.StringValue(*volume.PoolName),
 			PoolType:                types.StringValue(*volume.PoolType),
 			SnapshotCount:           types.Int64Value(*volume.SnapshotCount),
 			SnapshotPolicy:          types.StringValue(*volume.SnapshotPolicy),
 			SnapshotSize:            types.Int64Value(*volume.SnapshotSize),
 			StorageResourceID:       types.StringValue(*volume.StorageResourceId),
-			StorageResourceNativeID: types.StringValue(*volume.StorageResourceNativeId),
-			SystemModel:             types.StringValue(*volume.SystemModel),
-			SystemName:              types.StringValue(*volume.SystemName),
-			TotalSize:               types.Int64Value(*volume.TotalSize),
-			UsedSize:                types.Int64Value(*volume.UsedSize),
-			UsedSizeUnique:          types.Int64Value(*volume.UsedSizeUnique),
+			StorageResourceNativeID: types.StringValue(*volume.StorageResourceNativeId),*/
+			SystemModel: types.StringValue(*volume.SystemModel),
+			SystemName:  types.StringValue(*volume.SystemName),
+			TotalSize:   types.Int64Value(*volume.TotalSize),
+			//UsedSize:                types.Int64Value(*volume.UsedSize),
+			//UsedSizeUnique:          types.Int64Value(*volume.UsedSizeUnique),
 		}
 		state.Volumes = append(state.Volumes, volumeState)
 	}

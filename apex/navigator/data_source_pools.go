@@ -19,12 +19,12 @@ package navigator
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -160,11 +160,13 @@ func (d *poolsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 func (d *poolsDataSource) Read(ctx context.Context, _ datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state poolsDataSourceModel
 
-	pools, status, err := d.client.PoolsAPI.PoolsCollection(context.Background()).Limit(500).Execute()
-	if (err != nil) || (status.StatusCode != http.StatusOK) {
+	pools, status, err := d.client.PoolsAPI.PoolsCollection(context.Background()).Limit(50).Execute()
+	if err != nil { //} || (status.StatusCode != http.StatusOK) {
 		resp.Diagnostics.AddError(
 			"Unable to Read Apex Navigator Pools",
 			err.Error(),
+			//http.StatusText(status.StatusCode),
+			//strconv.Itoa(status.StatusCode),
 		)
 		return
 	}
@@ -175,23 +177,24 @@ func (d *poolsDataSource) Read(ctx context.Context, _ datasource.ReadRequest, re
 
 	// Map response body to model
 	for _, pool := range pools.Results {
+		tflog.Debug(ctx, "pools: "+pool.Id, nil)
 		poolState := poolsModel{
-			ID:                   types.StringValue(pool.Id),
-			SystemID:             types.StringValue(*pool.SystemId),
-			SystemType:           types.StringValue(*pool.SystemType),
-			FreeSize:             types.Int64Value(*pool.FreeSize),
-			IssueCount:           types.Int64Value(*pool.IssueCount),
-			Name:                 types.StringValue(*pool.Name),
-			NativeID:             types.StringValue(*pool.NativeId),
-			SubscribedPercent:    types.Float64Value(*pool.SubscribedPercent),
-			SubscribedSize:       types.Int64Value(*pool.SubscribedSize),
+			ID:         types.StringValue(pool.Id),
+			SystemID:   types.StringValue(*pool.SystemId),
+			SystemType: types.StringValue(*pool.SystemType),
+			//FreeSize:             types.Int64Value(*pool.FreeSize),
+			IssueCount: types.Int64Value(*pool.IssueCount),
+			Name:       types.StringValue(*pool.Name),
+			NativeID:   types.StringValue(*pool.NativeId),
+			//SubscribedPercent:    types.Float64Value(*pool.SubscribedPercent),
+			//SubscribedSize:       types.Int64Value(*pool.SubscribedSize),
 			SystemModel:          types.StringValue(*pool.SystemModel),
 			SystemName:           types.StringValue(*pool.SystemName),
 			TimeToFullPrediction: types.StringValue(*pool.TimeToFullPrediction),
-			TotalSize:            types.Int64Value(*pool.TotalSize),
-			Type:                 types.StringValue(*pool.Type),
-			UsedPercent:          types.Float64Value(*pool.UsedPercent),
-			UsedSize:             types.Int64Value(*pool.UsedSize),
+			//TotalSize:            types.Int64Value(*pool.TotalSize),
+			//Type:                 types.StringValue(*pool.Type),
+			//UsedPercent:          types.Float64Value(*pool.UsedPercent),
+			//UsedSize:             types.Int64Value(*pool.UsedSize),
 		}
 
 		state.Pools = append(state.Pools, poolState)
