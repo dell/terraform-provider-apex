@@ -39,6 +39,8 @@ var cloneRefreshID = setDefault(os.Getenv("CLONE_REFRESH_ID"), "test_clone_refre
 var cloneUnmapID = setDefault(os.Getenv("CLONE_UNMAP_ID"), "test_clone_unmap_id")
 var cloneUnmapHost = setDefault(os.Getenv("CLONE_UNMAP_HOST"), "test_clone_unmap_host")
 var mobilityName = setDefault(os.Getenv("MOBILITY_NAME"), "test_mobility_name")
+var mobilityID1 = setDefault(os.Getenv("MOBILITY_ID_1"), "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d0000")
+var mobilityID2 = setDefault(os.Getenv("MOBILITY_ID_2"), "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d0001")
 var systemID = setDefault(os.Getenv("SYSTEM_ID"), "test_system_id")
 var volumeID = setDefault(os.Getenv("VOLUME_ID"), "test_volume_id")
 

@@ -29,8 +29,8 @@ import (
 )
 
 // GetMobilityGroupCollection returns a list of all Mobility Groups
-func GetMobilityGroupCollection(client *client.APIClient) (*client.MobilityGroupsCollection200Response, *http.Response, error) {
-	return client.MobilityGroupsAPI.MobilityGroupsCollection(context.Background()).Limit(500).Execute()
+func GetMobilityGroupCollection(client *client.APIClient, filter string) (*client.MobilityGroupsCollection200Response, *http.Response, error) {
+	return client.MobilityGroupsAPI.MobilityGroupsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 
 // GetMobilityGroup returns a single Mobility Group

@@ -36,6 +36,12 @@ type MobilityGroupModel struct {
 
 // MobilityGroupsDataSourceModel defines the attribute names and types for a Mobility Target TF model
 type MobilityGroupsDataSourceModel struct {
-	MobilityGroups []MobilityGroupModel `tfsdk:"mobility_groups"`
-	ID             types.String         `tfsdk:"id"`
+	MobilityGroups []MobilityGroupModel     `tfsdk:"mobility_groups"`
+	ID             types.String             `tfsdk:"id"`
+	Filter         *MobilityGroupFilterType `tfsdk:"filter"`
+}
+
+// MobilityGroupFilterType describes the filter data model.
+type MobilityGroupFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }

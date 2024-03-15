@@ -41,3 +41,14 @@ data "apex_navigator_mobility_groups" "example" {}
 output "examples_mobility_groups" {
   value = data.apex_navigator_mobility_groups.example
 }
+
+# Returns a filtered list of mobility groups
+# data "apex_navigator_mobility_groups" "example" {
+#   filter {
+#     ids = ["mobility-group-id"] 
+#   }
+# }
+
+# output "examples_mobility_groups" {
+#   value = data.apex_navigator_mobility_groups.example
+# }
