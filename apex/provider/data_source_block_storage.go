@@ -83,6 +83,9 @@ func (d *blockStoragesDataSource) Schema(_ context.Context, _ datasource.SchemaR
 func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) { // nolint:gocognit, funlen
 	var state models.BlockStoragesDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Check that the filter is valid
 	filter := ""

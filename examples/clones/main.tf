@@ -36,10 +36,18 @@ variable "HOST" {
   type = string
 }
 
-data "apex_navigator_clone" "example" {
-  id = "POWERFLEX-ABCD123456789__DATAMOBILITYCLONE__1234567-1234-1234-1234-123456789"
+data "apex_navigator_clones" "example" {}
+
+output "instance_clone" {
+  value = data.apex_navigator_clones.example
 }
 
-output "example_clone" {
-  value = data.apex_navigator_clone.example
-}
+# data "apex_navigator_clones" "example" {
+#     filter {
+#     ids = ["clone-id"] 
+#   }
+# }
+
+# output "instance_clone" {
+#   value = data.apex_navigator_clones.example
+# }

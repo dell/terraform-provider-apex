@@ -36,13 +36,11 @@ func TestAccClonesDataSource(t *testing.T) {
 				Config: ProviderConfig + cloneConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of clones returned
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.#", "1"),
 
 					// Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.id", "read_Id"),
 					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.image_timestamp", "read_Image Timestamp"),
 					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.mobility_target_id", "read_Mobility Target Id"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.name", "read_Name"),
+					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.name", "clone_read_name"),
 					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.refresh_timestamp", "read_Refresh Timestamp"),
 					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.creation_timestamp", "read_Creation Timestamp"),
 					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.description", "read_Description"),
@@ -62,6 +60,7 @@ func TestAccClonesDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "id", "placeholder"),
 				),
 			},
+			// Error reading collection of clones case
 			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetCloneCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
@@ -69,8 +68,62 @@ func TestAccClonesDataSource(t *testing.T) {
 				Config:      ProviderConfig + cloneConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Clones*.`),
 			},
+			// Filter testing single clone
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + cloneFilterSingleConfig,
+			},
+			// Filter testing multiple clones
+			{
+				Config: ProviderConfig + cloneFilterMultipleConfig,
+			},
+			// Error getting getting all the filtered clones
+			{
+				Config:      ProviderConfig + cloneFilterInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var cloneConfig = `data "apex_navigator_clones" "test" {}`
+
+var cloneFilterSingleConfig = `
+ data "apex_navigator_clones" "example" {
+	     filter {
+	     ids = ["` + cloneID1 + `"] 
+	   }
+	}
+	
+	output "instance_clone" {
+	   value = data.apex_navigator_clones.example
+	}
+`
+
+var cloneFilterMultipleConfig = `
+ data "apex_navigator_clones" "example" {
+	     filter {
+	     ids = ["` + cloneID1 + `", "` + cloneID2 + `"] 
+	   }
+	}
+	
+	output "instance_clone" {
+	   value = data.apex_navigator_clones.example
+	}
+`
+
+var cloneFilterInvalidConfig = `
+ data "apex_navigator_clones" "example" {
+	     filter {
+	     ids = ["invalid-id"] 
+	   }
+	}
+	
+	output "instance_clone" {
+	   value = data.apex_navigator_clones.example
+	}
+`

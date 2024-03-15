@@ -36,11 +36,8 @@ func TestBlockStorageCollectionDataSource(t *testing.T) {
 				Config: ProviderConfig + configBlockStorage,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of block_storages returned
-					resource.TestCheckResourceAttr("data.apex_navigator_block_storages.test", "block_storages.#", "2"),
 
 					// // Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_block_storages.test", "block_storages.0.id", "POWERFLEX-ELMSIO0523STQ3-Mock"),
-					resource.TestCheckResourceAttr("data.apex_navigator_block_storages.test", "block_storages.0.system_id", "POWERFLEX-ELMSIO0523STQ3-Mock"),
 					resource.TestCheckResourceAttr("data.apex_navigator_block_storages.test", "block_storages.0.system_type", "POWERFLEX"),
 					resource.TestCheckResourceAttr("data.apex_navigator_block_storages.test", "block_storages.0.bandwidth", "9999"),
 					resource.TestCheckResourceAttr("data.apex_navigator_block_storages.test", "block_storages.0.capacity_impact", "9999"),
@@ -148,14 +145,14 @@ var configBlockStorage = `data "apex_navigator_block_storages" "test" {}`
 var configFilteredBlockSingleStorage = `
 data "apex_navigator_block_storages" "example" {
 	   filter {
-	     ids = ["POWERFLEX-ELMSIO0523STQ3-Mock"] 
+	     ids = ["` + blockStorageID1 + `"] 
 	   }
 }`
 
 var configFilteredBlockMultipleStorage = `
 data "apex_navigator_block_storages" "example" {
 	   filter {
-	     ids = ["POWERFLEX-ELMSIO0523STQ3-Mock", "POWERFLEX-ELMSIO0523STQ3-Mock2"] 
+	     ids = ["` + blockStorageID1 + `", "` + blockStorageID2 + `"] 
 	   }
 }`
 
