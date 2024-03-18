@@ -68,7 +68,7 @@ func (d *mobilityTargetInstanceDataSource) Read(ctx context.Context, req datasou
 	}
 
 	// Map response body to model
-	mobilityTargetsState := models.GetMobilityTargetModel(*mobilityTarget)
+	mobilityTargetsState := helper.GetMobilityTargetModel(*mobilityTarget)
 
 	state.ID = types.StringValue("placeholder")
 
