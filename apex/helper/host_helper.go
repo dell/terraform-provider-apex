@@ -25,6 +25,6 @@ import (
 )
 
 // GetHostCollection gets list of hosts.
-func GetHostCollection(client *client.APIClient) (*client.HostsCollection200Response, *http.Response, error) {
-	return client.HostsAPI.HostsCollection(context.Background()).Limit(500).Execute()
+func GetHostCollection(client *client.APIClient, filter string) (*client.HostsCollection200Response, *http.Response, error) {
+	return client.HostsAPI.HostsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }

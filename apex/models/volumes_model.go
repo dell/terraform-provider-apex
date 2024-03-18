@@ -56,6 +56,12 @@ type VolumesModel struct {
 
 // VolumesDataSourceModel maps the data source schema data.
 type VolumesDataSourceModel struct {
-	Volumes []VolumesModel `tfsdk:"volumes"`
-	ID      types.String   `tfsdk:"id"`
+	Volumes []VolumesModel     `tfsdk:"volumes"`
+	ID      types.String       `tfsdk:"id"`
+	Filter  *VolumesFilterType `tfsdk:"filter"`
+}
+
+// VolumesFilterType describes the filter data model.
+type VolumesFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }

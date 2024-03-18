@@ -41,3 +41,13 @@ data "apex_navigator_pools" "example" {}
 output "examples_pools" {
   value = data.apex_navigator_pools.example
 }
+
+# data "apex_navigator_pools" "example" {
+#   filter {
+#     ids = ["pool-id"] 
+#   }
+# }
+
+# output "examples_pools" {
+#   value = data.apex_navigator_pools.example
+# }

@@ -25,6 +25,6 @@ import (
 )
 
 // GetStorageProductsCollection returns a list of all Stroage Products
-func GetStorageProductsCollection(client *client.APIClient) (*client.StorageProductsCollection200Response, *http.Response, error) {
-	return client.StorageProductsAPI.StorageProductsCollection(context.Background()).Limit(500).Execute()
+func GetStorageProductsCollection(client *client.APIClient, filter string) (*client.StorageProductsCollection200Response, *http.Response, error) {
+	return client.StorageProductsAPI.StorageProductsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }

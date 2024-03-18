@@ -22,8 +22,14 @@ import (
 
 // PoolsDataSourceModel maps the data source schema data.
 type PoolsDataSourceModel struct {
-	Pools []PoolsModel `tfsdk:"pools"`
-	ID    types.String `tfsdk:"id"`
+	Pools  []PoolsModel     `tfsdk:"pools"`
+	ID     types.String     `tfsdk:"id"`
+	Filter *PoolsFilterType `tfsdk:"filter"`
+}
+
+// PoolsFilterType describes the filter data model.
+type PoolsFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }
 
 // PoolsModel maps pools schema data.

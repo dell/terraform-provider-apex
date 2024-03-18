@@ -25,8 +25,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccMobilityGroupsCopyResource(t *testing.T) {
+func TestAccResourceMobilityGroupsCopy(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -38,8 +39,9 @@ func TestAccMobilityGroupsCopyResource(t *testing.T) {
 	})
 }
 
-func TestAccMobilityGroupsCopyResourceError(t *testing.T) {
+func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
