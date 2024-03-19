@@ -41,9 +41,16 @@ var cloneUnmapHost = setDefault(os.Getenv("CLONE_UNMAP_HOST"), "test_clone_unmap
 var mobilityName = setDefault(os.Getenv("MOBILITY_NAME"), "test_mobility_name")
 var mobilityID1 = setDefault(os.Getenv("MOBILITY_ID_1"), "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d0000")
 var mobilityID2 = setDefault(os.Getenv("MOBILITY_ID_2"), "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d0001")
+var hostID1 = setDefault(os.Getenv("HOST_ID1"), "test_host_id1")
+var hostID2 = setDefault(os.Getenv("HOST_ID2"), "test_host_id2")
+var sourcePoolsID1 = setDefault(os.Getenv("SOURCE_POOL_ID1"), "Pool_ID1")
+var sourcePoolsID2 = setDefault(os.Getenv("SOURCE_POOL_ID2"), "Pool_ID2")
+var storageProductID1 = setDefault(os.Getenv("STORAGE_PRODUCT_ID1"), "storageProductId1")
+var storageProductID2 = setDefault(os.Getenv("STORAGE_PRODUCT_ID2"), "storageProductId2")
+var volumeID1 = setDefault(os.Getenv("VOLUME_ID1"), "volume_id1")
+var volumeID2 = setDefault(os.Getenv("VOLUME_ID2"), "volume_id2")
 var systemID = setDefault(os.Getenv("SYSTEM_ID"), "test_system_id")
 var volumeID = setDefault(os.Getenv("VOLUME_ID"), "test_volume_id")
-
 var mobilitySourceID = setDefault(os.Getenv("MOBILITY_SOURCE_ID"), "test_mobility_source_id")
 var mobilityTargetID = setDefault(os.Getenv("MOBILITY_TARGET_ID"), "test_mobility_target_id")
 var blockStorageID1 = setDefault(os.Getenv("BLOCK_STORAGE_ID_1"), "POWERFLEX-ELMSIO0523STQ3-Mock")
@@ -81,8 +88,6 @@ func testAccPreCheck(t *testing.T) {
 	if os.Getenv("APEX_HOST") == "" {
 		t.Fatal("APEX_HOST environment variable not set")
 	}
-
-	t.Log(ProviderConfig)
 
 	// Make sure to unpatch before each new test is run
 	if FunctionMocker != nil {

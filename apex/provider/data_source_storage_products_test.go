@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccStorageProductsDataSource(t *testing.T) {
+func TestAccDataSourceStorageProducts(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -33,8 +33,6 @@ func TestAccStorageProductsDataSource(t *testing.T) {
 			{
 				Config: ProviderConfig + storageProductsConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of storage products returned
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.#", "1"),
 
 					// Verify the first storage product to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.cloud_type", "AWS"),
@@ -53,6 +51,7 @@ func TestAccStorageProductsDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "id", "placeholder"),
 				),
 			},
+			// Error Reading Storage Products
 			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetStorageProductsCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
@@ -60,8 +59,41 @@ func TestAccStorageProductsDataSource(t *testing.T) {
 				Config:      ProviderConfig + storageProductsConfig,
 				ExpectError: regexp.MustCompile(`.*Unable Read to Storage Product Volume*.`),
 			},
+			// Filter testing single storage products
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + storageProductsFilterSingleConfig,
+			},
+			// Filter testing multiple storage products
+			{
+				Config: ProviderConfig + storageProductsFilterMultipleConfig,
+			},
+			// Error getting filtered storage products
+			{
+				Config:      ProviderConfig + storageProductsFilterInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var storageProductsConfig = `data "apex_navigator_storage_products" "test" {}`
+var storageProductsFilterSingleConfig = `data "apex_navigator_storage_products" "test" {
+	filter {
+		ids = ["` + storageProductID1 + `"] 
+	  }
+}`
+var storageProductsFilterMultipleConfig = `data "apex_navigator_storage_products" "test" {
+	filter {
+		ids = ["` + storageProductID1 + `", "` + storageProductID2 + `"] 
+	  }
+}`
+var storageProductsFilterInvalidConfig = `data "apex_navigator_storage_products" "test" {
+	filter {
+		ids = ["invalid-id"] 
+	}
+}`

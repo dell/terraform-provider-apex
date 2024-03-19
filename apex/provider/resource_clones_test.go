@@ -32,7 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccCloneResource(t *testing.T) {
+func TestAccResourceClone(t *testing.T) {
 	var resTerraformName = "apex_navigator_clones.example"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -64,7 +64,7 @@ func TestAccCloneResource(t *testing.T) {
 	})
 }
 
-func TestAccCloneResourceUpdateError(t *testing.T) {
+func TestAccResourceCloneUpdateError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -104,7 +104,7 @@ func TestAccCloneResourceUpdateError(t *testing.T) {
 		},
 	})
 }
-func TestAccCloneResourceCreateError(t *testing.T) {
+func TestAccResourceCloneCreateError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -144,7 +144,7 @@ func TestAccCloneResourceCreateError(t *testing.T) {
 		},
 	})
 }
-func TestAccCloneResourceReadError(t *testing.T) {
+func TestAccResourceCloneReadError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

@@ -33,7 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccMobilityTargetsResource(t *testing.T) {
+func TestAccResourceMobilityTargets(t *testing.T) {
 	var resTerraformName = "apex_navigator_mobility_targets.example"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -65,7 +65,7 @@ func TestAccMobilityTargetsResource(t *testing.T) {
 	})
 }
 
-func TestAccMobilityTargetsResourceUpdateError(t *testing.T) {
+func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -113,7 +113,7 @@ func TestAccMobilityTargetsResourceUpdateError(t *testing.T) {
 	})
 }
 
-func TestAccMobilityTargetsResourceCreateError(t *testing.T) {
+func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

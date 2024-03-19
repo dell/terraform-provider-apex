@@ -41,3 +41,13 @@ data "apex_navigator_volumes" "example" {}
 output "examples_volumes" {
   value = data.apex_navigator_volumes.example
 }
+
+# data "apex_navigator_volumes" "example" {
+#   filter {
+#     ids = ["volume-id"] 
+#   }
+# }
+
+# output "examples_volumes" {
+#   value = data.apex_navigator_volumes.example
+# }

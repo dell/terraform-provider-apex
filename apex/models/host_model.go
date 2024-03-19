@@ -22,8 +22,9 @@ import (
 
 // HostsDataSourceModel maps the data source schema data.
 type HostsDataSourceModel struct {
-	Hosts []HostsModel `tfsdk:"hosts"`
-	ID    types.String `tfsdk:"id"`
+	Hosts  []HostsModel    `tfsdk:"hosts"`
+	ID     types.String    `tfsdk:"id"`
+	Filter *HostFilterType `tfsdk:"filter"`
 }
 
 // HostsModel maps hosts schema data.
@@ -43,4 +44,9 @@ type HostsModel struct {
 	SystemModel       types.String `tfsdk:"system_model"`
 	SystemName        types.String `tfsdk:"system_name"`
 	TotalSize         types.Int64  `tfsdk:"total_size"`
+}
+
+// HostFilterType describes the filter data model.
+type HostFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }

@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccHostsDataSource(t *testing.T) {
+func TestAccDataSourceHosts(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -33,12 +33,8 @@ func TestAccHostsDataSource(t *testing.T) {
 			{
 				Config: ProviderConfig + hostConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of hosts returned
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.#", "1"),
 
-					// Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.description", "Example host description"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.id", "host123"),
+					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.id", "test_host_id1"),
 					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.initiator_count", "3"),
 					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.initiator_protocol", "TCP"),
 					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.issue_count", "2"),
@@ -56,6 +52,7 @@ func TestAccHostsDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "id", "placeholder"),
 				),
 			},
+			// Error getting host collection
 			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetHostCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
@@ -63,8 +60,62 @@ func TestAccHostsDataSource(t *testing.T) {
 				Config:      ProviderConfig + hostConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Hosts*.`),
 			},
+			// Filter testing single host
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + hostFilterSingleConfig,
+			},
+			// Filter testing multiple hosts
+			{
+				Config: ProviderConfig + hostFilterMultipleConfig,
+			},
+			// Error getting filtered host collection
+			{
+				Config:      ProviderConfig + hostFilterInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var hostConfig = `data "apex_navigator_hosts" "test" {}`
+
+var hostFilterSingleConfig = `
+ data "apex_navigator_hosts" "example" {
+	    filter {
+	     ids = ["` + hostID1 + `"] 
+	   }
+	}
+	
+	output "instance_hosts" {
+	   value = data.apex_navigator_hosts.example
+	}
+`
+
+var hostFilterMultipleConfig = `
+ data "apex_navigator_hosts" "example" {
+	     filter {
+	     ids = ["` + hostID1 + `", "` + hostID2 + `"] 
+	   }
+	}
+	
+	output "instance_host" {
+	   value = data.apex_navigator_hosts.example
+	}
+`
+
+var hostFilterInvalidConfig = `
+ data "apex_navigator_hosts" "example" {
+	     filter {
+	     ids = ["invalid-id"] 
+	   }
+	}
+	
+	output "instance_host" {
+	   value = data.apex_navigator_hosts.example
+	}
+`

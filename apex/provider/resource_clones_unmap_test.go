@@ -24,8 +24,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccClonesUnmapResource(t *testing.T) {
+func TestAccResourceClonesUnmap(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -37,8 +38,9 @@ func TestAccClonesUnmapResource(t *testing.T) {
 	})
 }
 
-func TestAccClonesUnmapResourceError(t *testing.T) {
+func TestAccResourceClonesUnmapError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{

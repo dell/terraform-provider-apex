@@ -25,6 +25,6 @@ import (
 )
 
 // GetVolumesCollection returns a list of all Volumes
-func GetVolumesCollection(client *client.APIClient) (*client.VolumesCollection200Response, *http.Response, error) {
-	return client.VolumesAPI.VolumesCollection(context.Background()).Limit(500).Execute()
+func GetVolumesCollection(client *client.APIClient, filter string) (*client.VolumesCollection200Response, *http.Response, error) {
+	return client.VolumesAPI.VolumesCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }

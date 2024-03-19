@@ -23,8 +23,9 @@ import (
 
 // StorageProductsDataSourceModel maps the data source schema data.
 type StorageProductsDataSourceModel struct {
-	StorageProducts []StorageProductsModel `tfsdk:"storage_products"`
-	ID              types.String           `tfsdk:"id"`
+	StorageProducts []StorageProductsModel     `tfsdk:"storage_products"`
+	ID              types.String               `tfsdk:"id"`
+	Filter          *StorageProductsFilterType `tfsdk:"filter"`
 }
 
 // StorageProductsModel maps hosts schema data.
@@ -45,4 +46,9 @@ type SupportMapModel struct {
 	SupportedEvaluationPeriod types.Int64                       `tfsdk:"supported_evaluation_period"`
 	Version                   types.String                      `tfsdk:"version"`
 	SupportedActions          []client.StorageProductActionEnum `tfsdk:"supported_actions"`
+}
+
+// StorageProductsFilterType describes the filter data model.
+type StorageProductsFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }

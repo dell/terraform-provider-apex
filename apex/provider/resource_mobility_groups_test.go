@@ -25,8 +25,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccMobilityGroupResource(t *testing.T) {
+func TestAccResourceMobilityGroup(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -45,8 +46,9 @@ func TestAccMobilityGroupResource(t *testing.T) {
 	})
 }
 
-func TestAccMobilityGroupError(t *testing.T) {
+func TestAccResourceMobilityGroupError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Create Mobility Group Error

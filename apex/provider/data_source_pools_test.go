@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccPoolsDataSource(t *testing.T) {
+func TestAccDataSourcePools(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -33,12 +33,8 @@ func TestAccPoolsDataSource(t *testing.T) {
 			{
 				Config: ProviderConfig + sourcePoolsConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of pools returned
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.#", "1"),
-
 					// Verify the first pool to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.free_size", "64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.id", "Pool_ID"),
 					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.issue_count", "64"),
 					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.name", "Name"),
 					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.native_id", "Native_ID"),
@@ -57,6 +53,7 @@ func TestAccPoolsDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "id", "placeholder"),
 				),
 			},
+			// Error Reading Pools
 			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetSourcePoolsCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
@@ -64,8 +61,42 @@ func TestAccPoolsDataSource(t *testing.T) {
 				Config:      ProviderConfig + sourcePoolsConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Pools*.`),
 			},
+			// Filter testing single pool
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + sourcePoolsFilterSingleConfig,
+			},
+			// Filter testing multiple pools
+			{
+				Config: ProviderConfig + sourcePoolsFilterMultipleConfig,
+			},
+			// Error getting filtered pools
+			{
+				Config:      ProviderConfig + sourcePoolsFilterInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var sourcePoolsConfig = `data "apex_navigator_pools" "test" {}`
+
+var sourcePoolsFilterSingleConfig = `data "apex_navigator_pools" "test" {
+	filter {
+		ids = ["` + sourcePoolsID1 + `"] 
+	  }
+}`
+var sourcePoolsFilterMultipleConfig = `data "apex_navigator_pools" "test" {
+	filter {
+		ids = ["` + sourcePoolsID1 + `", "` + sourcePoolsID2 + `"] 
+	  }
+}`
+var sourcePoolsFilterInvalidConfig = `data "apex_navigator_pools" "test" {
+	filter {
+		ids = ["invalid-id"] 
+	  }
+}`

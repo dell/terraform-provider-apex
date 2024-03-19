@@ -25,8 +25,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccClonesRefreshResource(t *testing.T) {
+func TestAccResourceClonesRefresh(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -42,8 +43,9 @@ func TestAccClonesRefreshResource(t *testing.T) {
 	})
 }
 
-func TestAccClonesRefreshError(t *testing.T) {
+func TestAccResourceClonesRefreshError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{

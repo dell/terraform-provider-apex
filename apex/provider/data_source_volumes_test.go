@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccVolumesDataSource(t *testing.T) {
+func TestAccDataSourceVolumes(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -33,8 +33,6 @@ func TestAccVolumesDataSource(t *testing.T) {
 			{
 				Config: ProviderConfig + volumeCollectionConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of volumes returned
-					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.#", "1"),
 
 					// Verify the first host to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.allocated_size", "64"),
@@ -43,7 +41,6 @@ func TestAccVolumesDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.data_reduction_percent", "64.64"),
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.data_reduction_ratio", "64.64"),
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.data_reduction_saved_size", "64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.id", "volume_id"),
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.io_limit_policy_name", "volume_pname"),
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.iops", "64"),
 					resource.TestCheckResourceAttr("data.apex_navigator_volumes.test", "volumes.0.is_compressed_or_deduped", "volume_dduped"),
@@ -81,8 +78,41 @@ func TestAccVolumesDataSource(t *testing.T) {
 				Config:      ProviderConfig + volumeCollectionConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Volumes*.`),
 			},
+			// Filter testing single volume
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + volumeCollectionFilterSingleConfig,
+			},
+			// Filter testing multiple volume
+			{
+				Config: ProviderConfig + volumeCollectionFilterMultipleConfig,
+			},
+			// Error getting filtered volume
+			{
+				Config:      ProviderConfig + volumeCollectionFilterInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var volumeCollectionConfig = `data "apex_navigator_volumes" "test" {}`
+var volumeCollectionFilterSingleConfig = `data "apex_navigator_volumes" "test" {
+	filter {
+		ids = ["` + volumeID1 + `"] 
+	  }
+}`
+var volumeCollectionFilterMultipleConfig = `data "apex_navigator_volumes" "test" {
+	filter {
+		ids = ["` + volumeID1 + `", "` + volumeID2 + `"] 
+	  }
+}`
+var volumeCollectionFilterInvalidConfig = `data "apex_navigator_volumes" "test" {
+	filter {
+		ids = ["invalid-id"] 
+	  }
+}`

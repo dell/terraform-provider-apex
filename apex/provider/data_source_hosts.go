@@ -123,18 +123,56 @@ func (d *hostsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"filter": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"ids": schema.SetAttribute{
+						Description:         "Filter by ids",
+						MarkdownDescription: "Filter by ids",
+						Optional:            true,
+						ElementType:         types.StringType,
+					},
+				},
+			},
+		},
 	}
 }
 
 // Read method is used to refresh the Terraform state based on the schema data.
-func (d *hostsDataSource) Read(ctx context.Context, _ datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *hostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state models.HostsDataSourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	hosts, status, err := helper.GetHostCollection(d.client)
+	// Check that the filter is valid
+	filter := ""
+	filterUsed := false
+	if state.Filter != nil && state.Filter.IDs != nil && len(state.Filter.IDs) > 0 {
+		filterUsed = true
+		filteredNames := make([]string, 0)
+		for _, ids := range state.Filter.IDs {
+			filteredNames = append(filteredNames, ids.ValueString())
+		}
+		filter = helper.CreateFilter(filteredNames, "id")
+	}
+
+	hosts, status, err := helper.GetHostCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
 			"Unable to Read Apex Navigator Hosts",
 			err.Error(),
+		)
+		return
+	}
+
+	// If the returned filtered values does not equal the length of the filter
+	// Then one or more of the filtered values are invalid
+	if filterUsed && len(hosts.Results) != len(state.Filter.IDs) {
+		resp.Diagnostics.AddError(
+			"Failed to filter mobility groups.",
+			"one more more of the ids set in the filter is invalid.",
 		)
 		return
 	}

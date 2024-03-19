@@ -26,8 +26,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccBlockStorageResourceOnPrem(t *testing.T) {
+func TestAccResourceBlockStorageOnPrem(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -38,8 +39,9 @@ func TestAccBlockStorageResourceOnPrem(t *testing.T) {
 	})
 }
 
-func TestAccBlockStorageResourceCloud(t *testing.T) {
+func TestAccResourceBlockStorageCloud(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -62,8 +64,9 @@ func TestAccBlockStorageResourceCloud(t *testing.T) {
 	})
 }
 
-func TestAccBlockStorageResourceErrorCases(t *testing.T) {
+func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
