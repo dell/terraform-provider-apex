@@ -29,8 +29,8 @@ import (
 )
 
 // GetMobilityTargetCollection returns a list of all Mobility Targets
-func GetMobilityTargetCollection(client *client.APIClient) (*client.MobilityTargetsCollection200Response, *http.Response, error) {
-	return client.MobilityTargetsAPI.MobilityTargetsCollection(context.Background()).Limit(500).Execute()
+func GetMobilityTargetCollection(client *client.APIClient, filter string) (*client.MobilityTargetsCollection200Response, *http.Response, error) {
+	return client.MobilityTargetsAPI.MobilityTargetsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 
 // GetMobilityTarget returns a single Mobility Target

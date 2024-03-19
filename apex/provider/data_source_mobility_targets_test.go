@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccMobilityTargetsDataSource(t *testing.T) {
+func TestAccDataSourceMobilityTargets(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -64,8 +64,61 @@ func TestAccMobilityTargetsDataSource(t *testing.T) {
 				Config:      ProviderConfig + moblilityTargetConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Target*.`),
 			},
+			// Filter test for single mobility target
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config: ProviderConfig + mobilityTargetSingleFilterConfig,
+			},
+			// Filter test for multiple mobility targets
+			{
+				Config: ProviderConfig + mobilityTargetMultipleFilterConfig,
+			},
+			// Error getting mobility target for invalid filter
+			{
+				Config:      ProviderConfig + mobilityTargetInvalidFilterConfig,
+				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+			},
 		},
 	})
 }
 
 var moblilityTargetConfig = `data "apex_navigator_mobility_targets" "test" {}`
+var mobilityTargetSingleFilterConfig = `
+ data "apex_navigator_mobility_targets" "test" {
+	    filter {
+	     ids = ["` + mobilityTargetID1 + `"] 
+	   }
+	}
+	
+	output "output_mobility_target" {
+	   value = data.apex_navigator_mobility_targets.test
+	}
+`
+
+var mobilityTargetMultipleFilterConfig = `
+ data "apex_navigator_mobility_targets" "test" {
+	     filter {
+	     ids = ["` + mobilityTargetID1 + `", "` + mobilityTargetID2 + `"] 
+	   }
+	}
+	
+	output "output_mobility_target" {
+	   value = data.apex_navigator_mobility_targets.test
+	}
+`
+
+var mobilityTargetInvalidFilterConfig = `
+ data "apex_navigator_mobility_targets" "example" {
+	     filter {
+	     ids = ["invalid-id"] 
+	   }
+	}
+	
+	output "output_mobility_target" {
+		value = data.apex_navigator_mobility_targets.example
+	 }
+`

@@ -36,10 +36,20 @@ variable "HOST" {
   type = string
 }
 
-data "apex_navigator_mobility_target" "example" {
-  id = "POWERFLEX-ABCD123456789__DATAMOBILITYGROUP__1234567-1234-1234-1234-123456789"
+# Get all mobility targets
+data "apex_navigator_mobility_targets" "example" {}
+
+output "examples_mobility_targets" {
+  value = data.apex_navigator_mobility_targets.example
 }
 
-output "examples_mobility_target" {
-  value = data.apex_navigator_mobility_target.example
-}
+# Returns a filtered list of mobility targets
+# data "apex_navigator_mobility_targets" "example" {
+#   filter {
+#     ids = ["mobility-target-id"] 
+#   }
+# }
+
+# output "examples_mobility_targets" {
+#   value = data.apex_navigator_mobility_targets.example
+# }
