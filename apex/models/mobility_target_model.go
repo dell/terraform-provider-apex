@@ -41,6 +41,12 @@ type MobilityTargetModel struct {
 
 // MobilityTargetsDataSourceModel defines the attribute names and types for a Mobility Targets Collection
 type MobilityTargetsDataSourceModel struct {
-	MobilityTargets []MobilityTargetModel `tfsdk:"mobility_targets"`
-	ID              types.String          `tfsdk:"id"`
+	MobilityTargets []MobilityTargetModel     `tfsdk:"mobility_targets"`
+	ID              types.String              `tfsdk:"id"`
+	Filter          *MobilityTargetFilterType `tfsdk:"filter"`
+}
+
+// MobilityTargetFilterType describes the filter data model.
+type MobilityTargetFilterType struct {
+	IDs []types.String `tfsdk:"ids"`
 }
