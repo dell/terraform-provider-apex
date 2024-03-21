@@ -21,10 +21,55 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // GetVolumesCollection returns a list of all Volumes
 func GetVolumesCollection(client *client.APIClient, filter string) (*client.VolumesCollection200Response, *http.Response, error) {
 	return client.VolumesAPI.VolumesCollection(context.Background()).Filter(filter).Limit(500).Execute()
+}
+
+// MapVolumesToState maps the given array of client.VolumesInstance to an array of models.VolumesModel.
+func MapVolumesToState(volumes []client.VolumesInstance) []models.VolumesModel {
+	volumesArray := make([]models.VolumesModel, 0)
+	for _, volume := range volumes {
+		volumeState := models.VolumesModel{
+			ID:                      types.StringValue(volume.Id),
+			SystemID:                types.StringPointerValue(volume.SystemId),
+			SystemType:              types.StringPointerValue(volume.SystemType),
+			AllocatedSize:           types.Int64PointerValue(volume.AllocatedSize),
+			Bandwidth:               types.Int64PointerValue(volume.Bandwidth),
+			ConsistencyGroupName:    types.StringPointerValue(volume.ConsistencyGroupName),
+			DataReductionPercent:    types.Float64PointerValue(volume.DataReductionPercent),
+			DataReductionRatio:      types.Float64PointerValue(volume.DataReductionRatio),
+			DataReductionSavedSize:  types.Int64PointerValue(volume.DataReductionSavedSize),
+			IoLimitPolicyName:       types.StringPointerValue(volume.IoLimitPolicyName),
+			Iops:                    types.Int64PointerValue(volume.Iops),
+			IsCompressedOrDeduped:   types.StringPointerValue(volume.IsCompressedOrDeduped),
+			IsThinEnabled:           types.BoolPointerValue(volume.IsThinEnabled),
+			IssueCount:              types.Int64PointerValue(volume.IssueCount),
+			Latency:                 types.Int64PointerValue(volume.Latency),
+			LogicalSize:             types.Int64PointerValue(volume.LogicalSize),
+			Name:                    types.StringPointerValue(volume.Name),
+			NativeID:                types.StringPointerValue(volume.NativeId),
+			Type:                    types.StringPointerValue(volume.Type),
+			PoolID:                  types.StringPointerValue(volume.PoolId),
+			PoolName:                types.StringPointerValue(volume.PoolName),
+			PoolType:                types.StringPointerValue(volume.PoolType),
+			SnapshotCount:           types.Int64PointerValue(volume.SnapshotCount),
+			SnapshotPolicy:          types.StringPointerValue(volume.SnapshotPolicy),
+			SnapshotSize:            types.Int64PointerValue(volume.SnapshotSize),
+			StorageResourceID:       types.StringPointerValue(volume.StorageResourceId),
+			StorageResourceNativeID: types.StringPointerValue(volume.StorageResourceNativeId),
+			SystemModel:             types.StringPointerValue(volume.SystemModel),
+			SystemName:              types.StringPointerValue(volume.SystemName),
+			TotalSize:               types.Int64PointerValue(volume.TotalSize),
+			UsedSize:                types.Int64PointerValue(volume.UsedSize),
+			UsedSizeUnique:          types.Int64PointerValue(volume.UsedSizeUnique),
+		}
+		volumesArray = append(volumesArray, volumeState)
+	}
+	return volumesArray
 }

@@ -197,10 +197,17 @@ func (d *volumesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	volumes, status, err := helper.GetVolumesCollection(d.client, filter)
-	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
+	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Apex Navigator Volumes",
 			err.Error(),
+		)
+		return
+	}
+	if status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent {
+		resp.Diagnostics.AddError(
+			"Unable to Read Apex Navigator Volumes",
+			status.Status,
 		)
 		return
 	}
@@ -216,45 +223,8 @@ func (d *volumesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	// Map response body to model
-	for _, volume := range volumes.GetResults() {
-		volumeState := models.VolumesModel{
-			ID:                      types.StringValue(volume.Id),
-			SystemID:                types.StringValue(*volume.SystemId),
-			SystemType:              types.StringValue(*volume.SystemType),
-			AllocatedSize:           types.Int64Value(*volume.AllocatedSize),
-			Bandwidth:               types.Int64Value(*volume.Bandwidth),
-			ConsistencyGroupName:    types.StringValue(*volume.ConsistencyGroupName),
-			DataReductionPercent:    types.Float64Value(*volume.DataReductionPercent),
-			DataReductionRatio:      types.Float64Value(*volume.DataReductionRatio),
-			DataReductionSavedSize:  types.Int64Value(*volume.DataReductionSavedSize),
-			IoLimitPolicyName:       types.StringValue(*volume.IoLimitPolicyName),
-			Iops:                    types.Int64Value(*volume.Iops),
-			IsCompressedOrDeduped:   types.StringValue(*volume.IsCompressedOrDeduped),
-			IsThinEnabled:           types.BoolValue(*volume.IsThinEnabled),
-			IssueCount:              types.Int64Value(*volume.IssueCount),
-			Latency:                 types.Int64Value(*volume.Latency),
-			LogicalSize:             types.Int64Value(*volume.LogicalSize),
-			Name:                    types.StringValue(*volume.Name),
-			NativeID:                types.StringValue(*volume.NativeId),
-			Type:                    types.StringValue(*volume.Type),
-			PoolID:                  types.StringValue(*volume.PoolId),
-			PoolName:                types.StringValue(*volume.PoolName),
-			PoolType:                types.StringValue(*volume.PoolType),
-			SnapshotCount:           types.Int64Value(*volume.SnapshotCount),
-			SnapshotPolicy:          types.StringValue(*volume.SnapshotPolicy),
-			SnapshotSize:            types.Int64Value(*volume.SnapshotSize),
-			StorageResourceID:       types.StringValue(*volume.StorageResourceId),
-			StorageResourceNativeID: types.StringValue(*volume.StorageResourceNativeId),
-			SystemModel:             types.StringValue(*volume.SystemModel),
-			SystemName:              types.StringValue(*volume.SystemName),
-			TotalSize:               types.Int64Value(*volume.TotalSize),
-			UsedSize:                types.Int64Value(*volume.UsedSize),
-			UsedSizeUnique:          types.Int64Value(*volume.UsedSizeUnique),
-		}
-		state.Volumes = append(state.Volumes, volumeState)
-	}
-
-	state.ID = types.StringValue("placeholder")
+	state.Volumes = helper.MapVolumesToState(volumes.GetResults())
+	state.ID = types.StringValue("volumes-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

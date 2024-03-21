@@ -21,10 +21,39 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/dell/terraform-provider-apex/apex/models"
 	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // GetSourcePoolsCollection returns a list of all Source Pools
 func GetSourcePoolsCollection(client *client.APIClient, filter string) (*client.PoolsCollection200Response, *http.Response, error) {
 	return client.PoolsAPI.PoolsCollection(context.Background()).Filter(filter).Limit(500).Execute()
+}
+
+// MapPoolsToState maps the pools to the terraform state
+func MapPoolsToState(pools []client.PoolsInstance) []models.PoolsModel {
+	poolsArray := make([]models.PoolsModel, 0)
+	for _, pool := range pools {
+		poolState := models.PoolsModel{
+			ID:                   types.StringValue(pool.Id),
+			SystemID:             types.StringPointerValue(pool.SystemId),
+			SystemType:           types.StringPointerValue(pool.SystemType),
+			FreeSize:             types.Int64PointerValue(pool.FreeSize),
+			IssueCount:           types.Int64PointerValue(pool.IssueCount),
+			Name:                 types.StringPointerValue(pool.Name),
+			NativeID:             types.StringPointerValue(pool.NativeId),
+			SubscribedPercent:    types.Float64PointerValue(pool.SubscribedPercent),
+			SubscribedSize:       types.Int64PointerValue(pool.SubscribedSize),
+			SystemModel:          types.StringPointerValue(pool.SystemModel),
+			SystemName:           types.StringPointerValue(pool.SystemName),
+			TimeToFullPrediction: types.StringPointerValue(pool.TimeToFullPrediction),
+			TotalSize:            types.Int64PointerValue(pool.TotalSize),
+			Type:                 types.StringPointerValue(pool.Type),
+			UsedPercent:          types.Float64PointerValue(pool.UsedPercent),
+			UsedSize:             types.Int64PointerValue(pool.UsedSize),
+		}
+		poolsArray = append(poolsArray, poolState)
+	}
+	return poolsArray
 }

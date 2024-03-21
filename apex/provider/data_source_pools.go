@@ -165,10 +165,17 @@ func (d *poolsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	}
 
 	pools, status, err := helper.GetSourcePoolsCollection(d.client, filter)
-	if (err != nil) || (status.StatusCode != http.StatusOK) {
+	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Apex Navigator Pools",
 			err.Error(),
+		)
+		return
+	}
+	if status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent {
+		resp.Diagnostics.AddError(
+			"Unable to Read Apex Navigator Pools",
+			status.Status,
 		)
 		return
 	}
@@ -184,30 +191,8 @@ func (d *poolsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	}
 
 	// Map response body to model
-	for _, pool := range pools.Results {
-		poolState := models.PoolsModel{
-			ID:                   types.StringValue(pool.Id),
-			SystemID:             types.StringValue(*pool.SystemId),
-			SystemType:           types.StringValue(*pool.SystemType),
-			FreeSize:             types.Int64Value(*pool.FreeSize),
-			IssueCount:           types.Int64Value(*pool.IssueCount),
-			Name:                 types.StringValue(*pool.Name),
-			NativeID:             types.StringValue(*pool.NativeId),
-			SubscribedPercent:    types.Float64Value(*pool.SubscribedPercent),
-			SubscribedSize:       types.Int64Value(*pool.SubscribedSize),
-			SystemModel:          types.StringValue(*pool.SystemModel),
-			SystemName:           types.StringValue(*pool.SystemName),
-			TimeToFullPrediction: types.StringValue(*pool.TimeToFullPrediction),
-			TotalSize:            types.Int64Value(*pool.TotalSize),
-			Type:                 types.StringValue(*pool.Type),
-			UsedPercent:          types.Float64Value(*pool.UsedPercent),
-			UsedSize:             types.Int64Value(*pool.UsedSize),
-		}
-
-		state.Pools = append(state.Pools, poolState)
-	}
-
-	state.ID = types.StringValue("placeholder")
+	state.Pools = helper.MapPoolsToState(pools.GetResults())
+	state.ID = types.StringValue("pools-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

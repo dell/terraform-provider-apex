@@ -25,58 +25,57 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
+// TestAccDataSourceVolumes is a Go function that tests the AccDataSourceVolumes functionality.
 func TestAccDataSourcePools(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + sourcePoolsConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first pool to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.free_size", "64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.issue_count", "64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.name", "Name"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.native_id", "Native_ID"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.subscribed_percent", "64.64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.subscribed_size", "64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.system_id", "Pool_SID"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.system_model", "Sys_Model"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.system_name", "Sys_Name"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.system_type", "Pool_SystemType"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.time_to_full_prediction", "TTFP"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.total_size", "64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.type", "Type"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.used_percent", "64.64"),
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "pools.0.used_size", "64"),
-					// Verify placeholder id attribute
-					resource.TestCheckResourceAttr("data.apex_navigator_pools.test", "id", "placeholder"),
+				Config: ProviderConfig + sourcePoolsConfig + poolOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
-			// Error Reading Pools
+			// Error getting volume collection
 			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetSourcePoolsCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + sourcePoolsConfig,
+				Config:      ProviderConfig + sourcePoolsConfig + poolOutputs,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Pools*.`),
 			},
-			// Filter testing single pool
+			// Filter testing single volume
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + sourcePoolsFilterSingleConfig,
+				Config: ProviderConfig + sourcePoolsFilterSingleConfig + poolOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "false"),
+					resource.TestCheckOutput("fetched_single", "true"),
+					resource.TestCheckOutput("fetched_two", "false"),
+				),
 			},
-			// Filter testing multiple pools
+			// Filter testing multiple volumes
 			{
-				Config: ProviderConfig + sourcePoolsFilterMultipleConfig,
+				Config: ProviderConfig + sourcePoolsFilterMultipleConfig + poolOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
+					resource.TestCheckOutput("fetched_two", "true"),
+				),
 			},
-			// Error getting filtered pools
+			// Error getting filtered volume collection
 			{
-				Config:      ProviderConfig + sourcePoolsFilterInvalidConfig,
+				Config:      ProviderConfig + sourcePoolsFilterInvalidConfig + poolOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
@@ -100,3 +99,21 @@ var sourcePoolsFilterInvalidConfig = `data "apex_navigator_pools" "test" {
 		ids = ["invalid-id"] 
 	  }
 }`
+
+var poolOutputs = `
+output "fetched_many" {
+	value = length(data.apex_navigator_pools.test.pools) > 1
+}
+  
+output "fetched_any" {
+	value = length(data.apex_navigator_pools.test.pools) != 0
+}
+
+output "fetched_single" {
+	value = length(data.apex_navigator_pools.test.pools) == 1
+}
+
+output "fetched_two" {
+	value = length(data.apex_navigator_pools.test.pools) == 2
+}
+`
