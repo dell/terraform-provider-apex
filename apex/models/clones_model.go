@@ -111,8 +111,8 @@ func GetClonesModel(clone client.Clone) (model ClonesModel) {
 				"host_name":               types.StringValue(hostMapping.HostName),
 				"host_ip":                 types.StringValue(hostMapping.HostIp),
 				"host_id":                 types.StringValue(hostMapping.HostId),
-				"id":                      types.StringValue(*hostMapping.Id),
-				"nqn":                     types.StringValue(*hostMapping.Nqn),
+				"id":                      types.StringPointerValue(hostMapping.Id),
+				"nqn":                     types.StringPointerValue(hostMapping.Nqn),
 				"host_initiator_protocol": types.StringValue(string(*hostMapping.HostInitiatorProtocol)),
 			}
 			mapObject, _ := types.ObjectValue(attrHostTypes, mapValues)
