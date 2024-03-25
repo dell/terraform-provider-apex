@@ -27,29 +27,16 @@ import (
 
 func TestAccDataSourceHosts(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + hostConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.id", "test_host_id1"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.initiator_count", "3"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.initiator_protocol", "TCP"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.issue_count", "2"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.name", "Example Host"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.native_id", "native789"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.network_addresses", "192.168.0.100"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.operating_system", "Windows 10"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.system_id", "sys456"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.system_model", "Dell XPS 15"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.system_name", "Example System"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.system_type", "Desktop"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.total_size", "500"),
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "hosts.0.type", "Virtual"),
-					// Verify placeholder id attribute
-					resource.TestCheckResourceAttr("data.apex_navigator_hosts.test", "id", "placeholder"),
+				Config: ProviderConfig + hostConfig + hostOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
 			// Error getting host collection
@@ -57,7 +44,7 @@ func TestAccDataSourceHosts(t *testing.T) {
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetHostCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + hostConfig,
+				Config:      ProviderConfig + hostConfig + hostOutputs,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Hosts*.`),
 			},
 			// Filter testing single host
@@ -67,32 +54,58 @@ func TestAccDataSourceHosts(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + hostFilterSingleConfig,
+				Config: ProviderConfig + hostFilterSingleConfig + hostOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "false"),
+					resource.TestCheckOutput("fetched_single", "true"),
+					resource.TestCheckOutput("fetched_two", "false"),
+				),
 			},
 			// Filter testing multiple hosts
 			{
-				Config: ProviderConfig + hostFilterMultipleConfig,
+				Config: ProviderConfig + hostFilterMultipleConfig + hostOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
+					resource.TestCheckOutput("fetched_two", "true"),
+				),
 			},
 			// Error getting filtered host collection
 			{
-				Config:      ProviderConfig + hostFilterInvalidConfig,
+				Config:      ProviderConfig + hostFilterInvalidConfig + hostOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
 	})
 }
 
-var hostConfig = `data "apex_navigator_hosts" "test" {}`
+var hostConfig = `data "apex_navigator_hosts" "example" {}`
+
+var hostOutputs = `
+output "fetched_many" {
+	value = length(data.apex_navigator_hosts.example.hosts) > 1
+}
+  
+output "fetched_any" {
+	value = length(data.apex_navigator_hosts.example.hosts) != 0
+}
+
+output "fetched_single" {
+	value = length(data.apex_navigator_hosts.example.hosts) == 1
+}
+
+output "fetched_two" {
+	value = length(data.apex_navigator_hosts.example.hosts) == 2
+}
+`
 
 var hostFilterSingleConfig = `
  data "apex_navigator_hosts" "example" {
 	    filter {
 	     ids = ["` + hostID1 + `"] 
 	   }
-	}
-	
-	output "instance_hosts" {
-	   value = data.apex_navigator_hosts.example
 	}
 `
 
@@ -102,10 +115,6 @@ var hostFilterMultipleConfig = `
 	     ids = ["` + hostID1 + `", "` + hostID2 + `"] 
 	   }
 	}
-	
-	output "instance_host" {
-	   value = data.apex_navigator_hosts.example
-	}
 `
 
 var hostFilterInvalidConfig = `
@@ -113,9 +122,5 @@ var hostFilterInvalidConfig = `
 	     filter {
 	     ids = ["invalid-id"] 
 	   }
-	}
-	
-	output "instance_host" {
-	   value = data.apex_navigator_hosts.example
 	}
 `

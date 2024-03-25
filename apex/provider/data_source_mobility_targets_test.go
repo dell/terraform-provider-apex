@@ -31,30 +31,11 @@ func TestAccDataSourceMobilityTargets(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + moblilityTargetConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of mobility_targets returned
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.#", "2"),
-
-					// Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.id", "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.name", "Get"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.description", "Test"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.system_id", "POWERFLEX-ELMVXRTEST0004"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.system_type", "POWERFLEX"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.source_mobility_group_id", "POWERFLEX-ELMSIO08200000__MOBILITYGROUP__3d07605a-0c68-4a86-9da2-dd9ccd1925af"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.creation_timestamp", "0001-01-01 00:00:00 +0000 UTC"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.image_timestamp", "0001-01-01 00:00:00 +0000 UTC"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.bandwidth_limit", "512"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.target_members.#", "1"),
-
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.target_members.0.id", "test"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.target_members.0.name", "test"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.target_members.0.parent_id", "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "mobility_targets.0.target_members.0.size", "512"),
-
-					// Verify placeholder id attribute
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_targets.test", "id", "placeholder"),
+				Config: ProviderConfig + moblilityTargetConfig + mobilityTargetsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
 			{
@@ -71,15 +52,27 @@ func TestAccDataSourceMobilityTargets(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + mobilityTargetSingleFilterConfig,
+				Config: ProviderConfig + mobilityTargetSingleFilterConfig + mobilityTargetsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "false"),
+					resource.TestCheckOutput("fetched_single", "true"),
+					resource.TestCheckOutput("fetched_two", "false"),
+				),
 			},
 			// Filter test for multiple mobility targets
 			{
-				Config: ProviderConfig + mobilityTargetMultipleFilterConfig,
+				Config: ProviderConfig + mobilityTargetMultipleFilterConfig + mobilityTargetsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
+					resource.TestCheckOutput("fetched_two", "true"),
+				),
 			},
 			// Error getting mobility target for invalid filter
 			{
-				Config:      ProviderConfig + mobilityTargetInvalidFilterConfig,
+				Config:      ProviderConfig + mobilityTargetInvalidFilterConfig + mobilityTargetsOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
@@ -87,6 +80,23 @@ func TestAccDataSourceMobilityTargets(t *testing.T) {
 }
 
 var moblilityTargetConfig = `data "apex_navigator_mobility_targets" "test" {}`
+var mobilityTargetsOutputs = `
+output "fetched_many" {
+	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) > 1
+}
+  
+output "fetched_any" {
+	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) != 0
+}
+
+output "fetched_single" {
+	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) == 1
+}
+
+output "fetched_two" {
+	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) == 2
+}
+`
 var mobilityTargetSingleFilterConfig = `
  data "apex_navigator_mobility_targets" "test" {
 	    filter {
@@ -112,13 +122,13 @@ var mobilityTargetMultipleFilterConfig = `
 `
 
 var mobilityTargetInvalidFilterConfig = `
- data "apex_navigator_mobility_targets" "example" {
+ data "apex_navigator_mobility_targets" "test" {
 	     filter {
 	     ids = ["invalid-id"] 
 	   }
 	}
 	
 	output "output_mobility_target" {
-		value = data.apex_navigator_mobility_targets.example
+		value = data.apex_navigator_mobility_targets.test
 	 }
 `

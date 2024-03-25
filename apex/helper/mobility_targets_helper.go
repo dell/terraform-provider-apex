@@ -61,13 +61,11 @@ func GetMobilityTargetModel(mobilityTarget client.MobilityTarget) (model models.
 		SourceMobilityGroupID: types.StringValue(mobilityTarget.SourceMobilityGroupId),
 		CreationTimestamp:     types.StringValue(mobilityTarget.CreationTimestamp),
 		Type:                  types.StringValue(mobilityTarget.Type),
+		ImageTimestamp:        types.StringPointerValue(mobilityTarget.ImageTimestamp),
+		LastCopyJobID:         types.StringPointerValue(mobilityTarget.LastCopyJobId),
 	}
-	if mobilityTarget.ImageTimestamp != nil {
-		model.ImageTimestamp = types.StringValue(*mobilityTarget.ImageTimestamp)
-	}
-	if mobilityTarget.LastCopyJobId != nil {
-		model.LastCopyJobID = types.StringValue(*mobilityTarget.LastCopyJobId)
-	}
+
+	// Do the null check specifically instead of using `types.Int64PointerValue` since we have to do the int64 conversion
 	if mobilityTarget.BandwidthLimit != nil {
 		model.BandwidthLimit = types.Int64Value(int64(*mobilityTarget.BandwidthLimit))
 	}

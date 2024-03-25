@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -116,11 +117,10 @@ func (d *storageProductsDataSource) Schema(_ context.Context, _ datasource.Schem
 		Blocks: map[string]schema.Block{
 			"filter": schema.SingleNestedBlock{
 				Attributes: map[string]schema.Attribute{
-					"ids": schema.SetAttribute{
-						Description:         "Filter by ids",
-						MarkdownDescription: "Filter by ids",
+					"system_type": schema.StringAttribute{
+						Description:         "Filter by system_type",
+						MarkdownDescription: "Filter by system_type",
 						Optional:            true,
-						ElementType:         types.StringType,
 					},
 				},
 			},
@@ -139,19 +139,17 @@ func (d *storageProductsDataSource) Read(ctx context.Context, req datasource.Rea
 	// Check that the filter is valid
 	filter := ""
 	filterUsed := false
-	if state.Filter != nil && state.Filter.IDs != nil && len(state.Filter.IDs) > 0 {
+	if state.Filter != nil && state.Filter.SystemType.ValueString() != "" {
 		filterUsed = true
 		filteredNames := make([]string, 0)
-		for _, ids := range state.Filter.IDs {
-			filteredNames = append(filteredNames, ids.ValueString())
-		}
-		filter = helper.CreateFilter(filteredNames, "id")
+		filteredNames = append(filteredNames, state.Filter.SystemType.ValueString())
+		filter = helper.CreateFilter(filteredNames, "system_type")
 	}
 
 	storageProducts, status, err := helper.GetStorageProductsCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable Read to Storage Product Volume",
+			"Unable Read to storage product",
 			err.Error(),
 		)
 		return
@@ -159,39 +157,18 @@ func (d *storageProductsDataSource) Read(ctx context.Context, req datasource.Rea
 
 	// If the returned filtered values does not equal the length of the filter
 	// Then one or more of the filtered values are invalid
-	if filterUsed && len(storageProducts.Results) != len(state.Filter.IDs) {
+	if filterUsed && len(storageProducts.Results) != 1 {
+		tflog.Info(ctx, fmt.Sprintf("Filtered %v storage products", storageProducts.Results))
 		resp.Diagnostics.AddError(
-			"Failed to filter mobility groups.",
-			"one more more of the ids set in the filter is invalid.",
+			"Failed to filter storage product.",
+			"the system_type in the filter is invalid.",
 		)
 		return
 	}
 
-	// Map response body to model
-	for _, storageProduct := range storageProducts.Results {
-		storageProductState := models.StorageProductsModel{
-			ID:            types.StringValue(storageProduct.Id),
-			Name:          types.StringValue(storageProduct.Name),
-			Description:   types.StringValue(storageProduct.Description),
-			LatestVersion: types.StringValue(storageProduct.LatestVersion),
-			SystemType:    client.StorageSystemTypeEnum(storageProduct.SystemType),
-			StorageType:   storageProduct.StorageType,
-			CloudType:     storageProduct.CloudType,
-		}
+	state = helper.MapStorageProduct(storageProducts)
 
-		for _, supportmap := range storageProduct.SupportMap {
-			storageProductState.SupportMaps = append(storageProductState.SupportMaps, models.SupportMapModel{
-				ID:                        types.StringValue(supportmap.Id),
-				SupportedEvaluationPeriod: types.Int64Value(int64(supportmap.SupportedEvaluationPeriod)),
-				Version:                   types.StringValue(supportmap.Version),
-				SupportedActions:          []client.StorageProductActionEnum{},
-			})
-		}
-
-		state.StorageProducts = append(state.StorageProducts, storageProductState)
-	}
-
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("storage-product-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

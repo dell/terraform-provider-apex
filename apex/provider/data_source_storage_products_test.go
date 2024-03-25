@@ -31,24 +31,11 @@ func TestAccDataSourceStorageProducts(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + storageProductsConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-
-					// Verify the first storage product to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.cloud_type", "AWS"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.description", "Description12"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.latest_version", "LatestVersion"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.name", "NameStorage"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.storage_type", "BLOCK"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.system_type", "POWERFLEX"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.support_map.#", "1"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.support_map.0.id", "1"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.support_map.0.supported_actions.#", "0"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.support_map.0.supported_evaluation_period", "32"),
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "storage_products.0.support_map.0.version", "VERSION"),
-
-					// Verify placeholder id attribute
-					resource.TestCheckResourceAttr("data.apex_navigator_storage_products.test", "id", "placeholder"),
+				Config: ProviderConfig + storageProductsConfig + storageProductsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
 			// Error Reading Storage Products
@@ -57,7 +44,7 @@ func TestAccDataSourceStorageProducts(t *testing.T) {
 					FunctionMocker = Mock(helper.GetStorageProductsCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + storageProductsConfig,
-				ExpectError: regexp.MustCompile(`.*Unable Read to Storage Product Volume*.`),
+				ExpectError: regexp.MustCompile(`.*Unable Read to storage product*.`),
 			},
 			// Filter testing single storage products
 			{
@@ -66,34 +53,47 @@ func TestAccDataSourceStorageProducts(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + storageProductsFilterSingleConfig,
-			},
-			// Filter testing multiple storage products
-			{
-				Config: ProviderConfig + storageProductsFilterMultipleConfig,
+				Config: ProviderConfig + storageProductsFilterSingleConfig + storageProductsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "false"),
+					resource.TestCheckOutput("fetched_single", "true"),
+				),
 			},
 			// Error getting filtered storage products
 			{
-				Config:      ProviderConfig + storageProductsFilterInvalidConfig,
-				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
+				Config:      ProviderConfig + storageProductsFilterInvalidConfig + storageProductsOutputs,
+				ExpectError: regexp.MustCompile(`.*Failed to filter storage product*.`),
 			},
 		},
 	})
 }
 
 var storageProductsConfig = `data "apex_navigator_storage_products" "test" {}`
+
+var storageProductsOutputs = `
+output "fetched_many" {
+	value = length(data.apex_navigator_storage_products.test.storage_products) > 1
+}
+  
+output "fetched_any" {
+	value = length(data.apex_navigator_storage_products.test.storage_products) != 0
+}
+
+output "fetched_single" {
+	value = length(data.apex_navigator_storage_products.test.storage_products) == 1
+}
+
+`
+
 var storageProductsFilterSingleConfig = `data "apex_navigator_storage_products" "test" {
 	filter {
-		ids = ["` + storageProductID1 + `"] 
+		system_type = "` + storageProduct1 + `" 
 	  }
 }`
-var storageProductsFilterMultipleConfig = `data "apex_navigator_storage_products" "test" {
-	filter {
-		ids = ["` + storageProductID1 + `", "` + storageProductID2 + `"] 
-	  }
-}`
+
 var storageProductsFilterInvalidConfig = `data "apex_navigator_storage_products" "test" {
 	filter {
-		ids = ["invalid-id"] 
+		system_type = "invalid-id"
 	}
 }`

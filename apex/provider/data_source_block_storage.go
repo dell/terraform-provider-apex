@@ -103,7 +103,7 @@ func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadR
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Block Storage"+newErr,
+			"Unable to Read Apex Navigator Block Storage: "+newErr,
 			err.Error(),
 		)
 		return
@@ -136,7 +136,7 @@ func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadR
 
 		state.BlockStorages = append(state.BlockStorages, storageSystemsState)
 	}
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("block-storage-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

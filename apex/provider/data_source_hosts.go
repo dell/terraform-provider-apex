@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -161,7 +162,7 @@ func (d *hostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	hosts, status, err := helper.GetHostCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Hosts",
+			"Unable to Read Apex Navigator Hosts: ",
 			err.Error(),
 		)
 		return
@@ -170,37 +171,17 @@ func (d *hostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	// If the returned filtered values does not equal the length of the filter
 	// Then one or more of the filtered values are invalid
 	if filterUsed && len(hosts.Results) != len(state.Filter.IDs) {
+		tflog.Debug(ctx, fmt.Sprintf("hosts: %v, filter: %v", hosts.Results, state.Filter.IDs))
 		resp.Diagnostics.AddError(
-			"Failed to filter mobility groups.",
+			"Failed to filter hosts.",
 			"one more more of the ids set in the filter is invalid.",
 		)
 		return
 	}
 
-	// Map response body to model
-	for _, host := range hosts.Results {
-		hostState := models.HostsModel{
-			ID:                types.StringValue(host.Id),
-			SystemID:          types.StringValue(*host.SystemId),
-			SystemType:        types.StringValue(*host.SystemType),
-			Description:       types.StringValue(*host.Description),
-			InitiatorCount:    types.Int64Value(*host.InitiatorCount),
-			InitiatorProtocol: types.StringValue(*host.InitiatorProtocol),
-			IssueCount:        types.Int64Value(*host.IssueCount),
-			Name:              types.StringValue(*host.Name),
-			NativeID:          types.StringValue(*host.NativeId),
-			NetworkAddresses:  types.StringValue(*host.NetworkAddresses),
-			Type:              types.StringValue(*host.Type),
-			OperatingSystem:   types.StringValue(*host.OperatingSystem),
-			SystemModel:       types.StringValue(*host.SystemModel),
-			SystemName:        types.StringValue(*host.SystemName),
-			TotalSize:         types.Int64Value(*host.TotalSize),
-		}
-
-		state.Hosts = append(state.Hosts, hostState)
-	}
-
-	state.ID = types.StringValue("placeholder")
+	// Map response to the model
+	state = helper.MapHostModel(hosts, state)
+	state.ID = types.StringValue("host-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

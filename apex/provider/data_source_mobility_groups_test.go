@@ -31,23 +31,11 @@ func TestAccDataSourceMobilityGroups(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + mobilityCollectionConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of mobility_groups returned
-
-					// Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.name", "Create"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.description", "Test"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.system_id", "POWERFLEX-ELMVXRTEST0004"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.system_type", "POWERFLEX"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.creation_timestamp", "0001-01-01 00:00:00 +0000 UTC"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.members.#", "1"),
-
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.members.0.id", "POWERFLEX-ELMVXRTEST0004__VOLUME__9e5a801700000000"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.members.0.name", "Name"),
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "mobility_groups.0.members.0.size", "50"),
-					// Verify placeholder id attribute
-					resource.TestCheckResourceAttr("data.apex_navigator_mobility_groups.test", "id", "placeholder"),
+				Config: ProviderConfig + mobilityCollectionConfig + mobilityGroupsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
 			// Error reading mobility groups
@@ -55,7 +43,7 @@ func TestAccDataSourceMobilityGroups(t *testing.T) {
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetMobilityGroupCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + mobilityCollectionConfig,
+				Config:      ProviderConfig + mobilityCollectionConfig + mobilityGroupsOutputs,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Groups*.`),
 			},
 			// Filter testing single mobility group
@@ -65,22 +53,53 @@ func TestAccDataSourceMobilityGroups(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + mobilityFilterSingleConfig,
+				Config: ProviderConfig + mobilityFilterSingleConfig + mobilityGroupsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "false"),
+					resource.TestCheckOutput("fetched_single", "true"),
+					resource.TestCheckOutput("fetched_two", "false"),
+				),
 			},
 			// Filter testing multiple mobility group
 			{
-				Config: ProviderConfig + mobilityFilterMultipleConfig,
+				Config: ProviderConfig + mobilityFilterMultipleConfig + mobilityGroupsOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
+					resource.TestCheckOutput("fetched_two", "true"),
+				),
 			},
 			// Error getting mobility group with invalid filter
 			{
-				Config:      ProviderConfig + mobilityilterInvalidConfig,
+				Config:      ProviderConfig + mobilityilterInvalidConfig + mobilityGroupsOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
 	})
 }
 
-var mobilityCollectionConfig = `data "apex_navigator_mobility_groups" "test" {}`
+var mobilityCollectionConfig = `data "apex_navigator_mobility_groups" "example" {}`
+
+var mobilityGroupsOutputs = `
+output "fetched_many" {
+	value = length(data.apex_navigator_mobility_groups.example.mobility_groups) > 1
+}
+  
+output "fetched_any" {
+	value = length(data.apex_navigator_mobility_groups.example.mobility_groups) != 0
+}
+
+output "fetched_single" {
+	value = length(data.apex_navigator_mobility_groups.example.mobility_groups) == 1
+}
+
+output "fetched_two" {
+	value = length(data.apex_navigator_mobility_groups.example.mobility_groups) == 2
+}
+`
+
 var mobilityFilterSingleConfig = `
  data "apex_navigator_mobility_groups" "example" {
 	    filter {

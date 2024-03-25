@@ -84,7 +84,7 @@ func GetMobilityGroupModel(mobilityGroup client.MobilityGroup) (model models.Mob
 	model = models.MobilityGroupModel{
 		ID:                types.StringValue(mobilityGroup.Id),
 		Name:              types.StringValue(mobilityGroup.Name),
-		Description:       types.StringValue(*mobilityGroup.Description),
+		Description:       types.StringPointerValue(mobilityGroup.Description),
 		SystemID:          types.StringValue(mobilityGroup.SystemId),
 		SystemType:        (&mobilityGroup.SystemType),
 		CreationTimeStamp: types.StringValue(mobilityGroup.CreationTimestamp),
