@@ -238,7 +238,7 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 		fmt.Print("Error Closing response body:", err)
 	}
 	// Updating TFState with Clone info
-	result := models.GetClonesModel(*clone)
+	result := helper.GetClonesModel(*clone)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
@@ -271,7 +271,7 @@ func (r *clonesResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 	// Overwrite items with refreshed state
-	state = models.GetClonesModel(*clone)
+	state = helper.GetClonesModel(*clone)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -377,7 +377,7 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Updating TFState with Clone info
-	result := models.GetClonesModel(*clone)
+	result := helper.GetClonesModel(*clone)
 
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)

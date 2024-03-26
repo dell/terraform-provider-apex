@@ -122,7 +122,7 @@ func (d *mobilityTargetsDataSource) Read(ctx context.Context, req datasource.Rea
 
 		state.MobilityTargets = append(state.MobilityTargets, mobilityTargetsState)
 	}
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("mobility-targets-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

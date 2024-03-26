@@ -120,10 +120,10 @@ func (d *clonesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	// Map response body to model
 	for _, clone := range clones.Results {
-		cloneState := models.GetClonesModel(clone)
+		cloneState := helper.GetClonesModel(clone)
 		state.Clones = append(state.Clones, cloneState)
 	}
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("clone-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

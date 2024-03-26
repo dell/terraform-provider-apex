@@ -45,8 +45,7 @@ var hostID1 = setDefault(os.Getenv("HOST_ID1"), "test_host_id1")
 var hostID2 = setDefault(os.Getenv("HOST_ID2"), "test_host_id2")
 var sourcePoolsID1 = setDefault(os.Getenv("SOURCE_POOL_ID1"), "Pool_ID1")
 var sourcePoolsID2 = setDefault(os.Getenv("SOURCE_POOL_ID2"), "Pool_ID2")
-var storageProductID1 = setDefault(os.Getenv("STORAGE_PRODUCT_ID1"), "storageProductId1")
-var storageProductID2 = setDefault(os.Getenv("STORAGE_PRODUCT_ID2"), "storageProductId2")
+var storageProduct1 = setDefault(os.Getenv("STORAGE_PRODUCT_1"), "POWERFLEX")
 var volumeID1 = setDefault(os.Getenv("VOLUME_ID1"), "volume_id1")
 var volumeID2 = setDefault(os.Getenv("VOLUME_ID2"), "volume_id2")
 var mobilityTargetID1 = setDefault(os.Getenv("MOBILITY_TARGET_ID_1"), "POWERFLEX-ELMSIO0823QVTV__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5")
@@ -77,12 +76,14 @@ func init() {
 	}
 
 	host := os.Getenv("APEX_HOST")
+	token := setDefault(os.Getenv("APEX_TOKEN"), "test_token")
 
 	ProviderConfig = fmt.Sprintf(` 
 		provider "apex" {
 			host      = "%s"
+			token     = "%s"
 		}
-	`, host)
+	`, host, token)
 }
 
 func testAccPreCheck(t *testing.T) {

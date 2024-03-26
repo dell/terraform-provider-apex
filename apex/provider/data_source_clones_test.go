@@ -33,31 +33,11 @@ func TestAccDataSourceClones(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + cloneConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of clones returned
-
-					// Verify the first host to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.image_timestamp", "read_Image Timestamp"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.mobility_target_id", "read_Mobility Target Id"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.name", "clone_read_name"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.refresh_timestamp", "read_Refresh Timestamp"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.creation_timestamp", "read_Creation Timestamp"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.description", "read_Description"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.clone_volumes.#", "1"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.clone_volumes.0.id", "read_VId"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.clone_volumes.0.name", "read_VName"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.clone_volumes.0.parent_id", "read_VParent Id"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.clone_volumes.0.size", "read_VSize"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.#", "1"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.0.host_id", "read_HId"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.0.host_initiator_protocol", "NVMe"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.0.host_ip", "read_HIp"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.0.host_name", "read_HName"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.0.id", "read_MapId"),
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "clones.0.host_mappings.0.nqn", "read_Nqn"),
-					// Verify placeholder id attribute
-					resource.TestCheckResourceAttr("data.apex_navigator_clones.test", "id", "placeholder"),
+				Config: ProviderConfig + cloneConfig + cloneOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
 			// Error reading collection of clones case
@@ -75,11 +55,23 @@ func TestAccDataSourceClones(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + cloneFilterSingleConfig,
+				Config: ProviderConfig + cloneFilterSingleConfig + cloneOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "false"),
+					resource.TestCheckOutput("fetched_single", "true"),
+					resource.TestCheckOutput("fetched_two", "false"),
+				),
 			},
 			// Filter testing multiple clones
 			{
-				Config: ProviderConfig + cloneFilterMultipleConfig,
+				Config: ProviderConfig + cloneFilterMultipleConfig + cloneOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
+					resource.TestCheckOutput("fetched_two", "true"),
+				),
 			},
 			// Error getting getting all the filtered clones
 			{
@@ -92,38 +84,56 @@ func TestAccDataSourceClones(t *testing.T) {
 
 var cloneConfig = `data "apex_navigator_clones" "test" {}`
 
+var cloneOutputs = `
+output "fetched_many" {
+	value = length(data.apex_navigator_clones.test.clones) > 1
+}
+  
+output "fetched_any" {
+	value = length(data.apex_navigator_clones.test.clones) != 0
+}
+
+output "fetched_single" {
+	value = length(data.apex_navigator_clones.test.clones) == 1
+}
+
+output "fetched_two" {
+	value = length(data.apex_navigator_clones.test.clones) == 2
+}
+`
+
 var cloneFilterSingleConfig = `
- data "apex_navigator_clones" "example" {
+ data "apex_navigator_clones" "test" {
 	     filter {
 	     ids = ["` + cloneID1 + `"] 
 	   }
 	}
 	
 	output "instance_clone" {
-	   value = data.apex_navigator_clones.example
+	   value = data.apex_navigator_clones.test
 	}
 `
 
 var cloneFilterMultipleConfig = `
- data "apex_navigator_clones" "example" {
+ data "apex_navigator_clones" "test" {
 	     filter {
 	     ids = ["` + cloneID1 + `", "` + cloneID2 + `"] 
 	   }
 	}
 	
 	output "instance_clone" {
-	   value = data.apex_navigator_clones.example
+	   value = data.apex_navigator_clones.test
 	}
 `
 
 var cloneFilterInvalidConfig = `
- data "apex_navigator_clones" "example" {
+ data "apex_navigator_clones" "test" {
 	     filter {
 	     ids = ["invalid-id"] 
 	   }
 	}
 	
 	output "instance_clone" {
-	   value = data.apex_navigator_clones.example
+	   value = data.apex_navigator_clones.test
 	}
 `

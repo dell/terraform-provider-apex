@@ -123,7 +123,7 @@ func (d *mobilityGroupsDataSource) Read(ctx context.Context, req datasource.Read
 
 		state.MobilityGroups = append(state.MobilityGroups, mobilityGroupsState)
 	}
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("mobility-group-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

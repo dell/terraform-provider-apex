@@ -50,5 +50,5 @@ type SupportMapModel struct {
 
 // StorageProductsFilterType describes the filter data model.
 type StorageProductsFilterType struct {
-	IDs []types.String `tfsdk:"ids"`
+	SystemType types.String `tfsdk:"system_type"`
 }

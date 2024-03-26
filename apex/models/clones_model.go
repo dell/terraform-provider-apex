@@ -17,8 +17,6 @@ limitations under the License.
 package models
 
 import (
-	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -53,82 +51,4 @@ type ClonesRefreshModel struct {
 	ID      types.String `tfsdk:"id"`
 	CloneID types.String `tfsdk:"clone_id"`
 	Status  types.String `tfsdk:"status"`
-}
-
-// GetClonesModel returns a new clonesModel based on data from the given clones
-func GetClonesModel(clone client.Clone) (model ClonesModel) {
-	model = ClonesModel{
-		ID:                types.StringValue(clone.Id),
-		Name:              types.StringValue(clone.Name),
-		Description:       types.StringValue(clone.Description),
-		MobilityTargetID:  types.StringValue(*clone.MobilityTargetId),
-		CreationTimestamp: types.StringValue(clone.CreationTimestamp),
-		RefreshTimestamp:  types.StringValue(clone.RefreshTimestamp),
-		ImageTimestamp:    types.StringValue(clone.ImageTimestamp),
-	}
-	attrTypes := map[string]attr.Type{
-		"id":        types.StringType,
-		"parent_id": types.StringType,
-		"name":      types.StringType,
-		"size":      types.StringType,
-	}
-	var volumeValues []attr.Value
-
-	if clone.CloneVolumes != nil { //nolint:dupl
-		for _, cloneVolume := range clone.CloneVolumes {
-			values := map[string]attr.Value{
-				"id":        types.StringValue(cloneVolume.Id),
-				"parent_id": types.StringValue(cloneVolume.ParentId),
-				"name":      types.StringValue(cloneVolume.Name),
-				"size":      types.StringValue(cloneVolume.Size),
-			}
-			object, _ := types.ObjectValue(attrTypes, values)
-			volumeValues = append(volumeValues, object)
-		}
-		newObjectType := types.ObjectType{}
-		newObjectType.AttrTypes = map[string]attr.Type{
-			"id":        types.StringType,
-			"parent_id": types.StringType,
-			"name":      types.StringType,
-			"size":      types.StringType,
-		}
-
-		model.CloneVolumes = basetypes.NewListValueMust(newObjectType, volumeValues)
-	}
-	attrHostTypes := map[string]attr.Type{
-		"host_name":               types.StringType,
-		"host_ip":                 types.StringType,
-		"host_id":                 types.StringType,
-		"id":                      types.StringType,
-		"nqn":                     types.StringType,
-		"host_initiator_protocol": types.StringType,
-	}
-	var hostValues []attr.Value
-
-	if clone.HostMappings != nil {
-		for _, hostMapping := range clone.HostMappings {
-			mapValues := map[string]attr.Value{
-				"host_name":               types.StringValue(hostMapping.HostName),
-				"host_ip":                 types.StringValue(hostMapping.HostIp),
-				"host_id":                 types.StringValue(hostMapping.HostId),
-				"id":                      types.StringPointerValue(hostMapping.Id),
-				"nqn":                     types.StringPointerValue(hostMapping.Nqn),
-				"host_initiator_protocol": types.StringValue(string(*hostMapping.HostInitiatorProtocol)),
-			}
-			mapObject, _ := types.ObjectValue(attrHostTypes, mapValues)
-			hostValues = append(hostValues, mapObject)
-		}
-		newHostObjectType := types.ObjectType{}
-		newHostObjectType.AttrTypes = map[string]attr.Type{
-			"host_name":               types.StringType,
-			"host_ip":                 types.StringType,
-			"host_id":                 types.StringType,
-			"id":                      types.StringType,
-			"nqn":                     types.StringType,
-			"host_initiator_protocol": types.StringType,
-		}
-		model.HostMappings = basetypes.NewListValueMust(newHostObjectType, hostValues)
-	}
-
-	return model
 }
