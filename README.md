@@ -43,7 +43,6 @@ For any Terraform Provider for Dell Apex issues, questions or feedback, please f
 ## License
 The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 license. See [LICENSE](LICENSE) for the full terms.
 
-
 ## Prerequisites
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.5.3
@@ -52,14 +51,10 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 
 ## List of DataSources in Terraform Provider for Dell Apex
   * [Block Storage](docs/data-sources/navigator_block_storage.md)
-  * [Block Storages](docs/data-sources/navigator_block_storages.md)
   * [Clone](docs/data-sources/navigator_clone.md)
-  * [Clones](docs/data-sources/navigator_clones.md)
   * [Hosts](docs/data-sources/navigator_hosts.md)
   * [Mobility Group](docs/data-sources/navigator_mobility_group.md)
-  * [Mobility Groups](docs/data-sources/navigator_mobility_groups.md)
   * [Mobility Target](docs/data-sources/navigator_mobility_target.md)
-  * [Mobility Targets](docs/data-sources/navigator_mobility_targets.md)
   * [Pools](docs/data-sources/navigator_pools.md)
   * [Volumes](docs/data-sources/navigator_volumes.md)
 

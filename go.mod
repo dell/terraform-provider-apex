@@ -3,6 +3,8 @@ module github.com/dell/terraform-provider-apex
 go 1.21
 
 require (
+    dell/apex-client v0.0.0
+	dell/apex-job-client v0.0.0
 	github.com/bytedance/mockey v1.2.10
 	github.com/hashicorp/terraform-plugin-framework v1.5.0
 	github.com/hashicorp/terraform-plugin-go v0.20.0
@@ -76,3 +78,6 @@ require (
 	google.golang.org/grpc v1.60.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
+
+replace dell/apex-client => ./apexclient
+replace dell/apex-job-client => ./jobsclient

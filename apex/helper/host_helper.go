@@ -21,8 +21,9 @@ import (
 	"context"
 	"net/http"
 
+	client "dell/apex-client"
+
 	"github.com/dell/terraform-provider-apex/apex/models"
-	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 

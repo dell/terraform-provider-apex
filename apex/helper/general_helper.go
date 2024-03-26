@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"time"
 
-	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
+	jmsClient "dell/apex-job-client"
 )
 
 // ConvertTimeToString converts time to string
