@@ -15,18 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-data "apex_navigator_hosts" "example" {}
+data "apex_navigator_block_hosts" "example" {}
 
 output "examples_hosts" {
-  value = data.apex_navigator_hosts.example
+  value = data.apex_navigator_block_hosts.example
 }
 
-# data "apex_navigator_hosts" "example" {
+# data "apex_navigator_block_hosts" "example" {
 #     filter {
 #     ids = ["host-id"] 
 #   }
 # }
 
 # output "examples_hosts" {
-#   value = data.apex_navigator_hosts.example
+#   value = data.apex_navigator_block_hosts.example
 # }

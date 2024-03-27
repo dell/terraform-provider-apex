@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_mobility_groups_copy" "example" {
+resource "apex_navigator_block_mobility_groups_copy" "example" {
   mobility_source_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
   mobility_target_id = [
     "POWERFLEX-DCBA0987654321__DATAMOBILITYGROUP__12345678-4321-1234-4321-210987654321"
@@ -23,5 +23,5 @@ resource "apex_navigator_mobility_groups_copy" "example" {
 }
 
 output "examples_mobility_groups_copy" {
-  value = apex_navigator_mobility_groups_copy.example
+  value = apex_navigator_block_mobility_groups_copy.example
 }

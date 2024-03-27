@@ -83,6 +83,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - uses: actions/checkout@v3
+      - run: make clean extract-client
       - run: go generate
       - name: git diff
         run: |

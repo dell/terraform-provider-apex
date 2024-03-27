@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_clones_map" "example" {
+resource "apex_navigator_block_clones_map" "example" {
   clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
   host_mappings = [
     "POWERFLEX-ABCD1234567890__HOST__abcdef1234567890"
@@ -23,5 +23,5 @@ resource "apex_navigator_clones_map" "example" {
 }
 
 output "examples_clones_map" {
-  value = apex_navigator_clones_map.example
+  value = apex_navigator_block_clones_map.example
 }

@@ -15,18 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-data "apex_navigator_pools" "example" {}
+data "apex_navigator_block_pools" "example" {}
 
 output "examples_pools" {
-  value = data.apex_navigator_pools.example
+  value = data.apex_navigator_block_pools.example
 }
 
-# data "apex_navigator_pools" "example" {
+# data "apex_navigator_block_pools" "example" {
 #   filter {
 #     ids = ["pool-id"] 
 #   }
 # }
 
 # output "examples_pools" {
-#   value = data.apex_navigator_pools.example
+#   value = data.apex_navigator_block_pools.example
 # }

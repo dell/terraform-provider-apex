@@ -16,16 +16,16 @@ limitations under the License.
 */
 
 variable "JWT_TOKEN" {
-  type = string
+  type    = string
   default = "insert-token-here"
 }
 
 variable "HOST" {
-  type = string
+  type    = string
   default = "https://example-host.com"
 }
 
 variable "JMS_ENDPOINT" {
-  type = string
+  type    = string
   default = "https://example-jobs-endpoint.com"
 }

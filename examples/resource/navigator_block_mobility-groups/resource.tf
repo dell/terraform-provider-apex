@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_mobility_groups" "example" {
+resource "apex_navigator_block_mobility_groups" "example" {
   name        = "TerraformMobilityGroup"
   system_id   = "POWERFLEX-ABCD1234567890"
   system_type = "POWERFLEX"
@@ -25,5 +25,5 @@ resource "apex_navigator_mobility_groups" "example" {
 }
 
 output "examples_mobility_group" {
-  value = apex_navigator_mobility_groups.example
+  value = apex_navigator_block_mobility_groups.example
 }

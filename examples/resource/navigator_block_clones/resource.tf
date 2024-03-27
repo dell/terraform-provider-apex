@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_clones" "example" {
+resource "apex_navigator_block_clones" "example" {
   name               = "CloneTerraformName"
   description        = "consulente autem dictum est, altum videtur esse ius potest"
   mobility_target_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
@@ -27,5 +27,5 @@ resource "apex_navigator_clones" "example" {
 }
 
 output "examples_clones" {
-  value = apex_navigator_clones.example
+  value = apex_navigator_block_clones.example
 }
