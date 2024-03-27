@@ -104,6 +104,7 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
+	token := config.Token.ValueString()
 	// If practitioner provided a configuration value for any of the
 	// attributes, it must be a known value.
 
@@ -176,12 +177,6 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	token := ""
-
-	if !strings.Contains(host, "localhost") {
-		token = updateToken(resp)
-	}
-
 	//TODO: Change the token back to config.Token.ValueString() when the refresh token is implemented, change back the .tf config files also
 	cfg := &client.Configuration{
 		Host:   hostURL.Host,
@@ -232,8 +227,6 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	if !strings.Contains(host, "localhost") {
 		go func() {
 			for {
-				// Update the token value
-				token := updateToken(resp)
 
 				// Update the token field of the customTransport struct with the updated value
 				cfg.HTTPClient.Transport.(*customTransport).token = token
@@ -244,20 +237,6 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 			}
 		}()
 	}
-}
-func updateToken(resp *provider.ConfigureResponse) string {
-	// Update the token value
-	content, err := os.ReadFile("token_file.txt")
-	// add an error to log here
-	if err != nil {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("host"),
-			"Could not read token_file.txt",
-			"Please update the token_file.txt with the correct unexpired token",
-		)
-	}
-	token := string(content)
-	return token
 }
 
 type customTransport struct {
