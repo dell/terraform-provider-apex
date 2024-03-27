@@ -25,8 +25,9 @@ import (
 	"strings"
 	"time"
 
-	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
-	jmsClient "github.com/dell/terraform-provider-apex/client/jobsclient/client"
+	client "dell/apex-client"
+	jmsClient "dell/apex-job-client"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"

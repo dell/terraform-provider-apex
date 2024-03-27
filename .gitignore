@@ -43,3 +43,6 @@ testlogfile
 cover.*
 c.out
 *.out
+
+apexclient
+jobsclient

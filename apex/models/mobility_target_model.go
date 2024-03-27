@@ -17,7 +17,8 @@ limitations under the License.
 package models
 
 import (
-	client "github.com/dell/terraform-provider-apex/client/apexclient/client"
+	client "dell/apex-client"
+
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )

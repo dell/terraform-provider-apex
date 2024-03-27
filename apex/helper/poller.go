@@ -24,7 +24,7 @@ import (
 
 	"net/http"
 
-	client "github.com/dell/terraform-provider-apex/client/jobsclient/client"
+	client "dell/apex-job-client"
 )
 
 // Poller interface

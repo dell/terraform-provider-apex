@@ -1,0 +1,4737 @@
+openapi: 3.0.3
+info:
+  title: APEX Navigator for Multicloud Storage REST APIs
+  version: '1.0'
+  description: The public API definitions for APEX Navigator for Multicloud Storage
+tags:
+  - name: aws-accounts
+    x-displayName: aws-accounts
+  - name: aws-permission-policies
+    x-displayName: aws-permission-policies
+  - name: clones
+    description: Clones of mobility copies
+    x-displayName: clones
+  - name: entitlements
+    description: Entitlements
+    x-displayName: entitlements
+  - name: hosts
+    x-displayName: hosts
+  - name: licenses
+    x-displayName: licenses
+  - name: mobility-groups
+    description: Source groups for copying to remote targets
+    x-displayName: mobility-groups
+  - name: mobility-targets
+    description: Targets of mobility copies
+    x-displayName: mobility-targets
+  - name: pools
+    x-displayName: pools
+  - name: storage-products
+    x-displayName: storage-products
+  - name: storage-product-options
+    x-displayName: storage-product-options
+  - name: storage-systems
+    x-displayName: storage-systems
+  - name: volumes
+    x-displayName: volumes
+  - name: storage-system-tokens
+    x-displayName: storage-system-tokens
+paths:
+  /rest/services/storage/v1/aws-accounts:
+    get:
+      operationId: aws-accounts--collection
+      summary: List connected AWS accounts
+      description: Retrieves a list of all your AWS accounts connected to Dell APEX.
+      responses:
+        '200':
+          $ref: '#/components/responses/RedactedAwsAccountsCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-accounts
+    post:
+      operationId: aws-accounts--create
+      summary: Connect AWS account
+      description: 'Connect an AWS account to Dell APEX to allow Dell to deploy, monitor, and manage Dell storage within that account. '
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/correlation-id'
+      requestBody:
+        $ref: '#/components/requestBodies/AwsAccountsCreateRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AwsAccountsCreateResponse'
+        '202':
+          $ref: '#/components/responses/Code202'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-accounts
+  /rest/services/storage/v1/aws-accounts/{account_id}:
+    get:
+      operationId: aws-accounts--instance
+      summary: Get connected AWS account
+      description: Retrieve the information for a given AWS account connected to Dell APEX.
+      parameters:
+        - $ref: '#/components/parameters/account_id'
+      responses:
+        '200':
+          $ref: '#/components/responses/AwsAccountResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-accounts
+    delete:
+      operationId: aws-accounts--delete
+      summary: Disconnect AWS account
+      description: |-
+        Disconnect a given AWS account from Dell APEX. 
+
+        An AWS account can only be disconnected once all of its deployed Dell APEX storage systems in this account have been decommissioned. Disconnecting an AWS account while a storage system is being deployed for that account will cause that deployment to pause.
+        Once disconnected, Dell APEX will no longer have access to or manage resources for the given AWS account.
+
+        This action does not delete the AWS account or role from AWS.
+      parameters:
+        - $ref: '#/components/parameters/account_id'
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/correlation-id'
+      responses:
+        '202':
+          $ref: '#/components/responses/Code202'
+        '204':
+          $ref: '#/components/responses/Code204'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-accounts
+    patch:
+      operationId: aws-accounts--modify
+      summary: Update AWS role selection
+      description: Update the AWS role with which Dell APEX is trusted to access and manage resources for the given AWS account.
+      parameters:
+        - $ref: '#/components/parameters/account_id'
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/correlation-id'
+      requestBody:
+        $ref: '#/components/requestBodies/AwsAccountModifyRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/Code202'
+        '204':
+          $ref: '#/components/responses/Code204'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-accounts
+  /rest/services/storage/v1/aws-accounts/generate-trust-policy:
+    post:
+      operationId: aws-accounts--generate-trust-policy
+      summary: Retrieve AWS Trust Policy
+      description: Generate a trust policy, which is used to allow Dell APEX to assume a role in the given AWS account.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/correlation-id'
+      requestBody:
+        $ref: '#/components/requestBodies/AwsTrustPolicyRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AwsTrustPolicyResponse'
+        '202':
+          $ref: '#/components/responses/Code202'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-accounts
+  /rest/services/storage/v1/aws-permission-policies:
+    get:
+      operationId: aws-permission-policies--collection
+      summary: Get AWS permission policy
+      description: Retrieves the AWS permissions policy, which is used to define permissions for Dell APEX in AWS.
+      responses:
+        '200':
+          $ref: '#/components/responses/AwsPermissionPoliciesCollection'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-permission-policies
+  /rest/services/storage/v1/aws-permission-policies/{permission_policy_id}:
+    get:
+      operationId: aws-permission-policies--instance
+      summary: Get AWS permission policy instance
+      description: Retrieves an instance of the AWS permissions policy, which is used to define permissions for Dell APEX in AWS.
+      parameters:
+        - $ref: '#/components/parameters/permission_policy_id'
+      responses:
+        '200':
+          $ref: '#/components/responses/AwsPermissionPolicyInstanceResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - aws-permission-policies
+  /rest/services/storage/v1/clones:
+    get:
+      operationId: clones--collection
+      summary: Get all clones
+      description: Get all clones
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/ClonesResponse'
+        '206':
+          $ref: '#/components/responses/PagedClonesResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+      x-cloudiq: true
+    post:
+      operationId: clones--create
+      summary: Create Clone
+      description: Create a clone of a mobility target
+      parameters:
+        - $ref: '#/components/parameters/async'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateCloneRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+  /rest/services/storage/v1/clones/{clone_id}:
+    get:
+      operationId: clones--instance
+      summary: Get a clone
+      description: Get a clone
+      parameters:
+        - $ref: '#/components/parameters/clone_id'
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/CloneResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - clones
+      x-cloudiq: true
+    delete:
+      operationId: clones--delete
+      summary: Delete a clone
+      description: Delete a specific clone.  This operation must be run asynchronously
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/clone_id'
+      requestBody:
+        $ref: '#/components/requestBodies/DeleteCloneRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+    patch:
+      operationId: clones--modify
+      summary: Update clone
+      description: Update the clone's name or description
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/clone_id'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateCloneRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+  /rest/services/storage/v1/clones/{clone_id}/map:
+    post:
+      operationId: clones--map
+      summary: Map hosts to clone
+      description: This endpoint map hosts to clone.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/clone_id'
+      requestBody:
+        $ref: '#/components/requestBodies/MapRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+  /rest/services/storage/v1/clones/{clone_id}/refresh:
+    post:
+      operationId: clones--refresh
+      summary: Refresh Clone
+      description: |-
+        This endpoint provides a mechanism to refresh a clone of a mobility group.
+        Refreshing will update the clone with latest data copied from source.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/clone_id'
+      responses:
+        '202':
+          $ref: '#/components/responses/Code202'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+  /rest/services/storage/v1/clones/{clone_id}/unmap:
+    post:
+      operationId: clones--unmap
+      summary: Unmap hosts from clone
+      description: |-
+        This endpoint unmap hosts from the clone. This takes list of host mappings id which is generated by APEX Navigator for Multicloud Storage.
+        To get host mappings id, user needs to fetch clone details using clone_id.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/clone_id'
+      requestBody:
+        $ref: '#/components/requestBodies/UnmapRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - clones
+  /rest/services/storage/v1/entitlements:
+    get:
+      operationId: entitlements--collection
+      summary: Collection Query
+      description: Get a list of all entitlements.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value may be platform specified, either globally or per resource type. If paging is supported, the max size should be limited also, whether or not the client specifies a limit. A reasonable max page size in on the order of 1000 items but can vary. Smaller could be better for large instance representations.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Optional page size desired for the response. Default value may be platform specified, either globally or per resource type. If paging is supported, the max size should be limited also, whether or not the client specifies a limit. A reasonable max page size in on the order of 1000 items but can vary. Smaller could be better for large instance representations.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/EntitlementsCollection'
+        '206':
+          $ref: '#/components/responses/PagedEntitlementsCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - entitlements
+      x-cloudiq: true
+  /rest/services/storage/v1/entitlements/{id}:
+    get:
+      operationId: entitlements--instance
+      summary: Instance Query
+      description: Get a given entitlement.
+      parameters:
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: id
+          in: path
+          description: Unique identifier of the entitlements instance.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EntitlementsResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - entitlements
+      x-cloudiq: true
+  /rest/services/storage/v1/hosts:
+    get:
+      operationId: hosts--collection
+      summary: Collection Query
+      description: Get a list of all the host objects.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/HostsCollection'
+        '206':
+          $ref: '#/components/responses/PagedHostsCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - hosts
+      x-cloudiq: true
+  /rest/services/storage/v1/hosts/{id}:
+    get:
+      operationId: hosts--instance
+      summary: Instance Query
+      description: Get a host by its ID.
+      parameters:
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: id
+          in: path
+          description: The host ID to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/HostResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - hosts
+      x-cloudiq: true
+  /rest/services/storage/v1/licenses:
+    get:
+      operationId: licenses--collection
+      summary: Collection Query
+      description: Get a list of all licenses.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/LicensesCollection'
+        '206':
+          $ref: '#/components/responses/PagedLicensesCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - licenses
+      x-cloudiq: true
+  /rest/services/storage/v1/licenses/{id}:
+    get:
+      operationId: licenses--instance
+      summary: Instance Query
+      description: Get a given licenses.
+      parameters:
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: id
+          in: path
+          description: Unique identifier of the licenses instance.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/LicensesResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - licenses
+      x-cloudiq: true
+  /rest/services/storage/v1/mobility-groups:
+    get:
+      operationId: mobility-groups--collection
+      summary: Get Source Mobility Groups
+      description: This endpoint returns a list of all mobility groups that can be used as the data source for copies to target systems.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/MobilityGroupsResponse'
+        '206':
+          $ref: '#/components/responses/PagedMobilityGroupsResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-groups
+      x-cloudiq: true
+    post:
+      operationId: mobility-groups--create
+      summary: Create Source Mobility Group
+      description: |-
+        This endpoint provides the input to create a source mobility group.  A source mobility group has the information about the source system (e.g. a Powerflex array) and the list of members (e.g. volumes) that will be used as the source of data mobility copy to a target system (e.g. a Powerflex in the cloud).
+        Must be run asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/async'
+      requestBody:
+        $ref: '#/components/requestBodies/SourceMobilityGroupRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-groups
+  /rest/services/storage/v1/mobility-groups/{mobility_group_id}:
+    get:
+      operationId: mobility-groups--instance
+      summary: Get Source Mobility Group
+      description: |-
+        The endpoint returns a specific mobility group that can be used as the data source for copies to target systems.
+        Must be executed with asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/mobility_group_id'
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/MobilityGroupResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - mobility-groups
+      x-cloudiq: true
+    patch:
+      operationId: mobility-groups--modify
+      summary: Update source mobility group
+      description: |-
+        Update a source mobility group.  The name, description and list of members of the mobility group can be updated.  If the list of members is updated the user doing the update must have write permissions for all target systems of this mobility group.
+        Must be run asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/mobility_group_id'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateMobilityGroupRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-groups
+    delete:
+      operationId: mobility-groups--delete
+      summary: Delete source mobility group
+      description: |-
+        Delete a source mobility group.  All targets of the mobility group must be deleted first.  
+        Must be run asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/mobility_group_id'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-groups
+  /rest/services/storage/v1/mobility-groups/{mobility_group_id}/copy:
+    post:
+      operationId: mobility-groups--copy
+      summary: Start copy operation on DMG
+      description: Start on-demand copy/refresh for Data Mobility Group
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/mobility_group_id'
+      requestBody:
+        $ref: '#/components/requestBodies/StartCopyRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-groups
+  /rest/services/storage/v1/mobility-targets:
+    post:
+      operationId: mobility-targets--create
+      summary: Create a mobility target
+      description: |-
+        This endpoint provides a mechanism to add a target to a mobility group.
+        Must be run asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/async'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTargetRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-targets
+    get:
+      operationId: mobility-targets--collection
+      summary: Get Mobility Targets
+      description: Endpoint to get all mobility targets
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/MobilityTargetsResponse'
+        '206':
+          $ref: '#/components/responses/PagedMobilityTargetsResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-targets
+      x-cloudiq: true
+  /rest/services/storage/v1/mobility-targets/{mobility_target_id}:
+    get:
+      operationId: mobility-targets--instance
+      summary: Get Mobility Target
+      description: Get a specific mobility target
+      parameters:
+        - $ref: '#/components/parameters/mobility_target_id'
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/MobilityTargetResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - mobility-targets
+      x-cloudiq: true
+    patch:
+      operationId: mobility-targets--modify
+      summary: Update mobility target
+      description: Update a mobility target. Must be run asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/mobility_target_id'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateMobilityTargetRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-targets
+    delete:
+      operationId: mobility-targets--delete
+      summary: Delete mobility target
+      description: |-
+        Delete a mobility target.
+        Must be run asynchronously.
+      parameters:
+        - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/mobility_target_id'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - mobility-targets
+  /rest/services/storage/v1/pools:
+    get:
+      operationId: pools--collection
+      summary: Collection Query
+      description: Get a list of all the pool objects.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: 'Optional page size desired for the response. Default value is 500. '
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/PoolsCollection'
+        '206':
+          $ref: '#/components/responses/PagedPoolsCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - pools
+      x-cloudiq: true
+  /rest/services/storage/v1/pools/{id}:
+    get:
+      operationId: pools--instance
+      summary: Instance Query
+      description: Get a pool by its ID.
+      parameters:
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: id
+          in: path
+          description: The pool ID to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/PoolResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - pools
+      x-cloudiq: true
+  /rest/services/storage/v1/storage-products:
+    get:
+      operationId: storage-products--collection
+      summary: Get all the supported storage products list
+      description: Returns all the supported storage products by APEX Navigator for Multicloud Storage
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned,  but this can cause responses to be large and slow. Get faster  responses by selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 100.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Optional page offset for the response. This value determines the starting point within the collection of resource results and needs to be multiple of page size. For instance, for page size, 100, offset should be 0, 100, 200, .. Default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/StorageProductsResponse'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-products
+  /rest/services/storage/v1/storage-product-options:
+    get:
+      operationId: storage-product-options--collection
+      summary: GET offer templates for storage products
+      description: Gets available offer template(s) based on input
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned,  but this can cause responses to be large and slow. Get faster  responses by selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 100.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Optional page offset for the response. This value determines the starting point within the collection of resource results and needs to be multiple of page size. For instance, for page size, 100, offset should be 0, 100, 200, .. Default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/StorageProductOptionsResponse'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-product-options
+  /rest/services/storage/v1/storage-systems:
+    post:
+      operationId: storage-systems--create
+      summary: Deploy a new storage system in cloud
+      description: Deploys a new storage system instance as per the given configuration.
+      parameters:
+        - $ref: '#/components/parameters/async'
+      requestBody:
+        $ref: '#/components/requestBodies/StorageSystemPostRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-systems
+    get:
+      operationId: storage-systems--collection
+      summary: Collection Query
+      description: Get a list of all the storage system objects.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/StorageSystemsCollection'
+        '206':
+          $ref: '#/components/responses/PagedStorageSystemsCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - storage-systems
+      x-cloudiq: true
+  /rest/services/storage/v1/storage-systems/{id}:
+    delete:
+      operationId: storage-systems--delete
+      summary: Decommission storage system
+      description: Decommission the specified storage system from Dell APEX and the associated public cloud provider. This action is not reversible. Storage systems can only be decommissioned if they have been deployed by Dell APEX and are not in use by any mobility groups. Decommissioning a storage system can take several minutes. Use the async query parameter to retrieve the job ID and monitor progress through the Dell APEX jobs APIs.
+      parameters:
+        - $ref: '#/components/parameters/system_id'
+        - $ref: '#/components/parameters/async'
+      responses:
+        '202':
+          $ref: '#/components/responses/JobResponse'
+        '204':
+          $ref: '#/components/responses/Code204'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-systems
+    get:
+      operationId: storage-systems--instance
+      summary: Instance Query
+      description: Get a storage system by its ID.
+      parameters:
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: id
+          in: path
+          description: The storage system ID to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/StorageSystemResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - storage-systems
+      x-cloudiq: true
+  /rest/services/storage/v1/storage-systems/{id}/finalize-trust:
+    post:
+      operationId: storage-systems--finalize-trust
+      summary: Finalize system trust
+      description: |
+        Finalize the trust between on-premises storage system and APEX Navigator for Multicloud Storage.  This is required before you can perform any data mobility operations from or to an on-prem storage system on GUI.
+      parameters:
+        - $ref: '#/components/parameters/system_id'
+      requestBody:
+        $ref: '#/components/requestBodies/StorageSystemsFinalizeTrustPostRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/Code204'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-systems
+  /rest/services/storage/v1/storage-systems/{id}/initialize-trust:
+    post:
+      operationId: storage-systems--initialize-trust
+      summary: Initialize system trust
+      description: |
+        Initialize the trust between on-premises storage system and APEX Navigator for Multicloud Storage.  This is required before you can perform any data mobility operations from or to an on-prem storage system on GUI.
+      parameters:
+        - $ref: '#/components/parameters/system_id'
+      responses:
+        '200':
+          $ref: '#/components/responses/StorageSystemsInitializeTrustResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-systems
+  /rest/services/storage/v1/volumes:
+    get:
+      operationId: volumes--collection
+      summary: Collection Query
+      description: Get a list of all the volume objects.
+      parameters:
+        - name: filter
+          in: query
+          description: This filters rows in a query, by constraining the result to rows matching the property condition(s) specified. Multiple filters  can be combined with AND operators.
+          schema:
+            type: string
+            example: (simple)  ?filter=age ge 13 (complex)  ?filter=(age lt 18) or (name like "foo")
+            maxLength: 1024
+            minLength: 0
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: order
+          in: query
+          description: Sorts the result set by the properties specified. Ascending order is default if not specified.
+          schema:
+            type: string
+            example: '?order=last_name,age.dsc'
+            maxLength: 1024
+            minLength: 0
+        - name: limit
+          in: query
+          description: Optional page size desired for the response. Default value is 500.
+          schema:
+            type: integer
+            format: int32
+            example: 500
+            maximum: 1000
+            minimum: 1
+        - name: offset
+          in: query
+          description: Set the starting point within the collection of returned results. An  offset can only be set to a multiple of the page size. For example, for  a page size of 100, an offset can be to 0, 100, 200, 300, and so on.  The offset’s default value is 0.
+          schema:
+            type: integer
+            format: int32
+            maximum: 1000
+            minimum: 0
+      responses:
+        '200':
+          $ref: '#/components/responses/VolumesCollection'
+        '206':
+          $ref: '#/components/responses/PagedVolumesCollection'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - volumes
+      x-cloudiq: true
+  /rest/services/storage/v1/volumes/{id}:
+    get:
+      operationId: volumes--instance
+      summary: Instance Query
+      description: Get a volume by its ID.
+      parameters:
+        - name: select
+          in: query
+          description: By default, all properties of resource instances are returned, but this can cause responses to be large and slow. Get faster responses by  selecting specific properties to be returned.
+          schema:
+            type: string
+            example: '?select=id,name'
+            maxLength: 1024
+            minLength: 0
+        - name: id
+          in: path
+          description: The volume ID to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/VolumeResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - volumes
+      x-cloudiq: true
+  /rest/services/storage/v1/storage-system-tokens:
+    post:
+      operationId: storage-system-tokens--create
+      summary: Activate the storage system token.
+      description: Activate the storage system token in APEX Navigator for Multicloud Storage. The storage system token activation is required by any API driven data mobility and decomissioning operations.
+      requestBody:
+        $ref: '#/components/requestBodies/StorageSystemTokensCreateRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/ResourceIdResponse'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '409':
+          $ref: '#/components/responses/Code409'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-system-tokens
+  /rest/services/storage/v1/storage-system-tokens/{id}:
+    get:
+      operationId: storage-system-tokens--instance
+      summary: Instance by id.
+      description: Get a storage system token by its ID.
+      parameters:
+        - name: id
+          in: path
+          description: The storage system token ID to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/StorageSystemTokensInstance'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '403':
+          $ref: '#/components/responses/Code403'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '429':
+          $ref: '#/components/responses/Code429'
+        '500':
+          $ref: '#/components/responses/Code500'
+        '503':
+          $ref: '#/components/responses/Code503'
+      tags:
+        - storage-system-tokens
+    patch:
+      operationId: storage-system-tokens--modify
+      summary: Update the storage system token.
+      description: Update the access token of storage system.
+      parameters:
+        - name: id
+          in: path
+          description: The storage system token ID to retrieve.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/StorageSystemTokensModifyRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/Code204'
+        '400':
+          $ref: '#/components/responses/Code400'
+        '401':
+          $ref: '#/components/responses/Code401'
+        '404':
+          $ref: '#/components/responses/Code404'
+        '422':
+          $ref: '#/components/responses/Code422'
+        '500':
+          $ref: '#/components/responses/Code500'
+      tags:
+        - storage-system-tokens
+components:
+  parameters:
+    account_id:
+      name: account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: '123456789123'
+        pattern: ^\d{12}$
+      description: AWS account id.
+    async:
+      name: async
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+      description: Asynchronous operation support
+    clone_id:
+      schema:
+        type: string
+        example: POWERFLEX-AWSSIO08200000__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5
+        pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9-,]|[_](?![_]))+$
+      name: clone_id
+      in: path
+      required: true
+      description: ID of the clone
+    correlation-id:
+      schema:
+        type: string
+      in: query
+      name: correlation-id
+      description: Value is persisted in the resulting job, and any child jobs; allows queries to find disconnected synchronous jobs lost to a network disconnect or client or server failure.
+      required: false
+    mobility_group_id:
+      schema:
+        type: string
+      name: mobility_group_id
+      in: path
+      required: true
+      description: Mobility group identifier
+    mobility_target_id:
+      schema:
+        type: string
+      name: mobility_target_id
+      in: path
+      required: true
+      description: Mobility target identifier
+    permission_policy_id:
+      name: permission_policy_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: AWS Permission Policy Instance ID
+    system_id:
+      schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Storage system unique identifier.
+  requestBodies:
+    AwsAccountModifyRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AwsAccountModifyInput'
+    AwsAccountsCreateRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AwsAccountsCreateInput'
+    AwsTrustPolicyRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AwsTrustPolicyInput'
+      description: The request body when attempting to generate an AWS trust policy.
+    CreateCloneRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CloneCreateInput'
+    CreateTargetRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateTargetInput'
+    DeleteCloneRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeleteCloneInput'
+      description: Based on the parameter in the request, either fully clean up a clone from the system or remove the clone from APEX management but do not remove the system objects.
+    MapRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MapInput'
+          examples:
+            example-1:
+              value:
+                host_mappings:
+                  - POWERFLEX-ELMSIOENG10004__HOST__a1810e4300000007
+    SourceMobilityGroupRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SourceMobilityGroupInput'
+          examples:
+            example-1:
+              value:
+                name: Source group
+                description: Description of a source group
+                system_id: POWERFLEX-ELMSIO08200000
+                system_type: POWERFLEX
+                members:
+                  - POWERFLEX-ELMSIO08200000__LUN__1000
+    StartCopyRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StartCopyInput'
+    StorageSystemPostRequest:
+      description: Deployment request input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemDeploymentRequest'
+    StorageSystemTokensCreateRequest:
+      description: Storage system tokens create request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemTokensCreateRequest'
+    StorageSystemTokensModifyRequest:
+      description: Storage system tokens modify request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemTokensModifyRequest'
+    StorageSystemsFinalizeTrustPostRequest:
+      description: Request object to finalize the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemsFinalizeTrustPostRequest'
+    UnmapRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnmapInput'
+          examples:
+            example-1:
+              value:
+                host_mappings:
+                  - POWERFLEX-ELMSIOENG10004__DATAMOBILITYHOST__31182e76-6828-44f1-b7d8-5038b440f001
+    UpdateCloneRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateCloneInput'
+    UpdateMobilityGroupRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateMobilityGroupInput'
+    UpdateMobilityTargetRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateMobilityTargetInput'
+  responses:
+    AwsAccountResponse:
+      description: The response body returned when fetching information pertaining to the customer's AWS account.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AwsAccountsInstance'
+    AwsAccountsCreateResponse:
+      description: The response body returned after successfully granting Dell access to an AWS account.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RedactedAwsAccountInstance'
+    AwsPermissionPoliciesCollection:
+      description: The response body returned when retrieving the AWS permission policy required by Dell.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AwsPermissionPoliciesInstance'
+    AwsPermissionPolicyInstanceResponse:
+      description: A response body returned when retrieving an instance of the AWS permission policy required by Dell.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AwsPermissionPoliciesInstance'
+    AwsTrustPolicyResponse:
+      description: The response body returned when generating an AWS trust policy.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AwsTrustPolicy'
+    CloneResponse:
+      description: Clone response body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Clone'
+          examples:
+            example-1:
+              value:
+                id: POWERFLEX-AWSIO0820000__DATAMOBILITYGROUP_4e43fe4b-56db-4e0f-1431-bc5e6f7224cc
+                name: My_Clone
+                description: This clone is for Analytics
+                mobility_target_id: POWERFLEX-AWSIO0820000__MOBILITYGROUP_5555fe4b-56db-4e0f-1431-bc5e6f7226dd
+                creation_timestamp: 10122020T01:02:03.456Z
+                refresh_timestamp: 10222020T01:05:03.456Z
+                image_timestamp: 10122020T01:02:03.456Z
+                clone_volumes:
+                  - id: POWERFLEX-AWSIO0820000__DATAMOBILITYCLONE_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+                    parent_id: POWERFLEX-AWSIO0820000__DATAMOBILITYLUN__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+                    name: Target_Volume_Name_000001
+                    size: '1024000'
+                host_mappings:
+                  - host_name: Host1
+                    host_ip: 10.225.108.41
+                    host_id: POWERFLEX-AWSSIO0820000__HOST_34969d12-7631-4ba7-adc6-4e6baba1ba59
+    ClonesResponse:
+      description: List of clones
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Clone'
+          examples:
+            example-1:
+              value:
+                results:
+                  - id: POWERFLEX-AWSIO0820000__DATAMOBILITYGROUP_4e43fe4b-56db-4e0f-1431-bc5e6f7224cc
+                    name: My_Clone
+                    description: This clone is for Analytics
+                    mobility_target_id: POWERFLEX-AWSIO0820000__MOBILITYGROUP_5555fe4b-56db-4e0f-1431-bc5e6f7226dd
+                    creation_timestamp: 10122020T01:02:03.456Z
+                    refresh_timestamp: 10222020T01:05:03.456Z
+                    image_timestamp: 10122020T01:02:03.456Z
+                    clone_volumes:
+                      - id: POWERFLEX-AWSIO0820000__DATAMOBILITYCLONE_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+                        parent_id: POWERFLEX-AWSIO0820000__DATAMOBILITYLUN__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+                        name: Target_Volume_Name_000001
+                        size: '1024000'
+                    host_mappings:
+                      - host_name: Host1
+                        host_ip: 10.225.108.41
+                        host_id: POWERFLEX-AWSSIO0820000__HOST_34969d12-7631-4ba7-adc6-4e6baba1ba59
+    Code202:
+      description: Accepted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Job'
+    Code204:
+      description: No Content
+    Code400:
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code422:
+      description: Operation Failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code429:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Code503:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    EntitlementsCollection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntitlementsInstance'
+    EntitlementsResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EntitlementsInstance'
+    HostResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HostsInstance'
+    HostsCollection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostsInstance'
+    JobResponse:
+      description: Accepted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Job'
+    LicensesCollection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LicensesInstance'
+    LicensesResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LicensesInstance'
+    MobilityGroupResponse:
+      description: Source mobility group response body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MobilityGroup'
+    MobilityGroupsResponse:
+      description: List of mobility groups
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobilityGroup'
+    MobilityTargetResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MobilityTarget'
+    MobilityTargetsResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobilityTarget'
+    PagedClonesResponse:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Clone'
+    PagedEntitlementsCollection:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntitlementsInstance'
+    PagedHostsCollection:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostsInstance'
+    PagedLicensesCollection:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LicensesInstance'
+    PagedMobilityGroupsResponse:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobilityGroup'
+    PagedMobilityTargetsResponse:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobilityTarget'
+    PagedPoolsCollection:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PoolsInstance'
+    PagedStorageSystemsCollection:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StorageSystemsInstance'
+    PagedVolumesCollection:
+      description: Partial Content
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VolumesInstance'
+    PoolResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PoolsInstance'
+    PoolsCollection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PoolsInstance'
+    RedactedAwsAccountsCollection:
+      description: The response body returned when fetching a list of AWS accounts owned by a customer.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RedactedAwsAccountInstance'
+    ResourceIdResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceId'
+    StorageProductOptionsResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfferTemplateModel'
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+    StorageProductsResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StorageProductsInstance'
+              paging:
+                $ref: '#/components/schemas/PagingInformation'
+    StorageSystemResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemsInstance'
+    StorageSystemTokensInstance:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemTokensInstance'
+    StorageSystemsCollection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StorageSystemsInstance'
+    StorageSystemsInitializeTrustResponse:
+      description: Response object from initializing the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StorageSystemsInitializeTrustResponse'
+    VolumeResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VolumesInstance'
+    VolumesCollection:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VolumesInstance'
+  schemas:
+    AWSCloudOptions:
+      description: AWS Cloud
+      type: object
+      properties:
+            cloud_type:
+              description: Cloud target to identify the cloud type
+              type: string
+              example: AWS
+            account_id:
+              description: AWS account ID that uniquely identifies an account. The destination of the AWS resources created for the deployment
+              type: string
+            region:
+              description: AWS cloud region for deployment
+              type: string
+              example: us-east-1
+            availability_zone_topology:
+              $ref: '#/components/schemas/AvailabilityZoneTopologyEnum'
+            ssh_key_name:
+              description: Provide a ssh key name for APEX Navigator to create and use to launch APEX storage system EC2 instance with AWS. You can retrieve the private key from your AWS Secrets Manager using the same name
+              type: string
+              maxLength: 256
+              minLength: 1
+            vpc:
+              $ref: '#/components/schemas/Vpc'
+            subnet_options:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubnetOptions'
+      required:
+            - cloud_type
+            - account_id
+            - region
+            - ssh_key_name
+            - vpc
+            - subnet_options
+    AvailabilityZoneTopologyEnum:
+      description: |
+        This enum represents all the availability zone topology
+        * SINGLE_AVAILABILITY_ZONE
+        * MULTIPLE_AVAILABILITY_ZONE
+      type: string
+      example: SINGLE_AVAILABILITY_ZONE
+      enum:
+        - SINGLE_AVAILABILITY_ZONE
+        - MULTIPLE_AVAILABILITY_ZONE
+      title: AvailabilityZoneTopologyEnum
+    AwsAccountModifyInput:
+      description: Customer is allowed to update an ARN of the previously established APEX Navigator for Multicloud Storage role.
+      type: object
+      properties:
+        role_arn:
+          type: string
+          example: arn:aws:iam::123456789123:role/exampleRole
+          pattern: ^arn:aws(|-cn|-us-gov):iam::\d{12}:role\/[A-Za-z0-9+=,.@_-]+$
+      required:
+        - role_arn
+      title: AwsAccountModifyInput
+      x-examples:
+        example-1:
+          role_arn: arn:aws:iam::123456789123:role/exampleRole
+    AwsAccountsCreateInput:
+      description: As part of setting up a role, provide the ARN of the role. This allows APEX Navigator for Multicloud Storage to make API calls and manage and deploy storage.
+      type: object
+      properties:
+        role_arn:
+          type: string
+          example: arn:aws:iam::123456789123:role/exampleRole
+          pattern: ^arn:aws(|-cn|-us-gov):iam::\d{12}:role\/[A-Za-z0-9+=,.@_-]+$
+      required:
+        - role_arn
+      title: AwsAccountsCreateInput
+      x-examples:
+        example-1:
+          role_arn: arn:aws:iam::123456789123:role/exampleRole
+    AwsAccountsInstance:
+      description: The object displays information about the customer AWS account.
+      type: object
+      properties:
+        id:
+          description: Customer's AWS account id
+          type: string
+        aws_account_alias:
+          description: Customer's AWS account alias
+          type: string
+        status:
+          description: Describes the state of the AWS account that is being added for Dell to manage
+          type: string
+        role_arn:
+          description: Amazon Resource Name (ARN) for the role created by customer as part of establishing trust.
+          type: string
+      title: AwsAccountsInstance
+    AwsPermissionPoliciesInstance:
+      description: The response consists of permissions that allow APEX Navigator for Multicloud Storage to manage and deploy Dell storage and other resources in the customer AWS account.
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        permission_policy:
+          type: object
+          properties:
+            Version:
+              type: string
+            Statement:
+              type: array
+              items:
+                type: object
+                properties:
+                  Sid:
+                    type: string
+                  Effect:
+                    type: string
+                  Action:
+                    type: array
+                    items:
+                      type: string
+                  Resource:
+                    type: string
+                  Condition:
+                    type: object
+                    properties:
+                      StringLike:
+                        type: object
+                        properties:
+                          iam:AWSServiceName:
+                            type: array
+                            items:
+                              type: string
+      title: AwsPermissionPoliciesInstance
+      x-examples:
+        example-1:
+          id: string
+          version: string
+          permission_policy:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: VisualEditor0
+                Effect: Allow
+                Action:
+                  - elasticfilesystem:DeleteTags
+                  - elasticfilesystem:DeleteAccessPoint
+                  - elasticfilesystem:DeleteFileSystemPolicy
+                  - elasticfilesystem:DescribeBackupPolicy
+                  - elasticfilesystem:DescribeFileSystems
+                  - elasticfilesystem:DescribeFileSystemPolicy
+                  - elasticfilesystem:DescribeLifecycleConfiguration
+                  - elasticfilesystem:DescribeMountTargets
+                  - elasticfilesystem:DescribeMountTargetSecurityGroups
+                  - elasticfilesystem:DescribeTags
+                  - elasticfilesystem:ModifyMountTargetSecurityGroups
+                  - elasticfilesystem:PutBackupPolicy
+                  - elasticfilesystem:PutLifecycleConfiguration
+                  - elasticfilesystem:PutFileSystemPolicy
+                  - elasticfilesystem:UpdateFileSystem
+                  - elasticfilesystem:TagResource
+                  - elasticfilesystem:UntagResource
+                  - elasticfilesystem:ListTagsForResource
+                  - elasticfilesystem:Backup
+                  - elasticfilesystem:Restore
+                  - elasticloadbalancing:*
+                  - events:DeleteRule
+                  - events:EnableRule
+                  - events:List*
+                  - events:Put*
+                  - events:TestEventPattern
+                  - kms:DescribeKey
+                  - kms:ListAliases
+                  - logs:*
+                  - purchase-orders:*PurchaseOrders
+                  - network-firewall:List*
+                  - s3:*
+                  - ssm:StartSession
+                  - ssm:TerminateSession
+                  - sts:DecodeAuthorizationMessage
+                  - synthetics:*
+                  - xray:*
+                  - iam:PassRole
+                Resource: '*'
+              - Effect: Allow
+                Action: iam:CreateServiceLinkedRole
+                Resource: '*'
+                Condition:
+                  StringLike:
+                    iam:AWSServiceName:
+                      - Autoscaling.amazonaws.com
+                      - Ec2scheduled.amazonaws.com
+                      - Elasticfilesystem.amazonaws.com
+                      - Elasticloadbalancing.amazonaws.com
+                      - Spot.amazonaws.com
+                      - Spotfleet.amazonaws.com
+                      - Transitgateway.amazonaws.com
+    AwsTrustPolicy:
+      description: A trust policy is generated when a user is setting up a APEX Navigator for Multicloud Storage role. When attached to the APEX Navigator for Multicloud Storage role, it grants trust to an AWS principal owned by APEX Navigator for Multicloud Storage.
+      type: object
+      properties:
+        Version:
+          type: string
+        Statement:
+          type: array
+          items:
+            type: object
+            properties:
+              Effect:
+                type: string
+              Action:
+                type: string
+              Principal:
+                type: object
+                properties:
+                  AWS:
+                    type: string
+              Condition:
+                type: object
+                properties:
+                  StringEquals:
+                    type: object
+                    properties:
+                      sts:ExternalId:
+                        type: string
+                  Bool:
+                    type: object
+                    properties:
+                      aws:MultiFactorAuthPresent:
+                        type: string
+      title: ''
+      x-examples:
+        example-1:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: sts:AssumeRole
+              Principal:
+                AWS: arn:aws:iam::987654321987:user/exampleIamUser
+              Condition:
+                StringEquals:
+                  sts:ExternalId: test
+                Bool:
+                  aws:MultiFactorAuthPresent: 'true'
+    AwsTrustPolicyInput:
+      description: The input object when attempting to generate an AWS trust policy.
+      type: object
+      properties:
+        aws_account_id:
+          type: string
+          example: '123456789123'
+          pattern: ^\d{12}$
+      required:
+        - aws_account_id
+      title: AwsTrustPolicyInput
+    BooleanOption:
+      description: Model for providing boolean input
+      type: object
+      properties:
+        name:
+          description: Display name of the option
+          type: string
+        description:
+          description: Description for the option
+          type: string
+        default_value:
+          description: User input value for the option
+          type: boolean
+        is_configurable:
+          description: Is it mandatory
+          type: boolean
+        type:
+          type: string
+          default: BOOLEAN
+      required:
+        - name
+        - is_configurable
+        - type
+    Clone:
+      description: This is a clone of the storage objects on a remote system/destination.
+      type: object
+      properties:
+        id:
+          description: ' Identifier of the cloned object.'
+          type: string
+          example: POWERFLEX-AWSIO0820000__DATAMOBILITYGROUP_4e43fe4b-56db-4e0f-1431-bc5e6f7224cc
+        name:
+          description: Name of the clone.
+          type: string
+          example: My_Clone
+        description:
+          description: Description of the clone.
+          type: string
+          example: This clone is for Analytics
+        mobility_target_id:
+          type: string
+          example: POWERFLEX-AWSIO0820000__MOBILITYGROUP_5555fe4b-56db-4e0f-1431-bc5e6f7226dd
+        creation_timestamp:
+          description: When the clone was created
+          type: string
+          example: 10122020T01:02:03.456Z
+        refresh_timestamp:
+          description: When the clone was last updated
+          type: string
+          example: 10222020T01:05:03.456Z
+        image_timestamp:
+          type: string
+          example: 10122020T01:02:03.456Z
+        clone_volumes:
+          description: 'A list of storage object identifiers representing the copied instance on the destination/target for which a clone is created. '
+          type: array
+          items:
+            $ref: '#/components/schemas/CloneMobilityMember'
+        host_mappings:
+          description: A list of the hosts/SDCs mapped to the clone
+          type: array
+          items:
+            $ref: '#/components/schemas/CloneToHostMapping'
+      required:
+        - id
+        - name
+        - description
+        - creation_timestamp
+        - refresh_timestamp
+        - image_timestamp
+        - clone_volumes
+        - host_mappings
+      title: Clone
+      x-examples:
+        example-1:
+          id: POWERFLEX-AWSIO0820000__DATAMOBILITYGROUP_4e43fe4b-56db-4e0f-1431-bc5e6f7224cc
+          name: My_Clone
+          description: This clone is for Analytics
+          mobility_target_id: POWERFLEX-AWSIO0820000__MOBILITYGROUP_5555fe4b-56db-4e0f-1431-bc5e6f7226dd
+          creation_timestamp: 10122020T01:02:03.456Z
+          refresh_timestamp: 10222020T01:05:03.456Z
+          image_timestamp: 10122020T01:02:03.456Z
+          clone_volumes:
+            - id: POWERFLEX-AWSIO0820000__DATAMOBILITYCLONE_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+              parent_id: POWERFLEX-AWSIO0820000__DATAMOBILITYLUN__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+              name: Target_Volume_Name_000001
+              size: '1024000'
+          host_mappings:
+            - host_name: Host1
+              host_ip: 10.225.108.41
+              host_id: POWERFLEX-AWSSIO0820000__HOST_34969d12-7631-4ba7-adc6-4e6baba1ba59
+    CloneCreateInput:
+      description: Entity that will be passed on to create a clone
+      type: object
+      properties:
+        name:
+          description: Name of this clone group
+          type: string
+          example: test clone
+          maxLength: 123
+          minLength: 1
+          pattern: ^([a-zA-Z]+)([a-zA-Z0-9!@#$%^&*\/()\[\]{}\\<>+_;:?.,"'=\s-|~`]*)$
+        description:
+          description: Description of this clone group
+          type: string
+          example: Clone group to mount a mobility image for testing in the cloud
+          maxLength: 2048
+          minLength: 0
+        mobility_target_id:
+          description: ID of the mobility target that was used to create the clone
+          type: string
+          example: POWERFLEX-AWSSIO08200000__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5
+          pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9-,]|[_](?![_]))+$
+        host_mappings:
+          description: IDs of hosts that this clone should be exposed to
+          type: array
+          items:
+            $ref: '#/components/schemas/HostIdentifier'
+          uniqueItems: true
+      additionalProperties: false
+      maxProperties: 4
+      minProperties: 3
+      required:
+        - name
+        - mobility_target_id
+      title: CloneCreateInput
+      x-examples:
+        example-1:
+          name: test clone
+          description: Clone group to mount a mobility image for testing in the cloud
+          mobility_target_id: POWERFLEX-AWSSIO08200000__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5
+          host_mappings:
+            - POWERFLEX-AWSSIO08200000__HOST__34969d12-7631-4ba7-adc6-4e6baba1ba59
+    CloneMobilityMember:
+      description: A clone mobility member provides details of clone volume.
+      type: object
+      properties:
+        id:
+          description: ID of the member
+          type: string
+          example: POWERFLEX-AWSIO0820000__DATAMOBILITYCLONE_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+        parent_id:
+          description: Identifier of the related mobility member
+          type: string
+          example: POWERFLEX-AWSIO0820000__DATAMOBILITYLUN__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+        name:
+          description: Name of the member
+          type: string
+          example: Target_Volume_Name_000001
+        size:
+          description: Size of the member
+          type: string
+          example: '1024000'
+      required:
+        - id
+        - parent_id
+        - name
+        - size
+      x-examples:
+        example-1:
+          id: POWERFLEX-AWSIO0820000__DATAMOBILITYCLONE_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+          parent_id: POWERFLEX-AWSIO0820000__DATAMOBILITYLUN__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+          name: Target_Volume_Name_000001
+          size: '1024000'
+    CloneToHostMapping:
+      description: This represents the mapping of a repurposed (clone) storage object to a host (presumably using the clone for some analytical workload).
+      type: object
+      properties:
+        host_name:
+          description: Name of host/SDC to be mapped to the clone
+          type: string
+          example: Host1
+        host_ip:
+          description: IP Address of host
+          type: string
+          example: 10.225.108.41
+        host_id:
+          description: Identifier of the host
+          type: string
+          example: POWERFLEX-AWSSIO0820000__HOST_34969d12-7631-4ba7-adc6-4e6baba1ba59
+        id:
+          description: This is a host mappings id generated by APEX Navigator for Multicloud Storage.
+          type: string
+          example: POWERFLEX-AWSSIO0820000__DATAMOBILITYHOST__e78c9e78-81e4-4b62-980d-2f5ef4634668
+        nqn:
+          description: NVMe qualified name. Only applicable if host_initiator_protocol is NVMe.
+          type: string
+          example: nqn.1988-11.com.dell:powerflex:00:16e1e75a84c3c20e
+        host_initiator_protocol:
+          $ref: '#/components/schemas/HostInitiatorProtocolEnum'
+      required:
+        - host_name
+        - host_ip
+        - host_id
+      x-examples:
+        example-1:
+          id: POWERFLEX-AWSSIO0820000__DATAMOBILITYHOST__e78c9e78-81e4-4b62-980d-2f5ef4634668
+          host_name: Host1
+          host_initiator_protocol: NVMe
+          host_id: POWERFLEX-AWSSIO0820000__HOST__f129dc0700000000
+          host_ip: 10.225.108.41
+          nqn: nqn.1988-11.com.dell:powerflex:00:16e1e75a84c3c20e
+    CloudProviderEnum:
+      description: |
+        Enum for all the supported cloud providers
+        * AWS - Amazon Web Services
+      type: string
+      default: AWS
+      enum:
+        - AWS
+      title: CloudProviderEnum
+    CloudTarget:
+      description: Cloud target to identify the cloud type
+      type: object
+      properties:
+        cloud_type:
+          type: string
+      required:
+        - cloud_type
+    CreateTargetBaseInput:
+      description: Abstract input for creating a mobility target
+      type: object
+      properties:
+        name:
+          description: Name of the mobility target
+          type: string
+          example: Analytics target
+          maxLength: 128
+          minLength: 1
+        description:
+          description: Description of the mobility target
+          type: string
+          example: Target for doing analytics in the cloud
+          maxLength: 2048
+          minLength: 0
+        system_id:
+          description: Identifier of the target system
+          type: string
+          example: POWERFLEX-AWSSIO08200000
+          pattern: ^POWERFLEX-[A-Z0-9]{14,16}$
+        system_type:
+          $ref: '#/components/schemas/StorageSystemTypeEnum'
+        target_system_options:
+          $ref: '#/components/schemas/TargetSystemOptions'
+        bandwidth_limit:
+          description: Bandwidth limit in Mbps (Mega bits per second).
+          type: integer
+          example: 512
+          minimum: 1
+      required:
+        - name
+        - system_id
+        - system_type
+        - source_mobility_group_id
+        - target_system_options
+      title: Mobility target input
+      x-examples:
+        example-1:
+          name: Analytics target
+          description: Target for doing analytics in the cloud
+          system_id: POWERFLEX-AWSSIO08200000
+          system_type: POWERFLEX
+          source_mobility_group_id: POWERFLEX-AWSSIO08200000__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5
+          bandwidth_limit: 512
+          TargetSystemOptions:
+            storage_pool: POWERFLEX-AWSIO820000000__STORAGEPOOL__poolxyz
+      x-internal: true
+      x-parent: abstract
+    CreateTargetInput:
+      description: Input for creating a mobility target
+      type: object
+      properties:
+          source_mobility_group_id:
+            description: ID of the source mobility group
+            type: string
+            example: POWERFLEX-ELMSIO08200000__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d1234
+            pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9-,]|[_](?![_]))+$
+          name:
+            description: Name of the mobility target
+            type: string
+            example: Analytics target
+            maxLength: 128
+            minLength: 1
+          description:
+            description: Description of the mobility target
+            type: string
+            example: Target for doing analytics in the cloud
+            maxLength: 2048
+            minLength: 0
+          system_id:
+            description: Identifier of the target system
+            type: string
+            example: POWERFLEX-AWSSIO08200000
+            pattern: ^POWERFLEX-[A-Z0-9]{14,16}$
+          system_type:
+            $ref: '#/components/schemas/StorageSystemTypeEnum'
+          target_system_options:
+            $ref: '#/components/schemas/TargetSystemOptions'
+          bandwidth_limit:
+            description: Bandwidth limit in Mbps (Mega bits per second).
+            type: integer
+            example: 512
+            minimum: 1
+      required:
+        - name
+        - system_id
+        - system_type
+        - source_mobility_group_id
+        - target_system_options
+    DeleteCloneInput:
+      description: Delete a clone input
+      type: object
+      properties:
+        remove_from_system:
+          description: If true remove the clone from the system if false the clone will remain on the system but will be removed from APEX management.
+          type: boolean
+      required:
+        - remove_from_system
+      title: DeleteCloneInput
+      x-examples:
+        example-1:
+          remove_from_system: true
+    EntitlementsInstance:
+      description: Properties of a entitlements instance.
+      type: object
+      properties:
+        id:
+          description: Unique identifier of a entitlements resource.
+          type: string
+          x-ref: entitlements
+        product_type:
+          $ref: '#/components/schemas/ProductsTypeEnum'
+        license_type:
+          $ref: '#/components/schemas/LicensesTypeEnum'
+        expiration_type:
+          $ref: '#/components/schemas/LicensesExpirationTypeEnum'
+        purchased_capacity:
+          description: |
+            For a CAPACITY type entitlement, the limit on the entitlement, which limits the total capacity of activated licenses from this entitlement.
+          type: integer
+          format: int64
+        activated_capacity:
+          description: |
+            For a CAPACITY type entitlement, the current sum of the capacities of the activated licenses from this entitlement.
+          type: integer
+          format: int64
+        available_capacity:
+          description: |
+            For a CAPACITY type entitlement, the unactivated capacity, which is purchased_capacity-activated_capacity.
+          type: integer
+          format: int64
+        capacity_units:
+          $ref: '#/components/schemas/LicensesCapacityUnitsEnum'
+        start_time:
+          description: |
+            The time at which the entitlement began.
+          type: string
+          format: date-time
+        expiration_time:
+          description: |
+            For a TRIAL, EXT_TRIAL, TIME_LIMITED, GRACE_PERIOD, or RESTRICTED expiration type entitlement, the time at which the entitlement expires.
+          type: string
+          format: date-time
+      x-implementation-required:
+        - id
+        - product_type
+        - license_type
+        - expiration_type
+        - purchased_capacity
+        - activated_capacity
+        - available_capacity
+        - capacity_units
+        - start_time
+        - expiration_time
+    EnumOption:
+      description: Model for providing enumeration option
+      type: object
+      properties:
+        name:
+          description: Display name of the option
+          type: string
+        description:
+          description: Description of the option
+          type: string
+        available_options:
+          description: All the available values for the option
+          type: array
+          items:
+            type: string
+        default_value:
+          description: Default value for the option
+          type: string
+        is_configurable:
+          description: Is it mandatory
+          type: boolean
+        type:
+          description: Type of the option
+          type: string
+          default: ENUMERATION
+      required:
+        - name
+        - description
+        - available_options
+        - is_configurable
+        - type
+    ErrorMessage:
+      description: A message describing the failure, a contributing factor to the failure, or possibly the aftermath of the failure.
+      type: object
+      properties:
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        code:
+          description: |
+            Identifier for this kind of message. This is a string that can be used to look up 
+            additional information on the support website. (Note - specific format can be determined 
+            by platform - hex value codes are common in midrange storage.)
+          type: string
+        message:
+          description: Message string.
+          type: string
+        timestamp:
+          description: The time at which the error occurred.
+          type: string
+          format: date-time
+        message_l10n:
+          description: Localized message string.
+          type: string
+          x-implementation-note: Required, only when l10n supported.
+    ErrorResponse:
+      description: A standard response body used for all non-2xx REST responses.
+      type: object
+      properties:
+        http_status_code:
+          $ref: '#/components/schemas/HttpStatusEnum'
+        messages:
+          description: |
+            A list of messages describing the failure encountered by this request. At least 
+            one will be of Error severity because Info and Warning conditions do not cause 
+            the request to fail.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorMessage'
+    FreeTextOption:
+      description: Model for providing free text input
+      type: object
+      properties:
+        name:
+          description: Display name of the option
+          type: string
+        description:
+          description: Description for the option
+          type: string
+        is_configurable:
+          description: Is it mandatory
+          type: boolean
+        type:
+          type: string
+          default: FREETEXT
+      required:
+        - name
+        - is_configurable
+        - type
+    HostIdentifier:
+      description: Identifier of the host.
+      type: string
+      example: POWERFLEX-ELMSIOENG10004__HOST__a1810e4300000007
+      pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__HOST__(?:[a-f0-9]{16})$
+      x-examples:
+        example-1: POWERFLEX-ELMSIOENG10004__HOST__a1810e4300000007
+    HostInitiatorProtocolEnum:
+      description: Type of the host
+      type: string
+      example: NVMe
+      enum:
+        - NVMe
+        - SDC
+      title: HostInitiatorProtocolEnum
+      x-examples:
+        example-1: NVMe
+    HostMappingsIdentifier:
+      description: Host mapping identifier generated by APEX Navigator for Multicloud Storage
+      type: string
+      example: POWERFLEX-ELMSIOENG10004__DATAMOBILITYHOST__31182e76-6828-44f1-b7d8-5038b440f001
+      pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__DATAMOBILITYHOST__(?:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$
+      x-examples:
+        example-1: POWERFLEX-ELMSIOENG10004__DATAMOBILITYHOST__31182e76-6828-44f1-b7d8-5038b440f001
+    HostsInstance:
+      description: The host object.
+      type: object
+      properties:
+        id:
+          description: Host identifier.
+          type: string
+        system_id:
+          description: Unique identifier for the system that the host is connected to.
+          type: string
+        system_type:
+          description: Product type of the system.
+          type: string
+        description:
+          description: Description of the host.
+          type: string
+        initiator_count:
+          description: Number of initiators that are connected between the host or server and the monitored system.
+          type: integer
+          format: int64
+        initiator_protocol:
+          description: Type of initiator (FC or iSCSI) that the host or server uses to connect to a monitored system.
+          type: string
+        issue_count:
+          description: Number of health issues that are present on the host or server.
+          type: integer
+          format: int64
+        name:
+          description: Name of the host or server.
+          type: string
+        native_id:
+          description: Identifier of the host, defined by the system.
+          type: string
+        network_addresses:
+          description: IPv4 or IPv6 IP addresses, domain names, or netgroup name associated with the host or server.
+          type: string
+        type:
+          description: Type of the host.
+          type: string
+        operating_system:
+          description: Operating system of the host or server.
+          type: string
+        system_model:
+          description: Model of the system.
+          type: string
+        system_name:
+          description: Name of the system.
+          type: string
+        total_size:
+          description: 'Total size of all LUNs or Volumes that are provisioned to the host or server from the system - Unit: bytes'
+          type: integer
+          format: int64
+      required:
+        - id
+    HttpStatusEnum:
+      description: |
+        Possible HTTP status values of completed or failed jobs.
+        * 200 - OK - Successful completion, with a response body.
+        * 201 - Created - Successful completion of a create request (POST to collection resource).
+        * 202 - Accepted - Job has been started. Response body is a job resource instance. Response status and body are available from job when it completes.
+        * 204 - No Content - Successful completion, without a response body.
+        * 206 - Partial Content - Paged response to a collection query.
+        * 299 - Completed with Messages - Core request completed but has messages for client. Ancillary portions of request may have failed. Few requests should be able to return this, as the intent is for requests to be atomic - to either succeed or roll back on failure.
+        * 400 - Invalid Request - The request is incorrect. To the extent possible, validate requests up front and use this code. Details in the response body.
+        * 401 - Unauthorized - The request cannot be authenticated.
+        * 403 - Forbidden - The request is not allowed for this client.
+        * 404 - Not Found - The id value in the request URL is not valid.
+        * 409 - Conflict - The request conflicts with current state of target resource.
+        * 422 - Operation Failed - The request failed during execution.
+        * 429 - Too Many Requests - This particular client needs to slow down and take it easy. Retry after a delay.
+        * 500 - Internal Error - This means the product has a bug and customer should contact support.
+        * 503 - Service Unavailable - The service is temporarily unavailable. Try again later.
+      type: integer
+      enum:
+        - 200
+        - 201
+        - 202
+        - 204
+        - 206
+        - 299
+        - 400
+        - 401
+        - 403
+        - 404
+        - 409
+        - 422
+        - 429
+        - 500
+        - 503
+      title: HttpStatusEnum
+      x-units: FACT
+    Job:
+      description: Job
+      type: object
+      properties:
+        id:
+          description: ID of the APEX job tracking this operation
+          type: string
+          example: 22807617-790e-410d-8964-3b4805d99e45
+      required:
+        - id
+      title: Job
+      x-examples:
+        example-1:
+          id: 22807617-790e-410d-8964-3b4805d99e45
+    LicensesCapacityUnitsEnum:
+      description: |
+        Valid values of license capacity_units attribute.
+        * COUNT - A specific quantity limit.
+        * PERCENT - A percentage value in the 0-100 range.
+        * REQUEST_P_MIN - Requests per minute.
+        * BYTE - Bytes of data.
+        * BYTE_P_SEC- Bytes per second of throughput.
+        * IO_P_SEC - IOs per second of throughput.
+      type: string
+      default: COUNT
+      enum:
+        - COUNT
+        - PERCENT
+        - REQUEST_P_MIN
+        - BYTE
+        - BYTE_P_SEC
+        - IO_P_SEC
+      x-implementation-note: Try to keep this as a subset of XUnitsEnum. Also, don't add duplicates that just change units - MB/sec or TB or whatever. COUNT is for odd values like a limit on the max number of appliances licensed to be in a cluster.
+    LicensesExpirationTypeEnum:
+      description: |
+        The various types of license duration or expiration.
+        * TRIAL - A short-term license to sample functionality.
+        * EXT_TRIAL - A one-time extension to an existing trial license.
+        * TIME_LIMITED - A license with an expiration time.
+        * GRACE_PERIOD - A time-limited license that allows a short period of continued use after expiration.
+        * RESTRICTED - A time limited license that restricts functionality after expiration. Generally allows use of existing configuration but not provisioning and some kinds of configuration changes.
+        * PERMANENT - A non-expiring license.
+      type: string
+      enum:
+        - TRIAL
+        - EXT_TRIAL
+        - TIME_LIMITED
+        - GRACE_PERIOD
+        - RESTRICTED
+        - PERMANENT
+      x-implementation-note: Only include values in this enum that your product licenses require.
+    LicensesInstance:
+      description: Properties of a licenses instance.
+      type: object
+      properties:
+        id:
+          description: Unique identifier of a licenses resource.
+          type: string
+          x-ref: licenses
+        name:
+          description: The name of the license.
+          type: string
+          x-implementation-note: Could be a per-product enum.
+        type:
+          $ref: '#/components/schemas/LicensesTypeEnum'
+        start_time:
+          description: |
+            The time at which the license began.
+          type: string
+          format: date-time
+        expiration_type:
+          $ref: '#/components/schemas/LicensesExpirationTypeEnum'
+        expiration_time:
+          description: |
+            For a TRIAL, EXT_TRIAL, TIME_LIMITED, GRACE_PERIOD, or RESTRICTED expiration type license, the time at which the license will expire.
+          type: string
+          format: date-time
+        capacity:
+          description: |
+            For a CAPACITY type license, the limit on the license.
+          type: integer
+          format: int64
+          x-implementation-note: Units of the value varies by product/license, could be bytes, bytes/sec, ports, cores, etc...
+        capacity_units:
+          $ref: '#/components/schemas/LicensesCapacityUnitsEnum'
+        entitlement_id:
+          description: |
+            For licenses derived from ELMS entitlements, the entitlement from which this license was activated.
+          type: string
+          x-ref: entitlements
+        system_id:
+          description: |
+            The system on which this license is activated.
+          type: string
+          x-implementation-note: Only necessary for resource servers that supply information about multiple systems.
+          x-ref: systems
+      x-implementation-required:
+        - id
+        - name
+        - type
+        - expiration_type
+        - expiration_time
+    LicensesTypeEnum:
+      description: |
+        The various types of licenses:
+        * PERPETUAL - Perpetual licenses never expire but do not include support.
+        * SUBSCRIPTION - Subscription licenses include support.
+        * EVALUATION - Evaluation licenses do not include support.
+      type: string
+      enum:
+        - PERPETUAL
+        - SUBSCRIPTION
+        - EVALUATION
+      x-implementation-note: Only include values in this enum that your product licenses require.
+    MapInput:
+      description: MapInput
+      type: object
+      properties:
+        host_mappings:
+          description: list of hosts to be mapped
+          type: array
+          items:
+            $ref: '#/components/schemas/HostIdentifier'
+          minItems: 1
+          uniqueItems: true
+      maxProperties: 1
+      minProperties: 1
+      required:
+        - host_mappings
+      title: MapInput
+      x-examples:
+        example-1:
+          host_mappings:
+            - POWERFLEX-ELMSIOENG10004__HOST__a1810e4300000007
+    MobilityGroup:
+      description: Mobility group
+      type: object
+      properties:
+        id:
+          description: Mobility group identifier
+          type: string
+          example: POWERFLEX-ELMSIO0820000__DATAMOBILITYGROUP__3d07605a-0c68-4a86-9da2-dd9ccd1925af
+        name:
+          description: Mobility group name
+          type: string
+          example: Analytics Mobility Group
+        description:
+          description: Mobility group description
+          type: string
+          example: Volume Grouping for Analytics
+        system_id:
+          description: Identifier of the system for the mobility group members
+          type: string
+          example: POWERFLEX-ELMSIO0820000
+        system_type:
+          $ref: '#/components/schemas/StorageSystemTypeEnum'
+        creation_timestamp:
+          description: When the mobility group was created
+          type: string
+          example: 10122020T01:02:03.456Z
+        members:
+          description: 'A list of members (e.g. volumes) for source groups that the user wants to copy.  '
+          type: array
+          items:
+            $ref: '#/components/schemas/MobilityMember'
+      required:
+        - id
+        - name
+        - system_id
+        - system_type
+        - creation_timestamp
+        - members
+      title: Mobility Group
+      x-examples:
+        example-1:
+          id: POWERFLEX-ELMSIO0820000__DATAMOBILITYGROUP__3d07605a-0c68-4a86-9da2-dd9ccd1925af
+          name: Analytics Mobility Group
+          description: Volume Grouping for Analytics
+          system_id: POWERFLEX-ELMSIO0820000
+          system_type: POWERFLEX
+          creation_timestamp: 10122020T01:02:03.456Z
+          members:
+            - id: POWERFLEX-ELMSIO0820000__LUN__1000
+              name: volume_123
+              size: '1024000'
+            - id: POWERFLEX-ELMSIO0820000__LUN__2000
+              name: volume_456
+              size: '2048000'
+    MobilityMember:
+      description: A mobility member is an object (e.g. volume) that is part of a mobility group that will be the source of mobility copy operations.
+      type: object
+      properties:
+        id:
+          description: Identifier of the member (e.g. PowerFlex volume identifier)
+          type: string
+          example: POWERFLEX-ELMSIO0820000__LUN__1000
+        name:
+          description: Name of the member (e.g. name of the volume)
+          type: string
+          example: volume_123
+        size:
+          description: Size of the member (e.g. volume size in bytes)
+          type: string
+          example: '1024000'
+      required:
+        - id
+        - name
+        - size
+      x-examples:
+        example-1:
+          id: POWERFLEX-ELMSIO0820000__LUN__1000
+          name: volume_123
+          size: '1024000'
+    MobilityMemberMap:
+      description: A mobility member map is a mapping of a mobility member and it's related member.  For example a target volume with a reference to the source volume.  Or a clone volume and its related target volume.
+      type: object
+      properties:
+        id:
+          description: ID of the member
+          type: string
+          example: POWERFLEX-ELMSIO0820000__MOBILITYMEMBER_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+        parent_id:
+          description: Identifier of the related mobility member
+          type: string
+          example: POWERFLEX-ELMSIO0820000__MOBILITYMEMBER__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+        name:
+          description: Name of the member
+          type: string
+          example: volume_123
+        size:
+          description: Size of the member
+          type: string
+          example: '1024000'
+      required:
+        - id
+        - parent_id
+        - name
+        - size
+      x-examples:
+        example-1:
+          id: POWERFLEX-ELMSIO0820000__MOBILITYMEMBER_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+          parent_id: POWERFLEX-ELMSIO0820000__MOBILITYMEMBER__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+          name: volume_123
+          size: '1024000'
+    MobilityTarget:
+      description: MobilityTarget
+      type: object
+      properties:
+        id:
+          description: Idenifier of this target mobility group
+          type: string
+          example: POWERFLEX-AWSSIO08200000__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5
+        name:
+          description: Name of the mobility target
+          type: string
+          example: Analytics target
+        description:
+          description: Description of the mobility target
+          type: string
+          example: This is the target used for analytics in the cloud
+        system_type:
+          $ref: '#/components/schemas/StorageSystemTypeEnum'
+        system_id:
+          description: ID of the target system
+          type: string
+          example: POWERFLEX-AWSSIO08200000
+        source_mobility_group_id:
+          description: ID of the source mobility group
+          type: string
+          example: POWERFLEX-ELMSIO08200000__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d1234
+        creation_timestamp:
+          description: Timestamp from when the group was created
+          type: string
+          example: 10122020T01:02:03.456Z
+        image_timestamp:
+          description: Timestamp of the last source image copied to this target
+          type: string
+          example: 10122020T01:02:03.456Z
+        last_copy_job_id:
+          type: string
+          example: abb8668f-1d69-4312-9389-f344e33b9a16
+        target_members:
+          type: array
+          items:
+            $ref: '#/components/schemas/MobilityMemberMap'
+        bandwidth_limit:
+          description: Bandwidth limit in Mbps (Mega bits per second).
+          type: integer
+          example: 512
+          minimum: 1
+      required:
+        - id
+        - name
+        - description
+        - system_id
+        - source_mobility_group_id
+        - creation_timestamp
+      title: MobilityTarget
+      x-examples:
+        example-1:
+          id: POWERFLEX-AWSSIO08200000__DATAMOBILITYGROUP__a90fcfaf-c61e-4b4d-8f89-65c6ef00dfd5
+          name: Analytics target
+          description: This is the target used for analytics in the cloud
+          system_type: POWERFLEX
+          system_id: POWERFLEX-AWSSIO08200000
+          source_mobility_group_id: POWERFLEX-ELMSIO08200000__DATAMOBILITYGROUP__fcdecfaf-c61e-4b4d-8f89-65c6ef00d1234
+          creation_timestamp: 10122020T01:02:03.456Z
+          image_timestamp: 10122020T01:02:03.456Z
+          last_copy_job_id: abb8668f-1d69-4312-9389-f344e33b9a16
+          bandwidth_limit: 512
+          target_members:
+            - id: POWERFLEX-ELMSIO0820000__MOBILITYMEMBER_a302a2e0-5767-4eea-b85e-c6eaaf3020c4
+              parent_id: POWERFLEX-ELMSIO0820000__MOBILITYMEMBER__cdafa2e0-5767-4eea-b85e-c6eaaf3030dc
+              name: volume_123
+              size: '1024000'
+    MultiselectFreetextOption:
+      description: Model for providing multi select option
+      type: object
+      properties:
+        name:
+          description: Display name of the option
+          type: string
+        description:
+          description: Description of the option
+          type: string
+        available_options:
+          description: All the available values for the option
+          type: array
+          items:
+            type: string
+        is_configurable:
+          description: Is it mandatory
+          type: boolean
+        type:
+          description: Type of the option
+          type: string
+          default: MULTISELECT_FREETEXT
+      required:
+        - name
+        - description
+        - available_options
+        - is_configurable
+        - type
+    OfferTemplateModel:
+      description: Model for exposing the storage products specific offer template
+      type: object
+      properties:
+        id:
+          description: ''
+          type: string
+          readOnly: true
+        system_type:
+          $ref: '#/components/schemas/StorageProductEnum'
+        storage_product_version:
+          description: Version of the storage product
+          type: string
+          example: '4.0'
+        cloud_type:
+          $ref: '#/components/schemas/CloudProviderEnum'
+        supported_tier_info:
+          description: 'Supported tier information of storage product '
+          type: array
+          items:
+            $ref: '#/components/schemas/TierInfo'
+      required:
+        - system_type
+        - storage_product_version
+        - cloud_type
+        - supported_tier_info
+    PagingInformation:
+      description: Information provided in paged collection query responses, only when the response is partial, meaning that not all queried instances are returned. The return code will be 206 when this is returned.
+      type: object
+      properties:
+        total_instances:
+          description: The number of instances in the complete queried collection (not just the size of the current response). If the request was filtered, then this is the size of the complete filtered collection.
+          type: integer
+          x-units: COUNT
+        first:
+          description: The URL to fetch the first page of this collection (including filtering and sorting parameters).
+          type: string
+          format: uri
+        last:
+          description: The URL to fetch the last page of this collection (including filtering and sorting parameters).
+          type: string
+          format: uri
+        next:
+          description: The URL to fetch the next page of this collection (including filtering and sorting parameters). This will not be returned with the last page of a collection.
+          type: string
+          format: uri
+        prev:
+          description: The URL to fetch the previous page of this collection (including filtering and sorting parameters). This will not be returned with the first page of a collection.
+          type: string
+          format: uri
+      x-examples:
+        paging:
+          total_instances: 555
+          first: /rest/users
+          last: /rest/users?offset='200'&limit=2
+          next: /rest/users?offset=4&limit=2
+          prev: /rest/users?offset=0&limit=2
+    PoolsInstance:
+      description: The pool object.
+      type: object
+      properties:
+        id:
+          description: Identifier of the pool.
+          type: string
+        system_id:
+          description: Unique identifier for the device or appliance.
+          type: string
+        system_type:
+          description: Type of the system.
+          type: string
+        free_size:
+          description: 'Available capacity - Unit: bytes'
+          type: integer
+          format: int64
+        issue_count:
+          description: Number of health issues that are present on the pool.
+          type: integer
+          format: int64
+        name:
+          description: Name of the pool.
+          type: string
+        native_id:
+          description: Native identifier of the pool, defined by the system.
+          type: string
+        subscribed_percent:
+          description: Percentage of pool capacity that is provisioned.
+          type: number
+          format: double
+        subscribed_size:
+          description: 'Total subscribed capacity of the pool - Unit: bytes'
+          type: integer
+          format: int64
+        system_model:
+          description: Model of the system.
+          type: string
+        system_name:
+          description: Name of the system.
+          type: string
+        time_to_full_prediction:
+          description: 'This is an enumerated type showing a prediction of when the pool may become full. Possible values are: DAY (imminent); FULL (pool is full); WEEK (full in a week); MONTH (full in a month); QUARTER (full within a quarter); BEYOND (more than a quarter to become full); LEARNING (not enough data to perform an analysis); UNPREDICTABLE (missing or invalid data); or UNKNOWN (system error).'
+          type: string
+        total_size:
+          description: 'Total capacity of the pool - Unit: bytes'
+          type: integer
+          format: int64
+        type:
+          description: The type of pool.
+          type: string
+        used_percent:
+          description: Percentage of pool capacity that is being used.
+          type: number
+          format: double
+        used_size:
+          description: 'Capacity of the pool that is being used - Unit: bytes'
+          type: integer
+          format: int64
+      required:
+        - id
+    PowerFlexStorageOptions:
+      description: APEX Block Storage (PowerFlex) specific storage options
+      type: object
+      properties:
+            system_type:
+              description: Type of the Dell APEX storage system to be deployed. Only "POWERFLEX" is supported in this version.
+              type: string
+              example: POWERFLEX
+            version:
+              description: Storage product version to deploy
+              type: string
+              example: '4.5.1'
+            tier:
+              $ref: '#/components/schemas/PowerFlexTierEnum'
+            minimum_iops:
+              type: integer
+            minimum_usable_capacity:
+              type: integer
+      required:
+        - system_type
+        - version
+        - tier
+        - minimum_iops
+        - minimum_usable_capacity
+    PowerFlexTierEnum:
+      description: |
+        Enum for all the supported tier for PowerFlex.
+        * BALANCED
+        * PERFORMANCE_OPTIMIZED
+      type: string
+      example: BALANCED
+      enum:
+        - BALANCED
+        - PERFORMANCE_OPTIMIZED
+      title: PowerFlexTierEnum
+    ProductsTypeEnum:
+      description: |
+        Valid product (offering) types.
+        * POWERFLEX - A PowerFlex storage system.
+      type: string
+      enum:
+        - POWERFLEX
+      x-implementation-note: This enum should already exist in CIQ...
+    RangeOption:
+      description: Model for providing range option
+      type: object
+      properties:
+        name:
+          description: Display name of the option
+          type: string
+        description:
+          description: Description of the option
+          type: string
+        min_value:
+          description: Minimum value for the range selection
+          type: integer
+          format: int64
+        max_value:
+          description: Maximum value for the range selection
+          type: integer
+          format: int64
+        linear_interval:
+          description: Linear interval for the range to increase
+          type: integer
+          format: int64
+        unit:
+          description: Unit for the range
+          type: string
+        default_value:
+          description: Default value for the range
+          type: integer
+          format: int64
+        is_configurable:
+          description: Is it mandatory
+          type: boolean
+        type:
+          description: Type of the option
+          type: string
+          default: RANGE
+      required:
+        - name
+        - min_value
+        - max_value
+        - linear_interval
+        - unit
+        - is_configurable
+        - type
+    RedactedAwsAccountInstance:
+      description: An individual AWS account, excluding sensitive data.
+      type: object
+      properties:
+        id:
+          description: The id represents the aws account id
+          type: string
+        aws_account_alias:
+          type: string
+        status:
+          type: string
+      title: RedactedAwsAccountInstance
+    ResourceId:
+      description: Resource Identifier
+      type: object
+      properties:
+        id:
+          description: ID of the resource
+          type: string
+          example: 22807617-790e-410d-8964-3b4805d99e45
+      required:
+        - id
+      title: Resource Identifier
+      x-examples:
+        example-1:
+          id: 22807617-790e-410d-8964-3b4805d99e45
+    SeverityEnum:
+      description: |
+        The severity of the condition.
+        * INFO - Information that may be of use in understanding the failure. It is not a problem to fix.
+        * WARNING - A condition that isn't a failure, but may be unexpected or a contributing factor. It may be necessary to fix the condition to successfully retry the request.
+        * ERROR - An actual failure condition through which the request could not continue.
+        * CRITICAL - A failure with significant impact to the system. Normally failed commands roll back and are just ERROR, but may be used for exceptional cases.
+      type: string
+      enum:
+        - INFO
+        - WARNING
+        - ERROR
+        - CRITICAL
+      title: Severity Enum
+    SourceMobilityGroupInput:
+      description: This is the input for creating a source mobility group.  It has the source system identifier (e.g. PowerFlex identifier) and the list of member identifiers (e.g. volume identifiers) that will be used as the source of mobility copy operations.
+      type: object
+      properties:
+        name:
+          description: Name of the mobility group
+          type: string
+          example: Source group
+          maxLength: 128
+          minLength: 1
+        description:
+          description: Description of the mobility group
+          type: string
+          example: Description of a source group
+          maxLength: 2048
+          minLength: 0
+        system_id:
+          description: Identifier of the source system for this mobility group
+          type: string
+          example: POWERFLEX-ELMSIOPRODTST001
+          pattern: ^POWERFLEX-[A-Z0-9]{14,16}$
+        system_type:
+          $ref: '#/components/schemas/StorageSystemTypeEnum'
+        members:
+          description: List of the identifiers of the mobility group members  (e.g. volumes identifiers)
+          type: array
+          items:
+            type: string
+            pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9]|[_](?![_]))+$
+            example: POWERFLEX-ELMSIO82000000__LUN__1000
+          maxItems: 32
+          minItems: 1
+          uniqueItems: false
+      required:
+        - name
+        - system_id
+        - system_type
+        - members
+      title: SourceMobilityGroupInput
+      x-examples:
+        example-1:
+          name: Source group
+          description: Description of a source group
+          system_id: POWERFLEX-ELMSIOPRODTST001
+          system_type: POWERFLEX
+          members:
+            - POWERFLEX-ELMSIO82000000__LUN__1000
+            - POWERFLEX-ELMSIO82000000__LUN__2000
+    StartCopyInput:
+      description: StartCopyInput
+      type: object
+      properties:
+        mobility_target_ids:
+          type: array
+          items:
+            type: string
+            example: POWERFLEX-ELMSIO08200000__MOBILITYGROUP__3d07605a-0c68-4a86-9da2-dd9ccd1925af
+            pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9-,]|[_](?![_]))+$
+          maxItems: 1
+          minItems: 1
+          uniqueItems: true
+      title: StartCopyInput
+      x-examples:
+        example-1:
+          mobility_target_ids:
+            - POWERFLEX-ELMSIO08200000__MOBILITYGROUP__3d07605a-0c68-4a86-9da2-dd9ccd1925af
+    StorageProduct:
+      description: Common storage options
+      type: object
+      properties:
+        system_type:
+          description: Type of the Dell APEX storage system to be deployed. Only "PowerFlex" is supported in this version.
+          type: string
+          example: POWERFLEX
+        version:
+          description: Storage product version to deploy
+          type: string
+          example: '4.0'
+      required:
+        - system_type
+    StorageProductActionEnum:
+      description: |
+        Enum for all the supported storage products actions
+        * DELETE
+        * CREATE
+        * DEPLOY
+      type: string
+      default: CREATE
+      enum:
+        - DELETE
+        - CREATE
+        - DEPLOY
+      title: StorageProductActionEnum
+    StorageProductEnum:
+      description: |
+        Enum for all the supported storage products
+        * POWERFLEX - APEX block storage for cloud
+      type: string
+      example: POWERFLEX
+      enum:
+        - POWERFLEX
+      title: StorageProductEnum
+    StorageProductsInstance:
+      description: Model for storage product information and its supported cloud mapping along with supported versions
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          description: Name of the storage product
+          type: string
+        system_type:
+          $ref: '#/components/schemas/StorageProductEnum'
+        storage_type:
+          $ref: '#/components/schemas/StorageTypeEnum'
+        description:
+          description: Description of the storage product and its capabilities
+          type: string
+        cloud_type:
+          $ref: '#/components/schemas/CloudProviderEnum'
+        latest_version:
+          description: Latest supported version of the storage product on the cloud
+          type: string
+          example: '4.5'
+        support_map:
+          description: Supported cloud and version details
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportMap'
+      required:
+        - id
+        - name
+        - system_type
+        - storage_type
+        - description
+        - cloud_type
+        - latest_version
+        - support_map
+    StorageSystemDeploymentRequest:
+      description: Storage system deployment request input object
+      type: object
+      properties:
+        name:
+          description: Unique name to identify the deployed system
+          type: string
+          maxLength: 31
+          minLength: 1
+        cloud_options:
+          discriminator:
+            propertyName: cloud_type
+            mapping:
+              AWS: '#/components/schemas/AWSCloudOptions'
+          oneOf:
+              - $ref: '#/components/schemas/AWSCloudOptions'
+        storage_options:
+          discriminator:
+            propertyName: system_type
+            mapping:
+              POWERFLEX: '#/components/schemas/PowerFlexStorageOptions'
+          oneOf:
+            - $ref: '#/components/schemas/PowerFlexStorageOptions'
+        is_terms_and_conditions_agreed:
+          description: |-
+            By setting this option to true, you, on your behalf of your company, agree the following will apply: 
+            Your evaluation of Dell APEX Navigator for Multicloud is subject to and governed by Dell’s Cloud Service Offering Agreement (https://www.dell.com/learn/us/en/uscorp1/legal_terms-conditions_dellwebpage/csoa-agreement) and 
+            the Dell APEX Navigator for Multicloud Storage Service Offering Description (https://www.dell.com/learn/us/en/uscorp1/apex-services). 
+            Your evaluation of Dell APEX Block Storage for AWS is subject to and governed by Dell’s Software Evaluation Agreement (https://vault.pactsafe.io/s/3cb1f636-b99f-47ab-ad13-3ce168930a55/legal.html?g=38113#contract-s12zpzeii). Your evaluation of Dell APEX Navigator for Multicloud will be available for 90 days free of charge. At the end of the evaluation, the Dell APEX Navigator for Multicloud Storage evaluation service and associated data will remain accessible, subject to the terms identified in this paragraph, however, certain features will be limited until you order a new subscription.
+            Payment for any required public cloud service provider infrastructure requirements is your company’s responsibility.
+          type: boolean
+      required:
+        - name
+        - cloud_options
+        - storage_options
+        - is_terms_and_conditions_agreed
+    StorageSystemTokensCreateRequest:
+      description: Storage system tokens create request
+      type: object
+      properties:
+        system_type:
+          $ref: '#/components/schemas/StorageProductEnum'
+        system_id:
+          description: Unique identifier for the storage system.
+          type: string
+        access_token:
+          description: Access token of the system.
+          type: string
+      required:
+        - access_token
+        - system_type
+        - system_id
+      title: Storage system tokens create request
+    StorageSystemTokensInstance:
+      description: The Storage System Tokens Instance response.
+      type: object
+      properties:
+        system_type:
+          $ref: '#/components/schemas/StorageSystemTypeEnum'
+        system_id:
+          description: Unique identifier for the storage system.
+          type: string
+        expiration_timestamp:
+          description: Expiration date for the token of the storage system.
+          type: string
+          format: date-time
+        is_token_valid:
+          type: boolean
+      required:
+        - system_type
+        - system_id
+        - expiration_timestamp
+        - is_token_valid
+      title: Storage System Tokens Instance
+    StorageSystemTokensModifyRequest:
+      description: Storage system tokens modify request
+      type: object
+      properties:
+        access_token:
+          description: Update access token of the system.
+          type: string
+      required:
+        - access_token
+      title: Storage system tokens modify request
+      x-examples:
+        example-1:
+          access_token: Update Access Token
+    StorageSystemTypeEnum:
+      description: 'The source system type (e.g.: POWERFLEX)'
+      type: string
+      example: POWERFLEX
+      enum:
+        - POWERFLEX
+      x-examples:
+        example-1: POWERFLEX
+    StorageSystemsFinalizeTrustPostRequest:
+      description: Request object to finalize the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+      type: object
+      properties:
+        name:
+          description: Client name for establishing the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+          type: string
+        client_id:
+          description: Client id for establishing the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+          type: string
+        client_secret:
+          description: Client secret for establishing the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+          type: string
+      required:
+        - client_id
+        - client_secret
+      title: On-prem storage system and APEX Navigator for Multicloud Storage trust finalize request.
+    StorageSystemsInitializeTrustResponse:
+      description: Response object from initializing the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+      type: object
+      properties:
+        name:
+          description: Client name for establish the trust between on-prem storage system and APEX Navigator for Multicloud Storage.
+          type: string
+        encryption_key:
+          description: Public key to encrypt the client secret.
+          type: string
+        redirect_uris:
+          description: The location where the Storage System Authorization server sends the user once the APEX Navigator for Multicloud Storage  has been successfully authorized and granted an authorization code or access token.
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+        - name
+        - encryption_key
+        - redirect_uris
+    StorageSystemsInstance:
+      description: The storage system.
+      type: object
+      properties:
+        id:
+          description: Identifier for the storage system.
+          type: string
+        system_id:
+          description: Unique identifier for the device or appliance.
+          type: string
+        system_type:
+          description: Type of the system.
+          type: string
+        bandwidth:
+          description: 'The system bandwidth. Aggregated for a rolling average over the last 24 hours - Unit: bytes/s'
+          type: integer
+          format: int64
+        capacity_impact:
+          description: Impact point of highest impacting issue in the capacity health category.
+          type: integer
+          format: int64
+        capacity_issue_count:
+          description: Total number of issues in the capacity health category.
+          type: integer
+          format: int64
+        compression_savings:
+          description: Storage efficiency ratio of data which has compression applied to it on the system.
+          type: number
+          format: double
+        configuration_impact:
+          description: Impact point of highest impacting issue in the configuration health category.
+          type: integer
+          format: int64
+        configuration_issue_count:
+          description: Total number of issues in the configuration health category.
+          type: integer
+          format: int64
+        configured_size:
+          description: 'The configured size for this system - Unit: bytes'
+          type: integer
+          format: int64
+        connectivity_status:
+          description: Connectivity status.
+          type: string
+        license_type:
+          description: Type of the license on the system.
+          type: string
+        license_expiration_date_timestamp:
+          description: Expiration date for the license on the system.
+          type: string
+          format: date-time
+        contract_coverage_type:
+          description: Type of the service contract of the system.
+          type: string
+        contract_expiration_date_timestamp:
+          description: Expiration date for the service contract of the system.
+          type: string
+          format: date-time
+        data_protection_impact:
+          description: Impact point of highest impacting issue in the data protection health category.
+          type: integer
+          format: int64
+        data_protection_issue_count:
+          description: Total number of issues in the data protection health category.
+          type: integer
+          format: int64
+        display_identifier:
+          description: Unique identifier for the system.
+          type: string
+        free_percent:
+          description: The %free capacity.
+          type: number
+          format: double
+        free_size:
+          description: 'The free size value - Unit: bytes'
+          type: integer
+          format: int64
+        health_connectivity_status:
+          description: Health connectivity status.
+          type: string
+        health_issue_count:
+          description: Total amount of health issues.
+          type: integer
+          format: int64
+        health_score:
+          description: The overall health score of the system.
+          type: integer
+          format: int64
+        health_state:
+          description: Health state of the system.
+          type: string
+        iops:
+          description: 'The IOPS for the system. Aggregated for a rolling average over the last 24 hours - Unit: IO/s'
+          type: integer
+          format: int64
+        ipv4_address:
+          description: IPv4 address of the system.
+          type: string
+          format: ipv4
+        ipv6_address:
+          description: IPv6 address of the system.
+          type: string
+          format: ipv6
+        last_contact_timestamp:
+          description: Last time that CloudIQ received data from the system.
+          type: string
+          format: date-time
+        latency:
+          description: 'The latency for the system. Aggregated for a rolling average over the last 24 hours - Unit: microseconds'
+          type: integer
+          format: int64
+        logical_size:
+          description: 'The logical size written - Unit: bytes'
+          type: integer
+          format: int64
+        model:
+          description: The model of the system.
+          type: string
+          example: APEX Block Storage for AWS
+        name:
+          description: The user-defined name of the system.
+          type: string
+        overall_efficiency:
+          description: The overall system-level storage efficiency ratio based on Thin, Snapshots, Deduplication, and Data Reduction.
+          type: number
+          format: double
+        performance_impact:
+          description: Impact point of highest impacting issue in the performance health category.
+          type: integer
+          format: int64
+        performance_issue_count:
+          description: Total number of issues in the performance health category.
+          type: integer
+          format: int64
+        serial_number:
+          description: The serial number for this system.
+          type: string
+        site_name:
+          description: Name of the site where the system is registered to.
+          type: string
+        snaps_savings:
+          description: The snaps savings for this system.
+          type: number
+          format: double
+        system_health_impact:
+          description: Health impact for the system.
+          type: integer
+          format: int64
+        system_health_issue_count:
+          description: Total amount of health issues for the system.
+          type: integer
+          format: int64
+        thin_savings:
+          description: The savings due to thin provisioning.
+          type: number
+          format: double
+        total_size:
+          description: 'The total size of the system - Unit: bytes'
+          type: integer
+          format: int64
+        unconfigured_size:
+          description: 'The unconfigured capacity for this system - Unit: bytes'
+          type: integer
+          format: int64
+        used_percent:
+          description: Percentage of capacity used for this system.
+          type: number
+          format: double
+        used_size:
+          description: 'The value of used capacity for this system - Unit: bytes'
+          type: integer
+          format: int64
+        vendor:
+          description: Name of the vendor who makes the system.
+          type: string
+        version:
+          description: Version identifier.
+          type: string
+        deployment_details:
+          oneOf:
+            - $ref: '#/components/schemas/SystemPublicCloudDeploymentDetails'
+            - $ref: '#/components/schemas/SystemOnPremDeploymentDetails'
+      required:
+        - id
+    StorageTypeEnum:
+      description: |
+        This enum represents all the supported storage types
+        * BLOCK
+      type: string
+      example: BLOCK
+      enum:
+        - BLOCK
+    SubnetOptions:
+      description: Subnet Options
+      type: object
+      properties:
+        id:
+          description: AWS subnet resource identifier
+          type: string
+          example: subnet-002159f9615d126ed
+        cidr_block:
+          description: |
+            IP range that APEX Navigator will use to create new subnets and use it based on the 
+            subnet option type. 
+            If this is a new VPC, APEX Navigator also associates this CIDR block to the new VPC as primary or secondary 
+            CIDR block.
+          type: string
+          example: subnet-002159f9615d126ed
+        type:
+          $ref: '#/components/schemas/SubnetTypeEnum'
+    SubnetTypeEnum:
+      description: Enum for the usage type of subnet
+      type: string
+      default: UNDEFINED
+      enum:
+        - UNDEFINED
+        - EXTERNAL
+        - INTERNAL
+      title: SubnetTypeEnum
+    SupportMap:
+      description: This model shows the cloud support mapping, all supported storage product versions, supported actions, and the latest supported version.
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        supported_evaluation_period:
+          description: Evaluation period in days. After the evaluation period is expired, you need to purchase a license from Dell, to continue the use the product.
+          type: integer
+          format: int32
+        version:
+          description: Version of the storage product on the cloud
+          type: string
+          example: '4.5'
+        supported_actions:
+          description: All the supported actions for the storage products version
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageProductActionEnum'
+      required:
+        - id
+        - supported_evaluation_period
+        - version
+        - supported_actions
+    SystemDeploymentTypeEnum:
+      description: System deployment types (e.g. PUBLIC_CLOUD)
+      type: string
+      default: ONPREM
+      enum:
+        - ONPREM
+        - PUBLIC_CLOUD
+    SystemOnPremDeploymentDetails:
+      description: On-premise deployment details.
+      type: object
+      properties:
+        deployment_type:
+          $ref: '#/components/schemas/SystemDeploymentTypeEnum'
+        site_name:
+          description: Name of the site where the system is located.
+          type: string
+        location:
+          description: User provided description of where the system is located.
+          type: string
+        country:
+          description: Name of the country where the system is located.
+          type: string
+        state:
+          description: Name of the state where the system is located.
+          type: string
+        city:
+          description: Name of the city where the system is located.
+          type: string
+        street_address_1:
+          description: Street address 1 of where the system is located.
+          type: string
+        street_address_2:
+          description: Street address 2 of where the system is located.
+          type: string
+        zip_code:
+          description: State ZIP code of where the system is located.
+          type: string
+    SystemPublicCloudDeploymentDetails:
+      description: Public cloud deployment details.
+      type: object
+      properties:
+        deployment_type:
+          $ref: '#/components/schemas/SystemDeploymentTypeEnum'
+        cloud_type:
+          $ref: '#/components/schemas/CloudProviderEnum'
+        cloud_account:
+          description: Cloud provider account where the storage system resides.
+          type: string
+        cloud_region:
+          description: Cloud provider region where the storage system resides.
+          type: string
+        availability_zone_topology:
+          $ref: '#/components/schemas/AvailabilityZoneTopologyEnum'
+        virtual_private_cloud:
+          description: Cloud virtual private environment identifier.
+          type: string
+        cloud_management_address:
+          description: Management IPv4 or IPv6 address or DNS name of the storage system in cloud.
+          type: string
+          format: ip-address-46np
+        minimum_iops:
+          description: 'Minimum IOPS requested during the deployment time - Unit: IO/s'
+          type: integer
+          format: int64
+        minimum_capacity:
+          description: 'Minimum capacity requested during the deployment time - Unit: bytes'
+          type: integer
+          format: int64
+        tier_type:
+          description: Tier type requested during the deployment time.
+          type: string
+    TargetSystemOptions:
+      description: TargetSystemOptions
+      type: object
+      properties:
+        storage_pool:
+          description: Storage pool to use for allocsting target volumes
+          type: string
+          example: POWERFLEX-AWSIO820000000__STORAGEPOOL__poolxyz
+          pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9]|[_](?![_]))+$
+      x-examples:
+        example-1:
+          storage_pool: POWERFLEX-AWSIO820000000__STORAGEPOOL__poolxyz
+    TierEnum:
+      description: |
+        Enum for all the supported tier for given storage product.
+        * BALANCED
+        * PERFORMANCE_OPTIMIZED
+      type: string
+      example: BALANCED
+      enum:
+        - BALANCED
+        - PERFORMANCE_OPTIMIZED
+      title: TierEnum
+    TierInfo:
+      description: This model represents the tier info for a storage template
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          description: Tier name
+          type: string
+        tier_type:
+          $ref: '#/components/schemas/TierEnum'
+        description:
+          description: Description of the tier
+          type: string
+        storage_options:
+          description: Supported storage options for a tier
+          type: array
+          items:
+            $ref: '#/components/schemas/TierOption'
+        cloud_options:
+          description: Supported cloud options for a tier
+          type: array
+          items:
+            $ref: '#/components/schemas/TierOption'
+      required:
+        - id
+        - name
+        - tier_type
+        - description
+        - storage_options
+        - cloud_options
+    TierOption:
+      description: This model represents the tier option for a offer template
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        key:
+          description: Unique key for tier option
+          type: string
+        value:
+          discriminator:
+            propertyName: type
+            mapping:
+              RANGE: '#/components/schemas/RangeOption'
+              ENUMERATION: '#/components/schemas/EnumOption'
+              FREETEXT: '#/components/schemas/FreeTextOption'
+              MULTISELECT_FREETEXT: '#/components/schemas/MultiselectFreetextOption'
+              BOOLEAN: '#/components/schemas/BooleanOption'
+          oneOf:
+            - $ref: '#/components/schemas/RangeOption'
+            - $ref: '#/components/schemas/EnumOption'
+            - $ref: '#/components/schemas/FreeTextOption'
+            - $ref: '#/components/schemas/MultiselectFreetextOption'
+            - $ref: '#/components/schemas/BooleanOption'
+      required:
+        - id
+        - key
+        - order
+        - value
+    UnmapInput:
+      description: UnmapInput
+      type: object
+      properties:
+        host_mappings:
+          description: The list of hosts to be unmapped
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMappingsIdentifier'
+          minItems: 1
+          uniqueItems: true
+      maxProperties: 1
+      minProperties: 1
+      required:
+        - host_mappings
+      title: UnmapInput
+      x-examples:
+        example-1:
+          host_mappings:
+            - POWERFLEX-ELMSIOENG10004__DATAMOBILITYHOST__31182e76-6828-44f1-b7d8-5038b440f001
+    UpdateCloneInput:
+      description: Attributes that can be updated
+      type: object
+      properties:
+        name:
+          description: Updated name of the clone
+          type: string
+          example: Update Name
+          maxLength: 128
+          pattern: ^([a-zA-Z]+)([a-zA-Z0-9!@#$%^&*\/()\[\]{}\\<>+_;:?.,"'=\s-|~`]*)$
+        description:
+          description: Updated description of the clone
+          type: string
+          example: Update Description
+          maxLength: 2048
+      title: UpdateCloneInput
+      x-examples:
+        example-1:
+          name: Update Name
+          description: Update Description
+    UpdateMobilityGroupInput:
+      description: Input for update mobility group operation
+      type: object
+      properties:
+        name:
+          description: Updated name of the mobility group
+          type: string
+          example: Updated name
+          maxLength: 128
+          minLength: 1
+        description:
+          description: Updated description of the mobility group
+          type: string
+          example: Updated description
+          maxLength: 2048
+          minLength: 0
+        members:
+          description: Update the list of members (e.g. volumes).  This is the list of identifiers of members for the mobility group.  It will replace the current list of members.
+          type: array
+          items:
+            type: string
+            example: POWERFLEX-ELMSIO08200000__LUN__2222
+            pattern: ^(?:POWERFLEX-[A-Z0-9]{14,16})__(?:[A-Za-z0-9]|[_](?![_]))+__(?:[A-Za-z0-9]|[_](?![_]))+$
+          maxItems: 32
+          minItems: 1
+      title: Update mobility group
+      x-examples:
+        example-1:
+          name: Updated name
+          description: Updated description
+          members:
+            - POWERFLEX-ELMSIO08200000__LUN__2222
+            - POWERFLEX-ELMSIO08200000__LUN__3333
+            - POWERFLEX-ELMSIO08200000__LUN__4444
+    UpdateMobilityTargetInput:
+      description: UpdateMobilityTargetInput
+      type: object
+      properties:
+        name:
+          description: New name for the mobility target
+          type: string
+          example: Updated name
+          maxLength: 128
+          minLength: 1
+        description:
+          description: New description for the mobility target
+          type: string
+          example: Updated description
+          maxLength: 2048
+          minLength: 0
+        bandwidth_limit:
+          description: Bandwidth limit in Mbps (Mega bits per second).
+          type: integer
+          example: 512
+          minimum: 1
+      title: UpdateMobilityTargetInput
+      x-examples:
+        example-1:
+          name: Updated name
+          description: Updated description
+          bandwidth_limit: 512
+    VolumesInstance:
+      description: The volume object.
+      type: object
+      properties:
+        id:
+          description: Identifier of the volume.
+          type: string
+        system_id:
+          description: Unique identifier for the device or appliance.
+          type: string
+        system_type:
+          description: Type of the system for the volume.
+          type: string
+        allocated_size:
+          description: 'The allocated size of the volume - Unit: bytes'
+          type: integer
+          format: int64
+        bandwidth:
+          description: 'The bandwidth consumed by the volume. Aggregated for a rolling average over the last 24 hours - Unit: bytes/s'
+          type: integer
+          format: int64
+        consistency_group_name:
+          description: Consistency group name of the volume.
+          type: string
+        data_reduction_percent:
+          description: The data reduction percent for the volume.
+          type: number
+          format: double
+        data_reduction_ratio:
+          description: The data reduction ratio for the volume.
+          type: number
+          format: double
+        data_reduction_saved_size:
+          description: 'The data reduction capacity saved for the volume - Unit: bytes'
+          type: integer
+          format: int64
+        io_limit_policy_name:
+          description: The IO limit policy name for the volume.
+          type: string
+        iops:
+          description: 'The IOPS for the volume. Aggregated for a rolling average over the last 24 hours - Unit: IO/s'
+          type: integer
+          format: int64
+        is_compressed_or_deduped:
+          description: Identifies whether the volume is compressed or deduplicated.
+          type: string
+        is_thin_enabled:
+          description: Identifies whether the volume has thin provisioning enabled.
+          type: boolean
+        issue_count:
+          description: Number of health issues that are present on the volume.
+          type: integer
+          format: int64
+        latency:
+          description: 'The latency for the volume. Aggregated for a rolling average over the last 24 hours - Unit: microseconds'
+          type: integer
+          format: int64
+        logical_size:
+          description: 'The logical size for the volume - Unit: bytes'
+          type: integer
+          format: int64
+        name:
+          description: The name of the volume.
+          type: string
+        native_id:
+          description: Identifier of the volume, defined by the system.
+          type: string
+        type:
+          description: Type of the volume, which is either LUN or VOLUME.
+          type: string
+        pool_id:
+          description: The pool identifier for the volume.
+          type: string
+        pool_name:
+          description: The pool name for the volume.
+          type: string
+        pool_type:
+          description: Type of the pool.
+          type: string
+        snapshot_count:
+          description: The snapshot count for the volume.
+          type: integer
+          format: int64
+        snapshot_policy:
+          description: The snapshot policy for the volume.
+          type: string
+        snapshot_size:
+          description: 'The snapshot size for the volume - Unit: bytes'
+          type: integer
+          format: int64
+        storage_resource_id:
+          description: The storage resource identifier for the volume.
+          type: string
+        storage_resource_native_id:
+          description: The storage resource native identifier for the volume.
+          type: string
+        system_model:
+          description: The model of the system.
+          type: string
+          example: APEX Block Storage for AWS
+        system_name:
+          description: Name of the system for the volume.
+          type: string
+        total_size:
+          description: 'The total provisioned size of the volume - Unit: bytes'
+          type: integer
+          format: int64
+        used_size:
+          description: 'The used size of the volume - Unit: bytes'
+          type: integer
+          format: int64
+        used_size_unique:
+          description: 'The unique used size of the volume - Unit: bytes'
+          type: integer
+          format: int64
+      required:
+        - id
+    Vpc:
+      description: VPC
+      type: object
+      properties:
+        is_new_vpc:
+          description: Create a new VPC. Default is false.
+          type: boolean
+          default: false
+        id:
+          description: |
+            AWS VPC resource identifier. 
+            Provide this value if you want APEX Navigator to deploy the storage system in your existing VPC.
+          type: string
+          example: vpc-12345
+        name:
+          description: |
+            AWS VPC name.
+            Provide only name (not id) if you want APEX Navigator to deploy the storage system in a new VPC.
+          type: string
+          example: vpc-test
+
