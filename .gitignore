@@ -33,9 +33,6 @@ testlogfile
 *.tfstate
 *.tfstate.*
 
-# .tfvars file
-*.tfvars
-
 # Local .terraform directories
 **/.terraform/*
 
