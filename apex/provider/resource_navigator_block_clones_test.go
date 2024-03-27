@@ -33,7 +33,7 @@ import (
 )
 
 func TestAccResourceClone(t *testing.T) {
-	var resTerraformName = "apex_navigator_clones.example"
+	var resTerraformName = "apex_navigator_block_clones.example"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -175,7 +175,7 @@ func TestAccResourceCloneReadError(t *testing.T) {
 }
 
 var cloneResourceConfig = `
-resource "apex_navigator_clones" "example" {
+resource "apex_navigator_block_clones" "example" {
 	name               = "CloneTerraformName"
 	description        = "Atlas Test BFF - test clone description."
 	mobility_target_id = "POWERFLEX-ELMSIOENG10016__DATAMOBILITYGROUP__f71a0ef1-0a00-4c72-89e7-30d5180b1a0d"
@@ -187,7 +187,7 @@ resource "apex_navigator_clones" "example" {
   }
 `
 var cloneResourceUpdateConfig = `
-resource "apex_navigator_clones" "example" {
+resource "apex_navigator_block_clones" "example" {
 	name               = "CloneTerraformNameUpdated"
 	description        = "Atlas Test BFF - test clone description."
 	mobility_target_id = "POWERFLEX-ELMSIOENG10016__DATAMOBILITYGROUP__f71a0ef1-0a00-4c72-89e7-30d5180b1a0d"
@@ -199,7 +199,7 @@ resource "apex_navigator_clones" "example" {
   }
 `
 var cloneResourceUpdateErrorConfig = `
-				resource "apex_navigator_clones" "example" {
+				resource "apex_navigator_block_clones" "example" {
 					name               = "CloneTerraformNameUpdateError"
 					description        = "Atlas Test BFF - test clone description."
 					mobility_target_id = "error"
@@ -212,7 +212,7 @@ var cloneResourceUpdateErrorConfig = `
 				
 `
 var cloneResourceUpdateError2Config = `
-resource "apex_navigator_clones" "example" {
+resource "apex_navigator_block_clones" "example" {
 	name               = "CloneTerraformNameUpdatedError"
 	description        = "Atlas Test BFF - test clone description."
 	mobility_target_id = "error"

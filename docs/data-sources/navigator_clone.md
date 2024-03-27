@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_clone data source"
-linkTitle: "apex_navigator_clone"
-page_title: "apex_navigator_clone Data Source - apex"
+title: "apex_navigator_block_clone data source"
+linkTitle: "apex_navigator_block_clone"
+page_title: "apex_navigator_block_clone Data Source - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_clone (Data Source)
+# apex_navigator_block_clone (Data Source)
 
 
 

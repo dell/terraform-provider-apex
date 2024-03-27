@@ -25,37 +25,36 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccDataSourceVolumes is a Go function that tests the AccDataSourceVolumes functionality.
-func TestAccDataSourcePools(t *testing.T) {
+func TestAccDataSourceHosts(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + sourcePoolsConfig + poolOutputs,
+				Config: ProviderConfig + hostConfig + hostOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
 					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
-			// Error getting volume collection
+			// Error getting host collection
 			{
 				PreConfig: func() {
-					FunctionMocker = Mock(helper.GetSourcePoolsCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetHostCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + sourcePoolsConfig + poolOutputs,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Pools*.`),
+				Config:      ProviderConfig + hostConfig + hostOutputs,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Hosts*.`),
 			},
-			// Filter testing single volume
+			// Filter testing single host
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + sourcePoolsFilterSingleConfig + poolOutputs,
+				Config: ProviderConfig + hostFilterSingleConfig + hostOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "false"),
@@ -63,9 +62,9 @@ func TestAccDataSourcePools(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "false"),
 				),
 			},
-			// Filter testing multiple volumes
+			// Filter testing multiple hosts
 			{
-				Config: ProviderConfig + sourcePoolsFilterMultipleConfig + poolOutputs,
+				Config: ProviderConfig + hostFilterMultipleConfig + hostOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
@@ -73,47 +72,55 @@ func TestAccDataSourcePools(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "true"),
 				),
 			},
-			// Error getting filtered volume collection
+			// Error getting filtered host collection
 			{
-				Config:      ProviderConfig + sourcePoolsFilterInvalidConfig + poolOutputs,
+				Config:      ProviderConfig + hostFilterInvalidConfig + hostOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
 	})
 }
 
-var sourcePoolsConfig = `data "apex_navigator_pools" "test" {}`
+var hostConfig = `data "apex_navigator_block_hosts" "example" {}`
 
-var sourcePoolsFilterSingleConfig = `data "apex_navigator_pools" "test" {
-	filter {
-		ids = ["` + sourcePoolsID1 + `"] 
-	  }
-}`
-var sourcePoolsFilterMultipleConfig = `data "apex_navigator_pools" "test" {
-	filter {
-		ids = ["` + sourcePoolsID1 + `", "` + sourcePoolsID2 + `"] 
-	  }
-}`
-var sourcePoolsFilterInvalidConfig = `data "apex_navigator_pools" "test" {
-	filter {
-		ids = ["invalid-id"] 
-	  }
-}`
-
-var poolOutputs = `
+var hostOutputs = `
 output "fetched_many" {
-	value = length(data.apex_navigator_pools.test.pools) > 1
+	value = length(data.apex_navigator_block_hosts.example.hosts) > 1
 }
   
 output "fetched_any" {
-	value = length(data.apex_navigator_pools.test.pools) != 0
+	value = length(data.apex_navigator_block_hosts.example.hosts) != 0
 }
 
 output "fetched_single" {
-	value = length(data.apex_navigator_pools.test.pools) == 1
+	value = length(data.apex_navigator_block_hosts.example.hosts) == 1
 }
 
 output "fetched_two" {
-	value = length(data.apex_navigator_pools.test.pools) == 2
+	value = length(data.apex_navigator_block_hosts.example.hosts) == 2
 }
+`
+
+var hostFilterSingleConfig = `
+ data "apex_navigator_block_hosts" "example" {
+	    filter {
+	     ids = ["` + hostID1 + `"] 
+	   }
+	}
+`
+
+var hostFilterMultipleConfig = `
+ data "apex_navigator_block_hosts" "example" {
+	     filter {
+	     ids = ["` + hostID1 + `", "` + hostID2 + `"] 
+	   }
+	}
+`
+
+var hostFilterInvalidConfig = `
+ data "apex_navigator_block_hosts" "example" {
+	     filter {
+	     ids = ["invalid-id"] 
+	   }
+	}
 `

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package provider
+package provider //nolint:dupl
 
 import (
 	"context"
@@ -36,33 +36,37 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &clonesRefreshResource{}
-	_ resource.ResourceWithConfigure = &clonesRefreshResource{}
+	_ resource.Resource              = &clonesUnmapResource{}
+	_ resource.ResourceWithConfigure = &clonesUnmapResource{}
 )
 
-// NewClonesRefreshResource returns a storage system resource object
-func NewClonesRefreshResource() resource.Resource {
-	return &clonesRefreshResource{}
+// NewClonesUnmapResource returns a storage system resource object
+func NewClonesUnmapResource() resource.Resource {
+	return &clonesUnmapResource{}
 }
 
-// clonesRefreshResource is the resource implementation.
-type clonesRefreshResource struct {
+// clonesUnmapResource is the resource implementation.
+type clonesUnmapResource struct {
 	client     *client.APIClient
 	jobsClient *jmsClient.APIClient
 }
 
 // Metadata returns the resource type name.
-func (r *clonesRefreshResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_clones_refresh"
+func (r *clonesUnmapResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_clones_unmap"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.
-func (r *clonesRefreshResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
+func (r *clonesUnmapResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen, dupl
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"clone_id": schema.StringAttribute{
 				MarkdownDescription: " ",
 				Required:            true,
+			},
+			"host_mappings": schema.ListAttribute{
+				ElementType: types.StringType,
+				Required:    true,
 			},
 			"status": schema.StringAttribute{
 				Computed: true,
@@ -78,7 +82,7 @@ func (r *clonesRefreshResource) Schema(_ context.Context, _ resource.SchemaReque
 }
 
 // Configure adds the provider configured client to the data source.
-func (r *clonesRefreshResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *clonesUnmapResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -98,27 +102,31 @@ func (r *clonesRefreshResource) Configure(_ context.Context, req resource.Config
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) { // nolint:funlen, gocognit
+func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) { // nolint:funlen, gocognit
 	// Retrieve values from plan
-	var plan models.ClonesRefreshModel
+	var plan models.ClonesMapModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Create Clones POST request
-	refreshReq := r.client.ClonesAPI.ClonesRefresh(ctx, plan.CloneID.ValueString())
+	// Create Clones Unmap POST request
+	unmapReq := r.client.ClonesAPI.ClonesUnmap(ctx, plan.CloneID.ValueString())
 
-	// Executing refresh request request
-	job, status, err := helper.RefreshClone(refreshReq)
+	// Executing unmap request request
+	job, status, err := helper.UnmapClones(unmapReq, plan.HostMappings)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Clones Refresh request",
-			"Could not create Clones Refresh request, unexpected error: "+newErr,
+			"Error creating Clones Unmap request",
+			"Could not create Clones Unmap, unexpected error: "+newErr,
 		)
 		return
+	}
+
+	if err := status.Body.Close(); err != nil {
+		fmt.Print("Error Closing response body:", err)
 	}
 
 	// Waiting for job to complete
@@ -141,11 +149,12 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	// Updating TFState with Clones refresh info
-	result := models.ClonesRefreshModel{
-		ID:      types.StringValue(job.Id),
-		CloneID: plan.CloneID,
-		Status:  types.StringValue(string(*jobStatus.State)),
+	// Updating TFState with Clones unmap info
+	result := models.ClonesMapModel{
+		ID:           types.StringValue(job.Id),
+		CloneID:      plan.CloneID,
+		HostMappings: plan.HostMappings,
+		Status:       types.StringValue(string(*jobStatus.State)),
 	}
 
 	// Set state to fully populated data
@@ -157,19 +166,20 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 }
 
 // Read method is used to refresh the Terraform state based on the schema data.
-func (r *clonesRefreshResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *clonesUnmapResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) { //nolint:dupl
 	// Get current state
-	var state models.ClonesRefreshModel
+	var state models.ClonesMapModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	state = models.ClonesRefreshModel{
-		ID:      state.ID,
-		CloneID: state.CloneID,
-		Status:  state.Status,
+	state = models.ClonesMapModel{
+		ID:           state.ID,
+		CloneID:      state.CloneID,
+		HostMappings: state.HostMappings,
+		Status:       state.Status,
 	}
 
 	// Set refreshed state
@@ -181,7 +191,7 @@ func (r *clonesRefreshResource) Read(ctx context.Context, req resource.ReadReque
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *clonesRefreshResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *clonesUnmapResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddWarning(
 		"Updates are not supported for this resource",
 		"Updates are not supported for this resource",
@@ -189,7 +199,7 @@ func (r *clonesRefreshResource) Update(_ context.Context, _ resource.UpdateReque
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *clonesRefreshResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
+func (r *clonesUnmapResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	resp.Diagnostics.AddWarning(
 		"Deletes are not supported for this resource",
 		"Deletes are not supported for this resource",

@@ -82,58 +82,58 @@ func TestAccDataSourceClones(t *testing.T) {
 	})
 }
 
-var cloneConfig = `data "apex_navigator_clones" "test" {}`
+var cloneConfig = `data "apex_navigator_block_clones" "test" {}`
 
 var cloneOutputs = `
 output "fetched_many" {
-	value = length(data.apex_navigator_clones.test.clones) > 1
+	value = length(data.apex_navigator_block_clones.test.clones) > 1
 }
   
 output "fetched_any" {
-	value = length(data.apex_navigator_clones.test.clones) != 0
+	value = length(data.apex_navigator_block_clones.test.clones) != 0
 }
 
 output "fetched_single" {
-	value = length(data.apex_navigator_clones.test.clones) == 1
+	value = length(data.apex_navigator_block_clones.test.clones) == 1
 }
 
 output "fetched_two" {
-	value = length(data.apex_navigator_clones.test.clones) == 2
+	value = length(data.apex_navigator_block_clones.test.clones) == 2
 }
 `
 
 var cloneFilterSingleConfig = `
- data "apex_navigator_clones" "test" {
+ data "apex_navigator_block_clones" "test" {
 	     filter {
 	     ids = ["` + cloneID1 + `"] 
 	   }
 	}
 	
 	output "instance_clone" {
-	   value = data.apex_navigator_clones.test
+	   value = data.apex_navigator_block_clones.test
 	}
 `
 
 var cloneFilterMultipleConfig = `
- data "apex_navigator_clones" "test" {
+ data "apex_navigator_block_clones" "test" {
 	     filter {
 	     ids = ["` + cloneID1 + `", "` + cloneID2 + `"] 
 	   }
 	}
 	
 	output "instance_clone" {
-	   value = data.apex_navigator_clones.test
+	   value = data.apex_navigator_block_clones.test
 	}
 `
 
 var cloneFilterInvalidConfig = `
- data "apex_navigator_clones" "test" {
+ data "apex_navigator_block_clones" "test" {
 	     filter {
 	     ids = ["invalid-id"] 
 	   }
 	}
 	
 	output "instance_clone" {
-	   value = data.apex_navigator_clones.test
+	   value = data.apex_navigator_block_clones.test
 	}
 `

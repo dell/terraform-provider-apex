@@ -80,12 +80,12 @@ func TestAccResourceClonesRefreshError(t *testing.T) {
 }
 
 var clonesRefreshResourceConfig = `
-resource "apex_navigator_clones_refresh" "example" {
+resource "apex_navigator_block_clones_refresh" "example" {
 	clone_id = "` + cloneRefreshID + `"
   }
   
   output "examples_clones_refresh" {
-	value = apex_navigator_clones_refresh.example
+	value = apex_navigator_block_clones_refresh.example
   }
   
 `

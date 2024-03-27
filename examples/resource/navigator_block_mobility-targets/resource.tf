@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_mobility_targets" "example" {
+resource "apex_navigator_block_mobility_targets" "example" {
   name                     = "TerraformMobilityTarget"
   source_mobility_group_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
   system_id                = "POWERFLEX-ABCD1234567890"
@@ -25,5 +25,5 @@ resource "apex_navigator_mobility_targets" "example" {
 }
 
 output "examples_mobility_target" {
-  value = apex_navigator_mobility_targets.example
+  value = apex_navigator_block_mobility_targets.example
 }

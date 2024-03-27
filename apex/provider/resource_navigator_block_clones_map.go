@@ -53,7 +53,7 @@ type clonesMapResource struct {
 
 // Metadata returns the resource type name.
 func (r *clonesMapResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_clones_map"
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_clones_map"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.

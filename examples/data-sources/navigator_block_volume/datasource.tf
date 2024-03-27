@@ -15,18 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-data "apex_navigator_volumes" "example" {}
+data "apex_navigator_block_volumes" "example" {}
 
 output "examples_volumes" {
-  value = data.apex_navigator_volumes.example
+  value = data.apex_navigator_block_volumes.example
 }
 
-# data "apex_navigator_volumes" "example" {
+# data "apex_navigator_block_volumes" "example" {
 #   filter {
 #     ids = ["volume-id"] 
 #   }
 # }
 
 # output "examples_volumes" {
-#   value = data.apex_navigator_volumes.example
+#   value = data.apex_navigator_block_volumes.example
 # }

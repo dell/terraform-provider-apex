@@ -23,45 +23,45 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/helper"
+	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-
-	"github.com/dell/terraform-provider-apex/apex/helper"
-	"github.com/dell/terraform-provider-apex/apex/models"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &blockStoragesDataSource{}
-	_ datasource.DataSourceWithConfigure = &blockStoragesDataSource{}
+	_ datasource.DataSource              = &clonesDataSource{}
+	_ datasource.DataSourceWithConfigure = &clonesDataSource{}
 )
 
-// NewBlockStoragesDataSource is a block storage data source object
-func NewBlockStoragesDataSource() datasource.DataSource {
-	return &blockStoragesDataSource{}
+// NewClonesDataSource returns a new clones data source instance.
+func NewClonesDataSource() datasource.DataSource {
+	return &clonesDataSource{}
 }
 
-// blockStorageDataSource is the data source implementation.
-type blockStoragesDataSource struct {
+// clonesDataSource is the data source implementation.
+type clonesDataSource struct {
 	client *client.APIClient
 }
 
-func (d *blockStoragesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_block_storages"
+// Metadata returns the data source type name.
+func (d *clonesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_clones"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.
-func (d *blockStoragesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) { // nolint:funlen
+func (d *clonesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
 			},
-			"block_storages": schema.ListNestedAttribute{
+			"clones": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
-					Attributes: BlockStorageDataSourceSchema.Attributes,
+					Attributes: ClonesDataSourceSchema.Attributes,
 				},
 			},
 		},
@@ -81,8 +81,8 @@ func (d *blockStoragesDataSource) Schema(_ context.Context, _ datasource.SchemaR
 }
 
 // Read method is used to refresh the Terraform state based on the schema data.
-func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) { // nolint:gocognit, funlen
-	var state models.BlockStoragesDataSourceModel
+func (d *clonesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var state models.ClonesDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -100,11 +100,10 @@ func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadR
 		filter = helper.CreateFilter(filteredNames, "id")
 	}
 
-	storageSystems, status, err := helper.GetBlockStorageCollection(d.client, filter)
+	clones, status, err := helper.GetCloneCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
-		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Block Storage: "+newErr,
+			"Unable to Read Apex Navigator Clones",
 			err.Error(),
 		)
 		return
@@ -112,32 +111,20 @@ func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadR
 
 	// If the returned filtered values does not equal the length of the filter
 	// Then one or more of the filtered values are invalid
-	if filterUsed && len(storageSystems.Results) != len(state.Filter.IDs) {
+	if filterUsed && len(clones.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter block storage.",
+			"Failed to filter clones.",
 			"one more more of the ids set in the filter is invalid.",
 		)
 		return
 	}
 
-	// needs nested for loop for deployment details
 	// Map response body to model
-	for _, storageSystem := range storageSystems.Results {
-		storageSystemsState := helper.GetBlockStorageSystem(storageSystem)
-		if storageSystem.DeploymentDetails != nil {
-			if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil {
-				storageSystemsState.DeploymentDetails.SystemPublicCloud.VirtualPrivateCloud = types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.VirtualPrivateCloud)
-			}
-		} else {
-			resp.Diagnostics.AddError(
-				"Unexpected system type",
-				"Unexpected system type",
-			)
-		}
-
-		state.BlockStorages = append(state.BlockStorages, storageSystemsState)
+	for _, clone := range clones.Results {
+		cloneState := helper.GetClonesModel(clone)
+		state.Clones = append(state.Clones, cloneState)
 	}
-	state.ID = types.StringValue("block-storage-ds-id")
+	state.ID = types.StringValue("clone-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)
@@ -148,7 +135,7 @@ func (d *blockStoragesDataSource) Read(ctx context.Context, req datasource.ReadR
 }
 
 // Configure adds the provider configured client to the data source.
-func (d *blockStoragesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *clonesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}

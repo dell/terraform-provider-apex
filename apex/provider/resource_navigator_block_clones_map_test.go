@@ -80,7 +80,7 @@ func TestAccResourceClonesMapError(t *testing.T) {
 }
 
 var clonesMapResourceConfig = `
-resource "apex_navigator_clones_map" "example" {
+resource "apex_navigator_block_clones_map" "example" {
 	clone_id                 = "` + cloneID + `"
 	host_mappings                = [
 		  "` + cloneHost + `"
@@ -88,6 +88,6 @@ resource "apex_navigator_clones_map" "example" {
   }
   
   output "examples_clones_map" {
-	value = apex_navigator_clones_map.example
+	value = apex_navigator_block_clones_map.example
   }
 `

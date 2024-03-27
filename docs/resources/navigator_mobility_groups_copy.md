@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_mobility_groups_copy resource"
-linkTitle: "apex_navigator_mobility_groups_copy"
-page_title: "apex_navigator_mobility_groups_copy Resource - apex"
+title: "apex_navigator_block_mobility_groups_copy resource"
+linkTitle: "apex_navigator_block_mobility_groups_copy"
+page_title: "apex_navigator_block_mobility_groups_copy Resource - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_mobility_groups_copy (Resource)
+# apex_navigator_block_mobility_groups_copy (Resource)
 
 
 

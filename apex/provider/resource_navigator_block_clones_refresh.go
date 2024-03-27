@@ -27,7 +27,6 @@ import (
 
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -37,38 +36,33 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &mobilityGroupsCopyResource{}
-	_ resource.ResourceWithConfigure   = &mobilityGroupsCopyResource{}
-	_ resource.ResourceWithImportState = &mobilityGroupsCopyResource{}
+	_ resource.Resource              = &clonesRefreshResource{}
+	_ resource.ResourceWithConfigure = &clonesRefreshResource{}
 )
 
-// NewMobilityGroupsCopyResource returns a storage system resource object
-func NewMobilityGroupsCopyResource() resource.Resource {
-	return &mobilityGroupsCopyResource{}
+// NewClonesRefreshResource returns a storage system resource object
+func NewClonesRefreshResource() resource.Resource {
+	return &clonesRefreshResource{}
 }
 
-// mobilityGroupsCopyResource is the resource implementation.
-type mobilityGroupsCopyResource struct {
+// clonesRefreshResource is the resource implementation.
+type clonesRefreshResource struct {
 	client     *client.APIClient
 	jobsClient *jmsClient.APIClient
 }
 
 // Metadata returns the resource type name.
-func (r *mobilityGroupsCopyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_mobility_groups_copy"
+func (r *clonesRefreshResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_clones_refresh"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.
-func (r *mobilityGroupsCopyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen, dupl
+func (r *clonesRefreshResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"mobility_source_id": schema.StringAttribute{
+			"clone_id": schema.StringAttribute{
 				MarkdownDescription: " ",
 				Required:            true,
-			},
-			"mobility_target_id": schema.ListAttribute{
-				ElementType: types.StringType,
-				Required:    true,
 			},
 			"status": schema.StringAttribute{
 				Computed: true,
@@ -84,7 +78,7 @@ func (r *mobilityGroupsCopyResource) Schema(_ context.Context, _ resource.Schema
 }
 
 // Configure adds the provider configured client to the data source.
-func (r *mobilityGroupsCopyResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *clonesRefreshResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -104,37 +98,27 @@ func (r *mobilityGroupsCopyResource) Configure(_ context.Context, req resource.C
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) { // nolint:funlen, gocognit
+func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) { // nolint:funlen, gocognit
 	// Retrieve values from plan
-	var plan models.MobilityGroupCopyModel
+	var plan models.ClonesRefreshModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Create Mobility Groups POST request
-	createReq := r.client.MobilityGroupsAPI.MobilityGroupsCopy(ctx, plan.MobilitySourceID.ValueString())
-	startCopyInput := *client.NewStartCopyInput()
-	mobilityTargetIDArray := make([]string, 0, len(plan.MobilityTargetID))
-	for _, targetID := range plan.MobilityTargetID {
-		mobilityTargetIDArray = append(mobilityTargetIDArray, targetID.ValueString())
-	}
-	startCopyInput.SetMobilityTargetIds(mobilityTargetIDArray)
+	// Create Clones POST request
+	refreshReq := r.client.ClonesAPI.ClonesRefresh(ctx, plan.CloneID.ValueString())
 
-	// Executing copy request request
-	job, status, err := helper.CopyMobilityGroups(createReq, startCopyInput)
+	// Executing refresh request request
+	job, status, err := helper.RefreshClone(refreshReq)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Mobility Group Copy",
-			"Could not create Mobility Group Copy, unexpected error: "+newErr,
+			"Error creating Clones Refresh request",
+			"Could not create Clones Refresh request, unexpected error: "+newErr,
 		)
 		return
-	}
-
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
 	}
 
 	// Waiting for job to complete
@@ -157,12 +141,11 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	// Updating TFState with Mobility group copy info
-	result := models.MobilityGroupCopyModel{
-		ID:               types.StringValue(job.Id),
-		MobilitySourceID: plan.MobilitySourceID,
-		MobilityTargetID: plan.MobilityTargetID,
-		Status:           types.StringValue(string(*jobStatus.State)),
+	// Updating TFState with Clones refresh info
+	result := models.ClonesRefreshModel{
+		ID:      types.StringValue(job.Id),
+		CloneID: plan.CloneID,
+		Status:  types.StringValue(string(*jobStatus.State)),
 	}
 
 	// Set state to fully populated data
@@ -174,22 +157,22 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 }
 
 // Read method is used to refresh the Terraform state based on the schema data.
-func (r *mobilityGroupsCopyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) { //nolint:dupl
+func (r *clonesRefreshResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state models.MobilityGroupCopyModel
+	var state models.ClonesRefreshModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state = models.MobilityGroupCopyModel{
-		ID:               state.ID,
-		MobilitySourceID: state.MobilitySourceID,
-		MobilityTargetID: state.MobilityTargetID,
-		Status:           state.Status,
+
+	state = models.ClonesRefreshModel{
+		ID:      state.ID,
+		CloneID: state.CloneID,
+		Status:  state.Status,
 	}
 
-	// Set refresded state
+	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -198,7 +181,7 @@ func (r *mobilityGroupsCopyResource) Read(ctx context.Context, req resource.Read
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *mobilityGroupsCopyResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *clonesRefreshResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddWarning(
 		"Updates are not supported for this resource",
 		"Updates are not supported for this resource",
@@ -206,14 +189,9 @@ func (r *mobilityGroupsCopyResource) Update(_ context.Context, _ resource.Update
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *mobilityGroupsCopyResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
+func (r *clonesRefreshResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	resp.Diagnostics.AddWarning(
 		"Deletes are not supported for this resource",
 		"Deletes are not supported for this resource",
 	)
-}
-
-func (r *mobilityGroupsCopyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

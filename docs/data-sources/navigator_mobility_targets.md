@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_mobility_targets data source"
-linkTitle: "apex_navigator_mobility_targets"
-page_title: "apex_navigator_mobility_targets Data Source - apex"
+title: "apex_navigator_block_mobility_targets data source"
+linkTitle: "apex_navigator_block_mobility_targets"
+page_title: "apex_navigator_block_mobility_targets Data Source - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_mobility_targets (Data Source)
+# apex_navigator_block_mobility_targets (Data Source)
 
 
 

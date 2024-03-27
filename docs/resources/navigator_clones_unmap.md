@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_clones_unmap resource"
-linkTitle: "apex_navigator_clones_unmap"
-page_title: "apex_navigator_clones_unmap Resource - apex"
+title: "apex_navigator_block_clones_unmap resource"
+linkTitle: "apex_navigator_block_clones_unmap"
+page_title: "apex_navigator_block_clones_unmap Resource - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_clones_unmap (Resource)
+# apex_navigator_block_clones_unmap (Resource)
 
 
 

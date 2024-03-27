@@ -55,7 +55,7 @@ type blockStorageResource struct {
 
 // Metadata returns the resource type name.
 func (r *blockStorageResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_block_storage"
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_storage"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.

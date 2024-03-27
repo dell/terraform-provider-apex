@@ -55,7 +55,7 @@ type mobilityGroupsResource struct {
 
 // Metadata returns the resource type name.
 func (r *mobilityGroupsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_mobility_groups"
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_mobility_groups"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.

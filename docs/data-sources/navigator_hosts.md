@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_hosts data source"
-linkTitle: "apex_navigator_hosts"
-page_title: "apex_navigator_hosts Data Source - apex"
+title: "apex_navigator_block_hosts data source"
+linkTitle: "apex_navigator_block_hosts"
+page_title: "apex_navigator_block_hosts Data Source - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_hosts (Data Source)
+# apex_navigator_block_hosts (Data Source)
 
 
 

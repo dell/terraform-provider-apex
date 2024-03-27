@@ -34,7 +34,7 @@ import (
 )
 
 func TestAccResourceMobilityTargets(t *testing.T) {
-	var resTerraformName = "apex_navigator_mobility_targets.example"
+	var resTerraformName = "apex_navigator_block_mobility_targets.example"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -158,7 +158,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 }
 
 var mobilityTargetResourceConfig = `
-resource "apex_navigator_mobility_targets" "example" {
+resource "apex_navigator_block_mobility_targets" "example" {
 	name                     = "create-mobility-target"
 	source_mobility_group_id = "` + sourceMobilityTargetGroupID + `"
 	system_id                = "` + mobilityTargetSystemID + `"
@@ -167,7 +167,7 @@ resource "apex_navigator_mobility_targets" "example" {
   }
 `
 var mobilityTargetResourceUpdateConfig = `
-resource "apex_navigator_mobility_targets" "example" {
+resource "apex_navigator_block_mobility_targets" "example" {
 	name                     = "update-mobility-target"
 	source_mobility_group_id = "` + sourceMobilityTargetGroupID + `"
 	system_id                = "` + mobilityTargetSystemID + `"

@@ -54,7 +54,7 @@ type mobilityTargetsResource struct {
 
 // Metadata returns the resource type name.
 func (r *mobilityTargetsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_mobility_targets"
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_mobility_targets"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.

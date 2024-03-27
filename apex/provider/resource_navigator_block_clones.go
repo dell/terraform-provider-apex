@@ -55,7 +55,7 @@ type clonesResource struct {
 
 // Metadata returns the resource type name.
 func (r *clonesResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_clones"
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_clones"
 }
 
 // Schema defines the schema for the resource.

@@ -49,7 +49,7 @@ type hostsDataSource struct {
 
 // Metadata returns the data source type name.
 func (d *hostsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_hosts"
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_hosts"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.

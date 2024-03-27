@@ -20,68 +20,73 @@ import (
 	"testing"
 
 	. "github.com/bytedance/mockey"
+
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceClonesUnmap(t *testing.T) {
+func TestAccResourceMobilityGroupsCopy(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				// create Unmap request
-				Config: ProviderConfig + clonesUnmapResourceConfig,
+				// Create Mobility Group Copy
+				Config: ProviderConfig + mobilityGroupsCopyResourceConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func TestAccResourceClonesUnmapError(t *testing.T) {
+func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				// failed to unmap clones with error
+				// Error in creating Mobility Group Copy
 				PreConfig: func() {
-					FunctionMocker = Mock(helper.UnmapClones).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.CopyMobilityGroups).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + clonesUnmapResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Clones Unmap request*.`),
+				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error creating Mobility Group Copy*.`),
 			},
 			{
-				// error while waiting for job to complete
+				// Error while waiting for job to complete
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + clonesUnmapResourceConfig,
+				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
 			},
 			{
-				// error getting job status
+				// Error getting job status
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 					FunctionMocker = Mock(helper.GetJobStatus).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + clonesUnmapResourceConfig,
+				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error getting job*.`),
 			},
 		},
 	})
 }
 
-var clonesUnmapResourceConfig = `
-resource "apex_navigator_clones_unmap" "example" {
-	clone_id                 = "` + cloneUnmapID + `"
-	host_mappings                = [
-		  "` + cloneUnmapHost + `"
+var mobilityGroupsCopyResourceConfig = `
+resource "apex_navigator_block_mobility_groups_copy" "example" {
+	mobility_source_id = "` + mobilitySourceID + `"
+	mobility_target_id = [
+		"` + mobilityTargetID + `"
 	]
+  }
+  
+  output "examples_mobility_groups_copy" {
+	value = apex_navigator_block_mobility_groups_copy.example
   }
 `

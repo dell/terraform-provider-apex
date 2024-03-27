@@ -25,39 +25,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccDataSourceVolumes is a Go function that tests the functionality of the AccDataSourceVolumes function.
-//
-// It takes a testing.T parameter and does not return any value.
-func TestAccDataSourceVolumes(t *testing.T) {
+func TestAccDataSourceMobilityTargets(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + volumeCollectionConfig + volOutputs,
+				Config: ProviderConfig + moblilityTargetConfig + mobilityTargetsOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
 					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
-			// Error getting volume collection
 			{
 				PreConfig: func() {
-					FunctionMocker = Mock(helper.GetVolumesCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetMobilityTargetCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + volumeCollectionConfig + volOutputs,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Volumes*.`),
+				Config:      ProviderConfig + moblilityTargetConfig,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Target*.`),
 			},
-			// Filter testing single volume
+			// Filter test for single mobility target
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + volumeCollectionFilterSingleConfig + volOutputs,
+				Config: ProviderConfig + mobilityTargetSingleFilterConfig + mobilityTargetsOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "false"),
@@ -65,9 +60,9 @@ func TestAccDataSourceVolumes(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "false"),
 				),
 			},
-			// Filter testing multiple volumes
+			// Filter test for multiple mobility targets
 			{
-				Config: ProviderConfig + volumeCollectionFilterMultipleConfig + volOutputs,
+				Config: ProviderConfig + mobilityTargetMultipleFilterConfig + mobilityTargetsOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
@@ -75,46 +70,65 @@ func TestAccDataSourceVolumes(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "true"),
 				),
 			},
-			// Error getting filtered volume collection
+			// Error getting mobility target for invalid filter
 			{
-				Config:      ProviderConfig + volumeCollectionFilterInvalidConfig + volOutputs,
+				Config:      ProviderConfig + mobilityTargetInvalidFilterConfig + mobilityTargetsOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
 	})
 }
 
-var volumeCollectionConfig = `data "apex_navigator_volumes" "test" {}`
-var volumeCollectionFilterSingleConfig = `data "apex_navigator_volumes" "test" {
-	filter {
-		ids = ["` + volumeID1 + `"] 
-	  }
-}`
-var volumeCollectionFilterMultipleConfig = `data "apex_navigator_volumes" "test" {
-	filter {
-		ids = ["` + volumeID1 + `", "` + volumeID2 + `"] 
-	  }
-}`
-var volumeCollectionFilterInvalidConfig = `data "apex_navigator_volumes" "test" {
-	filter {
-		ids = ["invalid-id"] 
-	  }
-}`
-
-var volOutputs = `
+var moblilityTargetConfig = `data "apex_navigator_block_mobility_targets" "test" {}`
+var mobilityTargetsOutputs = `
 output "fetched_many" {
-	value = length(data.apex_navigator_volumes.test.volumes) > 1
+	value = length(data.apex_navigator_block_mobility_targets.test.mobility_targets) > 1
 }
   
 output "fetched_any" {
-	value = length(data.apex_navigator_volumes.test.volumes) != 0
+	value = length(data.apex_navigator_block_mobility_targets.test.mobility_targets) != 0
 }
 
 output "fetched_single" {
-	value = length(data.apex_navigator_volumes.test.volumes) == 1
+	value = length(data.apex_navigator_block_mobility_targets.test.mobility_targets) == 1
 }
 
 output "fetched_two" {
-	value = length(data.apex_navigator_volumes.test.volumes) == 2
+	value = length(data.apex_navigator_block_mobility_targets.test.mobility_targets) == 2
 }
+`
+var mobilityTargetSingleFilterConfig = `
+ data "apex_navigator_block_mobility_targets" "test" {
+	    filter {
+	     ids = ["` + mobilityTargetID1 + `"] 
+	   }
+	}
+	
+	output "output_mobility_target" {
+	   value = data.apex_navigator_block_mobility_targets.test
+	}
+`
+
+var mobilityTargetMultipleFilterConfig = `
+ data "apex_navigator_block_mobility_targets" "test" {
+	     filter {
+	     ids = ["` + mobilityTargetID1 + `", "` + mobilityTargetID2 + `"] 
+	   }
+	}
+	
+	output "output_mobility_target" {
+	   value = data.apex_navigator_block_mobility_targets.test
+	}
+`
+
+var mobilityTargetInvalidFilterConfig = `
+ data "apex_navigator_block_mobility_targets" "test" {
+	     filter {
+	     ids = ["invalid-id"] 
+	   }
+	}
+	
+	output "output_mobility_target" {
+		value = data.apex_navigator_block_mobility_targets.test
+	 }
 `

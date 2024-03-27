@@ -73,7 +73,7 @@ type Clients struct {
 
 // Metadata returns the provider type name.
 func (p *myProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "apex_navigator"
+	resp.TypeName = "apex"
 	resp.Version = p.version
 }
 

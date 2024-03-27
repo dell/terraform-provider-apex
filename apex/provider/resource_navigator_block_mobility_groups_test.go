@@ -129,7 +129,7 @@ func TestAccResourceMobilityGroupError(t *testing.T) {
 }
 
 var moblilityGroupResourceConfig = `
-resource "apex_navigator_mobility_groups" "example" {
+resource "apex_navigator_block_mobility_groups" "example" {
 	name        = "` + mobilityName + `" 
 	system_id   = "` + systemID + `"
 	system_type = "POWERFLEX"
@@ -139,12 +139,12 @@ resource "apex_navigator_mobility_groups" "example" {
   }
   
   output "examples_mobility_group" {
-	value = apex_navigator_mobility_groups.example
+	value = apex_navigator_block_mobility_groups.example
   }
 `
 
 var moblilityGroupResourceUpdateConfig = `
-resource "apex_navigator_mobility_groups" "example" {
+resource "apex_navigator_block_mobility_groups" "example" {
 	name        = "` + mobilityName + `_update" 
 	system_id   = "` + systemID + `"
 	system_type = "POWERFLEX"
@@ -154,12 +154,12 @@ resource "apex_navigator_mobility_groups" "example" {
   }
   
   output "examples_mobility_group" {
-	value = apex_navigator_mobility_groups.example
+	value = apex_navigator_block_mobility_groups.example
   }
 `
 
 var moblilityGroupResourceErrorUpdateConfig = `
-resource "apex_navigator_mobility_groups" "example" {
+resource "apex_navigator_block_mobility_groups" "example" {
 	name        = "` + mobilityName + `" 
 	system_id   = "` + systemID + `"
 	system_type = "POWERSCALE"
@@ -169,6 +169,6 @@ resource "apex_navigator_mobility_groups" "example" {
   }
   
   output "examples_mobility_group" {
-	value = apex_navigator_mobility_groups.example
+	value = apex_navigator_block_mobility_groups.example
   }
 `

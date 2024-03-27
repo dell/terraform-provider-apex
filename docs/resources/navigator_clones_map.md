@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_clones_map resource"
-linkTitle: apex_navigator_clones_map"
-page_title: "apex_navigator_clones_map Resource - apex"
+title: "apex_navigator_block_clones_map resource"
+linkTitle: apex_navigator_block_clones_map"
+page_title: "apex_navigator_block_clones_map Resource - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_clones_map (Resource)
+# apex_navigator_block_clones_map (Resource)
 
 
 

@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_clones resource"
-linkTitle: "apex_navigator_clones"
-page_title: "apex_navigator_clones Resource - apex"
+title: "apex_navigator_block_clones resource"
+linkTitle: "apex_navigator_block_clones"
+page_title: "apex_navigator_block_clones Resource - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_clones (Resource)
+# apex_navigator_block_clones (Resource)
 
 
 

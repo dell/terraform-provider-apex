@@ -25,34 +25,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccDataSourceMobilityTargets(t *testing.T) {
+func TestAccDataSourceMobilityGroups(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + moblilityTargetConfig + mobilityTargetsOutputs,
+				Config: ProviderConfig + mobilityCollectionConfig + mobilityGroupsOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
 					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
+			// Error reading mobility groups
 			{
 				PreConfig: func() {
-					FunctionMocker = Mock(helper.GetMobilityTargetCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetMobilityGroupCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + moblilityTargetConfig,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Target*.`),
+				Config:      ProviderConfig + mobilityCollectionConfig + mobilityGroupsOutputs,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Groups*.`),
 			},
-			// Filter test for single mobility target
+			// Filter testing single mobility group
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + mobilityTargetSingleFilterConfig + mobilityTargetsOutputs,
+				Config: ProviderConfig + mobilityFilterSingleConfig + mobilityGroupsOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "false"),
@@ -60,9 +61,9 @@ func TestAccDataSourceMobilityTargets(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "false"),
 				),
 			},
-			// Filter test for multiple mobility targets
+			// Filter testing multiple mobility group
 			{
-				Config: ProviderConfig + mobilityTargetMultipleFilterConfig + mobilityTargetsOutputs,
+				Config: ProviderConfig + mobilityFilterMultipleConfig + mobilityGroupsOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
@@ -70,65 +71,67 @@ func TestAccDataSourceMobilityTargets(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "true"),
 				),
 			},
-			// Error getting mobility target for invalid filter
+			// Error getting mobility group with invalid filter
 			{
-				Config:      ProviderConfig + mobilityTargetInvalidFilterConfig + mobilityTargetsOutputs,
+				Config:      ProviderConfig + mobilityilterInvalidConfig + mobilityGroupsOutputs,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
 			},
 		},
 	})
 }
 
-var moblilityTargetConfig = `data "apex_navigator_mobility_targets" "test" {}`
-var mobilityTargetsOutputs = `
+var mobilityCollectionConfig = `data "apex_navigator_block_mobility_groups" "example" {}`
+
+var mobilityGroupsOutputs = `
 output "fetched_many" {
-	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) > 1
+	value = length(data.apex_navigator_block_mobility_groups.example.mobility_groups) > 1
 }
   
 output "fetched_any" {
-	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) != 0
+	value = length(data.apex_navigator_block_mobility_groups.example.mobility_groups) != 0
 }
 
 output "fetched_single" {
-	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) == 1
+	value = length(data.apex_navigator_block_mobility_groups.example.mobility_groups) == 1
 }
 
 output "fetched_two" {
-	value = length(data.apex_navigator_mobility_targets.test.mobility_targets) == 2
+	value = length(data.apex_navigator_block_mobility_groups.example.mobility_groups) == 2
 }
 `
-var mobilityTargetSingleFilterConfig = `
- data "apex_navigator_mobility_targets" "test" {
+
+var mobilityFilterSingleConfig = `
+ data "apex_navigator_block_mobility_groups" "example" {
 	    filter {
-	     ids = ["` + mobilityTargetID1 + `"] 
+	     ids = ["` + mobilityID1 + `"] 
 	   }
 	}
 	
-	output "output_mobility_target" {
-	   value = data.apex_navigator_mobility_targets.test
+	output "instance_clone" {
+	   value = data.apex_navigator_block_mobility_groups.example
 	}
 `
 
-var mobilityTargetMultipleFilterConfig = `
- data "apex_navigator_mobility_targets" "test" {
+var mobilityFilterMultipleConfig = `
+ data "apex_navigator_block_mobility_groups" "example" {
 	     filter {
-	     ids = ["` + mobilityTargetID1 + `", "` + mobilityTargetID2 + `"] 
+	     ids = ["` + mobilityID1 + `", "` + mobilityID2 + `"] 
 	   }
 	}
 	
-	output "output_mobility_target" {
-	   value = data.apex_navigator_mobility_targets.test
+	output "instance_clone" {
+	   value = data.apex_navigator_block_mobility_groups.example
 	}
 `
 
-var mobilityTargetInvalidFilterConfig = `
- data "apex_navigator_mobility_targets" "test" {
+var mobilityilterInvalidConfig = `
+ data "apex_navigator_block_mobility_groups" "example" {
 	     filter {
 	     ids = ["invalid-id"] 
 	   }
 	}
 	
-	output "output_mobility_target" {
-		value = data.apex_navigator_mobility_targets.test
-	 }
+	output "instance_clone" {
+	   value = data.apex_navigator_block_mobility_groups.example
+	}
 `

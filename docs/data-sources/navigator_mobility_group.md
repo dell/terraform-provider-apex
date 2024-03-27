@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "apex_navigator_mobility_group data source"
-linkTitle: "apex_navigator_mobility_group"
-page_title: "apex_navigator_mobility_group Data Source - apex"
+title: "apex_navigator_block_mobility_group data source"
+linkTitle: "apex_navigator_block_mobility_group"
+page_title: "apex_navigator_block_mobility_group Data Source - apex"
 subcategory: ""
 description: |-
   
 ---
 
-# apex_navigator_mobility_group (Data Source)
+# apex_navigator_block_mobility_group (Data Source)
 
 
 

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_clones_unmap" "example" {
+resource "apex_navigator_block_clones_unmap" "example" {
   clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
   host_mappings = [
     "POWERFLEX-ABCD1234567890__DATAMOBILITYHOST__12345678-1234-1234-1234-123456789012"
@@ -23,5 +23,5 @@ resource "apex_navigator_clones_unmap" "example" {
 }
 
 output "examples_clones_unmap" {
-  value = apex_navigator_clones_unmap.example
+  value = apex_navigator_block_clones_unmap.example
 }

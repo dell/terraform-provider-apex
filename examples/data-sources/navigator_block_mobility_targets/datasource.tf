@@ -16,19 +16,19 @@ limitations under the License.
 */
 
 # Get all mobility targets
-data "apex_navigator_mobility_targets" "example" {}
+data "apex_navigator_block_mobility_targets" "example" {}
 
 output "examples_mobility_targets" {
-  value = data.apex_navigator_mobility_targets.example
+  value = data.apex_navigator_block_mobility_targets.example
 }
 
 # Returns a filtered list of mobility targets
-# data "apex_navigator_mobility_targets" "example" {
+# data "apex_navigator_block_mobility_targets" "example" {
 #   filter {
 #     ids = ["mobility-target-id"] 
 #   }
 # }
 
 # output "examples_mobility_targets" {
-#   value = data.apex_navigator_mobility_targets.example
+#   value = data.apex_navigator_block_mobility_targets.example
 # }

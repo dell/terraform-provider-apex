@@ -32,35 +32,35 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &mobilityTargetsDataSource{}
-	_ datasource.DataSourceWithConfigure = &mobilityTargetsDataSource{}
+	_ datasource.DataSource              = &mobilityGroupsDataSource{}
+	_ datasource.DataSourceWithConfigure = &mobilityGroupsDataSource{}
 )
 
-// NewMobilityTargetsDataSource is a storage system data source object
-func NewMobilityTargetsDataSource() datasource.DataSource {
-	return &mobilityTargetsDataSource{}
+// NewMobilityGroupsDataSource is a storage system data source object
+func NewMobilityGroupsDataSource() datasource.DataSource {
+	return &mobilityGroupsDataSource{}
 }
 
-// mobilityTargetsDataSource is the data source implementation.
-type mobilityTargetsDataSource struct {
+// mobilityGroupsDataSource is the data source implementation.
+type mobilityGroupsDataSource struct {
 	client *client.APIClient
 }
 
-func (d *mobilityTargetsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_mobility_targets"
+func (d *mobilityGroupsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_navigator_block_mobility_groups"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.
-func (d *mobilityTargetsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) { // nolint:funlen, dupl
+func (d *mobilityGroupsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) { // nolint:funlen, dupl
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
 			},
-			"mobility_targets": schema.ListNestedAttribute{
+			"mobility_groups": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
-					Attributes: MobilityTargetsDataSourceSchema.Attributes,
+					Attributes: MobilityGroupsDataSourceSchema.Attributes,
 				},
 			},
 		},
@@ -80,12 +80,13 @@ func (d *mobilityTargetsDataSource) Schema(_ context.Context, _ datasource.Schem
 }
 
 // Read method is used to refresh the Terraform state based on the schema data.
-func (d *mobilityTargetsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) { // nolint:gocognit, funlen
-	var state models.MobilityTargetsDataSourceModel
+func (d *mobilityGroupsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) { // nolint:gocognit, funlen
+	var state models.MobilityGroupsDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
 	// Check that the filter is valid
 	filter := ""
 	filterUsed := false
@@ -98,10 +99,10 @@ func (d *mobilityTargetsDataSource) Read(ctx context.Context, req datasource.Rea
 		filter = helper.CreateFilter(filteredNames, "id")
 	}
 
-	mobilityTargets, status, err := helper.GetMobilityTargetCollection(d.client, filter)
+	mobilityGroups, status, err := helper.GetMobilityGroupCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Mobility Targets",
+			"Unable to Read Apex Navigator Mobility Groups",
 			err.Error(),
 		)
 		return
@@ -109,21 +110,21 @@ func (d *mobilityTargetsDataSource) Read(ctx context.Context, req datasource.Rea
 
 	// If the returned filtered values does not equal the length of the filter
 	// Then one or more of the filtered values are invalid
-	if filterUsed && len(mobilityTargets.Results) != len(state.Filter.IDs) {
+	if filterUsed && len(mobilityGroups.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter mobility targets.",
+			"Failed to filter mobility groups.",
 			"one more more of the ids set in the filter is invalid.",
 		)
 		return
 	}
 
 	// Map response body to model
-	for _, mobilityTarget := range mobilityTargets.Results {
-		mobilityTargetsState := helper.GetMobilityTargetModel(mobilityTarget)
+	for _, mobilityGroup := range mobilityGroups.Results {
+		mobilityGroupsState := helper.GetMobilityGroupModel(mobilityGroup)
 
-		state.MobilityTargets = append(state.MobilityTargets, mobilityTargetsState)
+		state.MobilityGroups = append(state.MobilityGroups, mobilityGroupsState)
 	}
-	state.ID = types.StringValue("mobility-targets-ds-id")
+	state.ID = types.StringValue("mobility-group-ds-id")
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)
@@ -134,7 +135,7 @@ func (d *mobilityTargetsDataSource) Read(ctx context.Context, req datasource.Rea
 }
 
 // Configure adds the provider configured client to the data source.
-func (d *mobilityTargetsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *mobilityGroupsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}

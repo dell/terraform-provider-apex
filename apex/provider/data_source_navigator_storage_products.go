@@ -49,7 +49,7 @@ type storageProductsDataSource struct {
 }
 
 func (d *storageProductsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storage_products"
+	resp.TypeName = req.ProviderTypeName + "_navigator_storage_products"
 }
 
 // Schema defines the acceptable configuration and state attribute names and types.
