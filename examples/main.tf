@@ -18,28 +18,28 @@ limitations under the License.
 terraform {
   required_providers {
     apex = {
-      source  = "dell/apex"
+      source = "dell/apex"
     }
   }
 }
 
 provider "apex" {
-  host  = var.HOST
-  token = var.JWT_TOKEN
+  host         = var.HOST
+  token        = var.JWT_TOKEN
   jms_endpoint = var.JMS_ENDPOINT
 }
 
 variable "JWT_TOKEN" {
-  type = string
+  type    = string
   default = "insert-token-here"
 }
 
 variable "HOST" {
-  type = string
+  type    = string
   default = "https://example-host.com"
 }
 
 variable "JMS_ENDPOINT" {
-  type = string
+  type    = string
   default = "https://example-jobs-endpoint.com"
 }

@@ -17,7 +17,7 @@ limitations under the License.
 terraform {
   required_providers {
     apex = {
-      source  = "dell/apex"
+      source = "dell/apex"
     }
   }
 }
