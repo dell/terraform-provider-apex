@@ -5,22 +5,22 @@ This Alpha release supports resources and data sources mentioned in the Features
 
 ### Data Sources:
 * `apex_navigator_block_storage`
-* `apex_navigator_clone`
-* `apex_navigator_hosts`
-* `apex_navigator_mobility_group`
-* `apex_navigator_mobility_target`
-* `apex_navigator_pools`
-* `apex_navigator_volumes`
+* `apex_navigator_block_clone`
+* `apex_navigator_block_hosts`
+* `apex_navigator_block_mobility_group`
+* `apex_navigator_block_mobility_target`
+* `apex_navigator_block_pools`
+* `apex_navigator_block_volumes`
 
 ### Resources
 * `apex_navigator_block_storage`
-* `apex_navigator_clones_map`
-* `apex_navigator_clones_refresh`
-* `apex_navigator_clones_unmap`
-* `apex_navigator_clones`
-* `apex_navigator_mobility_groups_copy`
-* `apex_navigator_mobility _groups`
-* `apex_navigator_mobility_targets`
+* `apex_navigator_block_clones_map`
+* `apex_navigator_block_clones_refresh`
+* `apex_navigator_block_clones_unmap`
+* `apex_navigator_block_clones`
+* `apex_navigator_block_mobility_groups_copy`
+* `apex_navigator_block_mobility _groups`
+* `apex_navigator_block_mobility_targets`
 
 ### Others
 N/A

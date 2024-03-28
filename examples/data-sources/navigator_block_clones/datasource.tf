@@ -15,18 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-data "apex_navigator_clones" "example" {}
+data "apex_navigator_block_clones" "example" {}
 
 output "instance_clone" {
-  value = data.apex_navigator_clones.example
+  value = data.apex_navigator_block_clones.example
 }
 
-# data "apex_navigator_clones" "example" {
+# data "apex_navigator_block_clones" "example" {
 #     filter {
 #     ids = ["clone-id"] 
 #   }
 # }
 
 # output "instance_clone" {
-#   value = data.apex_navigator_clones.example
+#   value = data.apex_navigator_block_clones.example
 # }

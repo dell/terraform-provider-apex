@@ -15,6 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-HOST="https://example.com"
-JMS_ENDPOINT="https://example-JMS.com"
-JWT_TOKEN=""
+HOST         = "https://example.com"
+JMS_ENDPOINT = "https://example-JMS.com"
+JWT_TOKEN    = ""
