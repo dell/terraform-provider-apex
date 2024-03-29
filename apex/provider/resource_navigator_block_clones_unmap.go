@@ -64,12 +64,39 @@ func (r *clonesUnmapResource) Schema(_ context.Context, _ resource.SchemaRequest
 				MarkdownDescription: " ",
 				Required:            true,
 			},
-			"host_mappings": schema.ListAttribute{
+			"host_mappings": schema.ListNestedAttribute{
+				Optional: true,
+				Computed: true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"host_name": schema.StringAttribute{
+							Computed: true,
+						},
+						"host_ip": schema.StringAttribute{
+							Computed: true,
+						},
+						"host_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"id": schema.StringAttribute{
+							Computed: true,
+						},
+						"nqn": schema.StringAttribute{
+							Computed: true,
+						},
+						"host_initiator_protocol": schema.StringAttribute{
+							Computed: true,
+						},
+					},
+				},
+			},
+			"host_ids": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
 			},
 			"status": schema.StringAttribute{
 				Computed: true,
+				Optional: true,
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -115,7 +142,7 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	unmapReq := r.client.ClonesAPI.ClonesUnmap(ctx, plan.CloneID.ValueString())
 
 	// Executing unmap request request
-	job, status, err := helper.UnmapClones(unmapReq, plan.HostMappings)
+	job, status, err := helper.UnmapClones(unmapReq, plan.HostIDs)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -148,17 +175,27 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 		)
 		return
 	}
-
+	// Fetching Clone after Job Completes
+	clone, status, err := helper.GetCloneInstance(r.client, plan.CloneID.ValueString())
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error retrieving Clone",
+			"Could not retrieve Clone, unexpected error: "+newErr,
+		)
+		return
+	}
 	// Updating TFState with Clones unmap info
 	result := models.ClonesMapModel{
 		ID:           types.StringValue(job.Id),
 		CloneID:      plan.CloneID,
-		HostMappings: plan.HostMappings,
+		HostIDs:      plan.HostIDs,
+		HostMappings: helper.UpdateHostMappings(clone),
 		Status:       types.StringValue(string(*jobStatus.State)),
 	}
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, result)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -178,6 +215,7 @@ func (r *clonesUnmapResource) Read(ctx context.Context, req resource.ReadRequest
 	state = models.ClonesMapModel{
 		ID:           state.ID,
 		CloneID:      state.CloneID,
+		HostIDs:      state.HostIDs,
 		HostMappings: state.HostMappings,
 		Status:       state.Status,
 	}

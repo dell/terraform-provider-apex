@@ -17,7 +17,7 @@ limitations under the License.
 
 resource "apex_navigator_block_clones_unmap" "example" {
   clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
-  host_mappings = [
+  host_ids = [
     "POWERFLEX-ABCD1234567890__DATAMOBILITYHOST__12345678-1234-1234-1234-123456789012"
   ]
 }

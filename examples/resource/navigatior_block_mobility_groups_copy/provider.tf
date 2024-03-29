@@ -5,7 +5,8 @@ Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://mozilla.org/MPL/2.0/
+    http://mozilla.org/MPL/2.0/
+
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,19 +14,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+terraform {
+  required_providers {
+    apex = {
+      source = "dell/apex"
+    }
+  }
+}
 
-package models
-
-import (
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-)
-
-// ClonesMapModel defines the attribute names and types for a Clones Map TF model
-type ClonesMapModel struct {
-	ID           types.String        `tfsdk:"id"`
-	CloneID      types.String        `tfsdk:"clone_id"`
-	HostMappings basetypes.ListValue `tfsdk:"host_mappings"`
-	HostIDs      []types.String      `tfsdk:"host_ids"`
-	Status       types.String        `tfsdk:"status"`
+provider "apex" {
+  host         = var.HOST
+  token        = var.JWT_TOKEN
+  jms_endpoint = var.JMS_ENDPOINT
 }
