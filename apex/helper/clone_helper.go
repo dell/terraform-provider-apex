@@ -161,3 +161,41 @@ func GetClonesModel(clone client.Clone) (model models.ClonesModel) {
 
 	return model
 }
+
+// UpdateHostMappings updates the host mappings after map/unmap operations
+func UpdateHostMappings(clone *client.Clone) basetypes.ListValue {
+	attrHostTypes := map[string]attr.Type{
+		"host_name":               types.StringType,
+		"host_ip":                 types.StringType,
+		"host_id":                 types.StringType,
+		"id":                      types.StringType,
+		"nqn":                     types.StringType,
+		"host_initiator_protocol": types.StringType,
+	}
+	var hostValues []attr.Value
+	newHostObjectType := types.ObjectType{}
+	if clone.HostMappings != nil {
+		for _, hostMapping := range clone.HostMappings {
+			mapValues := map[string]attr.Value{
+				"host_name":               types.StringValue(hostMapping.HostName),
+				"host_ip":                 types.StringValue(hostMapping.HostIp),
+				"host_id":                 types.StringValue(hostMapping.HostId),
+				"id":                      types.StringValue(*hostMapping.Id),
+				"nqn":                     types.StringValue(*hostMapping.Nqn),
+				"host_initiator_protocol": types.StringValue(string(*hostMapping.HostInitiatorProtocol)),
+			}
+			mapObject, _ := types.ObjectValue(attrHostTypes, mapValues)
+			hostValues = append(hostValues, mapObject)
+		}
+		newHostObjectType.AttrTypes = map[string]attr.Type{
+			"host_name":               types.StringType,
+			"host_ip":                 types.StringType,
+			"host_id":                 types.StringType,
+			"id":                      types.StringType,
+			"nqn":                     types.StringType,
+			"host_initiator_protocol": types.StringType,
+		}
+
+	}
+	return basetypes.NewListValueMust(newHostObjectType, hostValues)
+}

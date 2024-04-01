@@ -52,6 +52,17 @@ func TestAccResourceClonesUnmapError(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error creating Clones Unmap request*.`),
 			},
 			{
+				// error getting clone
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetCloneInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + clonesUnmapResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error retrieving Clone*.`),
+			},
+			{
 				// error while waiting for job to complete
 				PreConfig: func() {
 					if FunctionMocker != nil {
@@ -80,7 +91,7 @@ func TestAccResourceClonesUnmapError(t *testing.T) {
 var clonesUnmapResourceConfig = `
 resource "apex_navigator_block_clones_unmap" "example" {
 	clone_id                 = "` + cloneUnmapID + `"
-	host_mappings                = [
+	host_ids                = [
 		  "` + cloneUnmapHost + `"
 	]
   }

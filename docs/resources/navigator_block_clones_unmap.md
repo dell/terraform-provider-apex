@@ -18,9 +18,25 @@ description: |-
 ### Required
 
 - `clone_id` (String)
-- `host_mappings` (List of String)
+- `host_ids` (List of String)
+
+### Optional
+
+- `host_mappings` (Attributes List) (see [below for nested schema](#nestedatt--host_mappings))
+- `status` (String)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `status` (String)
+
+<a id="nestedatt--host_mappings"></a>
+### Nested Schema for `host_mappings`
+
+Read-Only:
+
+- `host_id` (String)
+- `host_initiator_protocol` (String)
+- `host_ip` (String)
+- `host_name` (String)
+- `id` (String)
+- `nqn` (String)

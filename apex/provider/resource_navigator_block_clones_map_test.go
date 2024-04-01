@@ -56,6 +56,18 @@ func TestAccResourceClonesMapError(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error creating Clones Map Request*.`),
 			},
 			{
+				// error getting clone
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetCloneInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + clonesMapResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error retrieving Clone*.`),
+			},
+			{
+				// error while waiting for job to complete
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
@@ -66,6 +78,7 @@ func TestAccResourceClonesMapError(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
 			},
 			{
+				// error getting job status
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
@@ -82,7 +95,7 @@ func TestAccResourceClonesMapError(t *testing.T) {
 var clonesMapResourceConfig = `
 resource "apex_navigator_block_clones_map" "example" {
 	clone_id                 = "` + cloneID + `"
-	host_mappings                = [
+	host_ids                = [
 		  "` + cloneHost + `"
 	]
   }

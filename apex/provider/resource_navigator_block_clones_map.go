@@ -64,12 +64,39 @@ func (r *clonesMapResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				MarkdownDescription: " ",
 				Required:            true,
 			},
-			"host_mappings": schema.ListAttribute{
+			"host_mappings": schema.ListNestedAttribute{
+				Optional: true,
+				Computed: true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"host_name": schema.StringAttribute{
+							Computed: true,
+						},
+						"host_ip": schema.StringAttribute{
+							Computed: true,
+						},
+						"host_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"id": schema.StringAttribute{
+							Computed: true,
+						},
+						"nqn": schema.StringAttribute{
+							Computed: true,
+						},
+						"host_initiator_protocol": schema.StringAttribute{
+							Computed: true,
+						},
+					},
+				},
+			},
+			"host_ids": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
 			},
 			"status": schema.StringAttribute{
 				Computed: true,
+				Optional: true,
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -115,7 +142,7 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 	mapReq := r.client.ClonesAPI.ClonesMap(ctx, plan.CloneID.ValueString())
 
 	// Executing map request request
-	job, status, err := helper.MapClones(ctx, mapReq, plan.CloneID.ValueString(), plan.HostMappings)
+	job, status, err := helper.MapClones(ctx, mapReq, plan.CloneID.ValueString(), plan.HostIDs)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -124,7 +151,6 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 		)
 		return
 	}
-
 	// Waiting for job to complete
 	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
@@ -144,17 +170,28 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 		)
 		return
 	}
+	// Fetching Clone after Job Completes
+	clone, status, err := helper.GetCloneInstance(r.client, plan.CloneID.ValueString())
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error retrieving Clone",
+			"Could not retrieve Clone, unexpected error: "+newErr,
+		)
+		return
+	}
 
 	// Updating TFState with Clones map info
 	result := models.ClonesMapModel{
 		ID:           types.StringValue(job.Id),
 		CloneID:      plan.CloneID,
-		HostMappings: plan.HostMappings,
+		HostIDs:      plan.HostIDs,
+		HostMappings: helper.UpdateHostMappings(clone),
 		Status:       types.StringValue(string(*jobStatus.State)),
 	}
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, result)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -175,6 +212,7 @@ func (r *clonesMapResource) Read(ctx context.Context, req resource.ReadRequest, 
 		ID:           state.ID,
 		CloneID:      state.CloneID,
 		HostMappings: state.HostMappings,
+		HostIDs:      state.HostIDs,
 		Status:       state.Status,
 	}
 
