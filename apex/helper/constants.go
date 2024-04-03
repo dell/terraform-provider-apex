@@ -18,7 +18,7 @@ limitations under the License.
 package helper
 
 // ResourceRetrieveError is the Error message for retrieveing resource ID failure
-const ResourceRetrieveError = "Could not retrieve resourceID, unexpected error: "
+const ResourceRetrieveError = "Could not retrieve resourceID: "
 
 // JobRetrieveError is the Error message for retrieveing job ID failure
 const JobRetrieveError = "Could not retrieve job, unexpected error: "

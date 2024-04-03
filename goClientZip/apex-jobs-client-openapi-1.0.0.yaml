@@ -315,7 +315,7 @@ components:
         for clients to query in the future.
       example:
         openapi_type: openapi_type
-        body: "{}"
+        body: message
       properties:
         openapi_type:
           description: |
@@ -325,7 +325,7 @@ components:
           description: |
             The response body that is returned by this job. Available when in a terminal
             state (SUCCEEDED, FAILED, COMPLETED_WITH_MESSAGES).
-          type: object
+          type: string
       type: object
     JobStateEnum:
       description: "Current status of the job.\n* SCHEDULED - Waiting for start time.\n\
@@ -399,7 +399,7 @@ components:
         parent_id: parent_id
         response:
           openapi_type: openapi_type
-          body: "{}"
+          body: message
         name: name
         resource_action: null
         progress: 0
