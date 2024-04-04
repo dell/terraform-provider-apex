@@ -119,7 +119,7 @@ func (d *mobilityTargetsDataSource) Read(ctx context.Context, req datasource.Rea
 
 	// Map response body to model
 	for _, mobilityTarget := range mobilityTargets.Results {
-		mobilityTargetsState := helper.GetMobilityTargetModel(mobilityTarget)
+		mobilityTargetsState := helper.GetMobilityTargetModelDs(mobilityTarget)
 
 		state.MobilityTargets = append(state.MobilityTargets, mobilityTargetsState)
 	}

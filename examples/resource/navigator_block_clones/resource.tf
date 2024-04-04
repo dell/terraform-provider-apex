@@ -19,13 +19,19 @@ resource "apex_navigator_block_clones" "example" {
   name               = "CloneTerraformName"
   description        = "consulente autem dictum est, altum videtur esse ius potest"
   mobility_target_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  system_id          = "POWERFLEX-ELMSIOENG10015"
   host_mappings = [
     {
       host_id = "POWERFLEX-ABCD1234567890__HOST__12345678901234"
     }
   ]
+  powerflex {
+    username = "example-username"
+    password = "example-pass"
+  }
 }
 
 output "examples_clones" {
-  value = apex_navigator_block_clones.example
+  value     = apex_navigator_block_clones.example
+  sensitive = true
 }

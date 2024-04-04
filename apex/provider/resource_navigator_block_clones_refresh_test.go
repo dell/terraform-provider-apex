@@ -55,6 +55,17 @@ func TestAccResourceClonesRefreshError(t *testing.T) {
 				Config:      ProviderConfig + clonesRefreshResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error creating Clones Refresh request*.`),
 			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + clonesRefreshResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+			},
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
@@ -82,10 +93,12 @@ func TestAccResourceClonesRefreshError(t *testing.T) {
 var clonesRefreshResourceConfig = `
 resource "apex_navigator_block_clones_refresh" "example" {
 	clone_id = "` + cloneRefreshID + `"
-  }
-  
-  output "examples_clones_refresh" {
-	value = apex_navigator_block_clones_refresh.example
+	system_id = "` + systemID + `"
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
   
 `

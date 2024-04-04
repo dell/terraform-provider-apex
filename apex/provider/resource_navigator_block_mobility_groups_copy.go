@@ -27,7 +27,6 @@ import (
 
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -37,9 +36,8 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &mobilityGroupsCopyResource{}
-	_ resource.ResourceWithConfigure   = &mobilityGroupsCopyResource{}
-	_ resource.ResourceWithImportState = &mobilityGroupsCopyResource{}
+	_ resource.Resource              = &mobilityGroupsCopyResource{}
+	_ resource.ResourceWithConfigure = &mobilityGroupsCopyResource{}
 )
 
 // NewMobilityGroupsCopyResource returns a storage system resource object
@@ -66,9 +64,9 @@ func (r *mobilityGroupsCopyResource) Schema(_ context.Context, _ resource.Schema
 				MarkdownDescription: " ",
 				Required:            true,
 			},
-			"mobility_target_id": schema.ListAttribute{
-				ElementType: types.StringType,
-				Required:    true,
+			"mobility_target_id": schema.StringAttribute{
+				MarkdownDescription: " ",
+				Required:            true,
 			},
 			"status": schema.StringAttribute{
 				Computed: true,
@@ -78,6 +76,14 @@ func (r *mobilityGroupsCopyResource) Schema(_ context.Context, _ resource.Schema
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+		},
+		Blocks: map[string]schema.Block{
+			"powerflex_source": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
+			},
+			"powerflex_target": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
 			},
 		},
 	}
@@ -113,13 +119,54 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
+	// Get/Validate the mobility group id set in the plan
+	mobilityGroup, status, err := helper.GetMobilityGroup(r.client, plan.MobilitySourceID.ValueString())
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error Reading Apex Navigator mobility group",
+			"Could not read Apex Navigator mobility group, unexpected error: "+newErr,
+		)
+		return
+	}
+
+	// Get/Validate the mobility target value from Apex Navigator
+	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, plan.MobilityTargetID.ValueString())
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error Reading Apex Navigator mobility target",
+			"Could not read Mobility target, unexpected error: "+newErr,
+		)
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, mobilityGroup.SystemId, *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
+		return
+	}
+
+	// Activate Powerflex
+	act2Err := helper.ActivateSystemPowerflexSystem(ctx, r.client, mobilityTarget.SystemId, *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if act2Err != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+act2Err.Error(),
+		)
+		return
+	}
+
 	// Create Mobility Groups POST request
 	createReq := r.client.MobilityGroupsAPI.MobilityGroupsCopy(ctx, plan.MobilitySourceID.ValueString())
 	startCopyInput := *client.NewStartCopyInput()
-	mobilityTargetIDArray := make([]string, 0, len(plan.MobilityTargetID))
-	for _, targetID := range plan.MobilityTargetID {
-		mobilityTargetIDArray = append(mobilityTargetIDArray, targetID.ValueString())
-	}
+	mobilityTargetIDArray := make([]string, 0)
+	mobilityTargetIDArray = append(mobilityTargetIDArray, plan.MobilityTargetID.ValueString())
+
 	startCopyInput.SetMobilityTargetIds(mobilityTargetIDArray)
 
 	// Executing copy request request
@@ -131,10 +178,6 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 			"Could not create Mobility Group Copy, unexpected error: "+newErr,
 		)
 		return
-	}
-
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
 	}
 
 	// Waiting for job to complete
@@ -165,6 +208,9 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		Status:           types.StringValue(string(*jobStatus.State)),
 	}
 
+	result.PowerFlexClientSource = helper.SetPowerflexClientState(*plan.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*plan.PowerFlexClientTarget)
+
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -182,15 +228,18 @@ func (r *mobilityGroupsCopyResource) Read(ctx context.Context, req resource.Read
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state = models.MobilityGroupCopyModel{
+	result := models.MobilityGroupCopyModel{
 		ID:               state.ID,
 		MobilitySourceID: state.MobilitySourceID,
 		MobilityTargetID: state.MobilityTargetID,
 		Status:           state.Status,
 	}
 
+	result.PowerFlexClientSource = helper.SetPowerflexClientState(*state.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*state.PowerFlexClientTarget)
+
 	// Set refresded state
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -211,9 +260,4 @@ func (r *mobilityGroupsCopyResource) Delete(_ context.Context, _ resource.Delete
 		"Deletes are not supported for this resource",
 		"Deletes are not supported for this resource",
 	)
-}
-
-func (r *mobilityGroupsCopyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

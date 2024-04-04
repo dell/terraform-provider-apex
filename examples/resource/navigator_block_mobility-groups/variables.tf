@@ -17,15 +17,15 @@ limitations under the License.
 
 variable "JWT_TOKEN" {
   type    = string
-  default = "insert-token-here"
+  default = "token-example"
 }
 
 variable "HOST" {
   type    = string
-  default = "https://example-host.com"
+  default = "https://example-apex-host.com"
 }
 
 variable "JMS_ENDPOINT" {
   type    = string
-  default = "https://example-jobs-endpoint.com"
+  default = "https://example-jms-endpoint.com"
 }

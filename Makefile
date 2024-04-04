@@ -11,11 +11,13 @@ default: install
 clean:
 	rm -rf apexclient
 	rm -rf jobsclient
+	rm -rf powerflexclient
 	rm -f ${BINARY}
 
 extract-client:
 	unzip --qq -o 'goClientZip/apex-client-openapi-1.0.0.zip' -d ./apexclient/
 	unzip --qq -o 'goClientZip/apex-jobs-client-openapi-1.0.0.zip' -d ./jobsclient/
+	unzip --qq -o 'goClientZip/powerflex-auth-client-4.5.zip' -d ./powerflexclient/
 
 no-extract-build:
 	go mod download

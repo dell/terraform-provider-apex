@@ -18,6 +18,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -146,6 +147,11 @@ func (r *mobilityTargetsResource) Schema(_ context.Context, _ resource.SchemaReq
 				Computed: true,
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"powerflex": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
+			},
+		},
 	}
 }
 
@@ -176,6 +182,16 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -225,6 +241,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	// Updating TFState to include target system options
 	result.TargetSystemOptions = plan.TargetSystemOptions
 
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
+
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -265,6 +283,7 @@ func (r *mobilityTargetsResource) Read(ctx context.Context, req resource.ReadReq
 	// Overwrite items with refreshed state
 	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = state.TargetSystemOptions
+	result.ActivationClientModel = helper.SetPowerflexClientState(*state.ActivationClientModel)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &result)
@@ -281,6 +300,16 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -331,7 +360,7 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	// Updating TFState with Mobility Target info
 	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = plan.TargetSystemOptions
-
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -347,6 +376,16 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -377,9 +416,23 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 
 // ImportState imports the Terraform resource
 func (r *mobilityTargetsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	id := req.ID
-	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, id)
+
+	type params struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Host     string `json:"host"`
+		Scheme   string `json:"scheme"`
+		Insecure bool   `json:"insecure"`
+		ID       string `json:"id"`
+	}
+
+	var p params
+	err := json.Unmarshal([]byte(req.ID), &p)
+	if err != nil {
+		resp.Diagnostics.AddError("Error while unmarshalling import, make sure you include username, password, host, scheme, insecure and id", err.Error())
+	}
+
+	mobilityTarget, status, err := helper.GetMobilityTarget(r.client, p.ID)
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -390,6 +443,13 @@ func (r *mobilityTargetsResource) ImportState(ctx context.Context, req resource.
 	}
 	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = types.StringValue("")
+	result.ActivationClientModel = &models.ActivationClientModel{
+		Username: types.StringValue(p.Username),
+		Password: types.StringValue(p.Password),
+		Host:     types.StringValue(p.Host),
+		Scheme:   types.StringValue(p.Scheme),
+		Insecure: types.BoolValue(p.Insecure),
+	}
 
 	diags := resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)

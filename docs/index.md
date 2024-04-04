@@ -59,4 +59,4 @@ variable "JMS_ENDPOINT" {
 
 - `host` (String)
 - `jms_endpoint` (String)
-- `token` (String)
+- `token` (String, Sensitive)

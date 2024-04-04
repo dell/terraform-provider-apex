@@ -16,12 +16,19 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_clones_map" "example" {
-  clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  clone_id  = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  system_id = "POWERFLEX-ELMSIOENG10015"
   host_ids = [
     "POWERFLEX-ABCD1234567890__HOST__abcdef1234567890"
   ]
+
+  powerflex {
+    username = "example-username"
+    password = "example-pass"
+  }
 }
 
 output "examples_clones_map" {
-  value = apex_navigator_block_clones_map.example
+  value     = apex_navigator_block_clones_map.example
+  sensitive = true
 }

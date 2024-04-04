@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2021-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,17 +15,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-variable "JWT_TOKEN" {
-  type    = string
-  default = "insert-token-here"
-}
-
-variable "HOST" {
-  type    = string
-  default = "https://example-host.com"
-}
-
-variable "JMS_ENDPOINT" {
-  type    = string
-  default = "https://example-jobs-endpoint.com"
-}
+terraform import apex_navigator_block_clones.example "{\"id\":\"<clone-id>\",\"system_id\":\"<system-id>\",\"username\":\"<powerflex-username>\",\"password\":\"<powerflex-password>\",\"host\":\"<powerflex-host>\",\"insecure\":\"<insecure>\",\"scheme\":\"<powerflex-scheme>\"}"

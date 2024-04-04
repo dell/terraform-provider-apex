@@ -16,12 +16,23 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_mobility_groups_copy" "example" {
-  mobility_source_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
-  mobility_target_id = [
-    "POWERFLEX-DCBA0987654321__DATAMOBILITYGROUP__12345678-4321-1234-4321-210987654321"
-  ]
+  for_each           = var.mobility_group
+  mobility_source_id = each.value.mobility_source_id
+  mobility_target_id = each.value.mobility_target_id
+
+  powerflex_source {
+    username = each.value.powerflex_source_user
+    password = each.value.powerflex_source_password
+    insecure = each.value.insecure
+  }
+  powerflex_target {
+    username = each.value.powerflex_target_user
+    password = each.value.powerflex_target_password
+    insecure = each.value.insecure
+  }
 }
 
 output "examples_mobility_groups_copy" {
-  value = apex_navigator_block_mobility_groups_copy.example
+  value     = apex_navigator_block_mobility_groups_copy.example
+  sensitive = true
 }

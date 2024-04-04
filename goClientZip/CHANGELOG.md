@@ -12,8 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+## Apex Jobs Client 
 Changes in apex-jobs-client-openapi-1.0.0.yaml : 
 Line 328 changed type of Body(ResponseContent -> Body) to string
 Updated example for Body(ResponseContent -> Body) : Line 318,402
 
 apex-jobs-client-openapi-1.0.0 : .\model_response_content.go line 26 Changed type of Body from map[string]interface{} to *string
+
+## PowerFlex Client
+ 
+1. Change LogininResponseYaml (expires_in, refresh_expires_in) from string to int64

@@ -55,6 +55,17 @@ func TestAccResourceClonesMapError(t *testing.T) {
 				Config:      ProviderConfig + clonesMapResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error creating Clones Map Request*.`),
 			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + clonesMapResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+			},
 			{
 				// error getting clone
 				PreConfig: func() {
@@ -94,13 +105,16 @@ func TestAccResourceClonesMapError(t *testing.T) {
 
 var clonesMapResourceConfig = `
 resource "apex_navigator_block_clones_map" "example" {
-	clone_id                 = "` + cloneID + `"
-	host_ids                = [
-		  "` + cloneHost + `"
-	]
-  }
-  
-  output "examples_clones_map" {
-	value = apex_navigator_block_clones_map.example
-  }
+		clone_id                 = "` + cloneID + `"
+		system_id                = "` + systemID + `"
+		host_ids                = [
+			"` + cloneHost + `"
+		]
+		powerflex {
+			username = "` + powerflexUser + `"
+			password = "` + powerflexPass + `"
+			scheme   = "` + powerflexScheme + `" 
+
+		}
+	}
 `

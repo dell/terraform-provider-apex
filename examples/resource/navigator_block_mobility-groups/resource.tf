@@ -22,8 +22,14 @@ resource "apex_navigator_block_mobility_groups" "example" {
   volume_id = [
     "POWERFLEX-ABCD1234567890__VOLUME__1234567890123456"
   ]
-}
 
+  powerflex {
+    username = "example-user"
+    password = "example-pass"
+    insecure = true
+  }
+}
 output "examples_mobility_group" {
-  value = apex_navigator_block_mobility_groups.example
+  value     = apex_navigator_block_mobility_groups.example
+  sensitive = true
 }

@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: Error Message
+  version: '1.0'
+paths: {}
+components:
+  schemas:
+    error-message:
+      title: error-message
+      type: object
+      properties:
+        code:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        severity:
+          $ref: ./ErrorMessageSeverityEnum.yaml#/components/schemas/ErrorMessageSeverityEnum
+        message:
+          type: string
+        message_l10n:
+          type: string
+        substitution_args:
+          type: string

@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: auth
+  version: '1.0'
+paths:
+  /rest/auth/login:
+    post:
+      summary: login
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/login-response.yaml'
+              examples:
+                example-1:
+                  value:
+                    access_token: string
+                    expires_in: int64
+                    refresh_expires_in: int64
+                    refresh_token: string
+                    token_type: string
+                    id_token: string
+                    session_state: string
+                    scope: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./error-response.yaml#/components/schemas/error-response
+      operationId: post-rest-auth-login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login-credentials.yaml'
+            examples:
+              example-1:
+                value:
+                  username: string
+                  password: string
+  /rest/auth/logout:
+    post:
+      summary: logout from application
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./error-response.yaml#/components/schemas/error-response
+              examples:
+                example-1:
+                  value:
+                    timestamp: '2019-08-24T14:15:22Z'
+                    status: 500
+                    error: string
+                    message: string
+                    path: string
+      operationId: post-rest-auth-logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/logout-request.yaml'
+            examples:
+              example-1:
+                value:
+                  refresh_token: string
+                  idT_token: string
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: A valid JWT Token
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: Accept
+        - schema:
+            type: string
+          in: header
+          name: Content-Type
+  /rest/auth/update-token:
+    post:
+      summary: update token
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/login-response.yaml'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./error-response.yaml#/components/schemas/error-response
+              examples:
+                example-1:
+                  value:
+                    messages:
+                      - code: INTERNAL_SERVER_ERROR
+                        timestamp: '2021-12-13T15:50:50.815Z'
+                        severity: ERROR
+                        message: error
+                        message_i10n: error
+                        substitution_args: "null"
+                    http_status_code: 500
+      operationId: post-rest-auth-update-token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update-token-request.yaml'
+            examples:
+              example-1:
+                value:
+                  refresh_token: string
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Accept
+        - schema:
+            type: string
+          in: header
+          name: Content-Type
+          required: true
+components:
+  schemas:
+    logout-request.yaml:
+      title: LogoutRequest
+      type: object
+      properties:
+        refresh_token:
+          type: string
+        idT_token:
+          type: string
+    login-credentials.yaml:
+      title: LoginCredentials
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+    login-response.yaml:
+      title: LoginResponse
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: int64
+        refresh_expires_in:
+          type: int64
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+        id_token:
+          type: string
+        session_state:
+          type: string
+        scope:
+          type: string
+    update-token-request.yaml:
+      title: UpdateTokenRequest
+      type: object
+      properties:
+        refresh_token:
+          type: string
+      required:
+        - refresh_token
+  responses: {}
