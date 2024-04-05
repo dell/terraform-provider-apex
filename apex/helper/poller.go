@@ -70,7 +70,18 @@ func (p poller) WaitForResource(ctx context.Context, id string) (string, error) 
 			}
 			return job.Resource.Id, nil
 		case client.JOBSTATEENUM_FAILED:
-			return "", fmt.Errorf("job failed")
+			resp, _ := job.GetResponseOk()
+			var message = ""
+			if resp != nil {
+				body, ok := resp.GetBodyOk()
+				if ok {
+					message, err = GetErrorMessageFromBody(ctx, body)
+					if err != nil {
+						return "", fmt.Errorf("job failed: " + err.Error())
+					}
+				}
+			}
+			return "", fmt.Errorf("job failed: " + message)
 		case client.JOBSTATEENUM_CANCELLING:
 		case client.JOBSTATEENUM_CANCELLED:
 			return "", fmt.Errorf("job cancelled")
