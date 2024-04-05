@@ -16,11 +16,16 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_mobility_targets" "example" {
-  name                     = "TerraformMobilityTarget"
+  # Name of the Mobility target
+  name = "TerraformMobilityTarget"
+  # Source Mobility Group Id
   source_mobility_group_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
-  system_id                = "POWERFLEX-ABCD1234567890"
-  system_type              = "POWERFLEX"
-  target_system_options    = "POWERFLEX-ABCD1234567890_STORAGE_POOL__1234567890123456"
+  # Target System Id
+  system_id = "POWERFLEX-ABCD1234567890"
+  # Target System Type
+  system_type = "POWERFLEX"
+  # Storage pool id to use for allocating target volumes
+  target_system_options = "POWERFLEX-ABCD1234567890_STORAGE_POOL__1234567890123456"
 
   powerflex {
     username = "example-username"

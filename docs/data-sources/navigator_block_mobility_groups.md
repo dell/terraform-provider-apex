@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_mobility_groups Data Source - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform Datasource is used to query existing mobility groups(source) on Apex Navigator. The information fetched from this block can be further used for resource block.
 ---
 
 # apex_navigator_block_mobility_groups (Data Source)
 
-
+This Terraform Datasource is used to query existing mobility groups(source) on Apex Navigator. The information fetched from this block can be further used for resource block.
 
 
 
@@ -21,8 +21,8 @@ description: |-
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `mobility_groups` (Attributes List) (see [below for nested schema](#nestedatt--mobility_groups))
+- `id` (String) ID of the Mobility Group datasource
+- `mobility_groups` (Attributes List) List of mobility groups(source) available on Apex Navigator. (see [below for nested schema](#nestedatt--mobility_groups))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
@@ -37,16 +37,16 @@ Optional:
 
 Optional:
 
-- `id` (String) Unique Host Claim ID
+- `id` (String) Mobility group identifier
 
 Read-Only:
 
-- `creation_timestamp` (String)
-- `description` (String)
-- `members` (Attributes List) (see [below for nested schema](#nestedatt--mobility_groups--members))
-- `name` (String)
-- `system_id` (String)
-- `system_type` (String)
+- `creation_timestamp` (String) When the mobility group was created
+- `description` (String) Description of the mobility group
+- `members` (Attributes List) A mobility member is an object (e.g. volume) that is part of a mobility group that will be the source of mobility copy operations (see [below for nested schema](#nestedatt--mobility_groups--members))
+- `name` (String) Name of the mobility group
+- `system_id` (String) Identifier of the system for the mobility group members
+- `system_type` (String) The source system type (e.g.: POWERFLEX)
 - `volume_id` (List of String)
 
 <a id="nestedatt--mobility_groups--members"></a>
@@ -54,6 +54,6 @@ Read-Only:
 
 Read-Only:
 
-- `id` (String)
-- `name` (String)
-- `size` (String)
+- `id` (String) Identifier of the member (e.g. PowerFlex volume identifier)
+- `name` (String) Name of the member (e.g. name of the volume)
+- `size` (String) Size of the member (e.g. volume size in bytes)

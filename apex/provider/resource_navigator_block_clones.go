@@ -62,9 +62,12 @@ func (r *clonesResource) Metadata(_ context.Context, req resource.MetadataReques
 // Schema defines the schema for the resource.
 func (r *clonesResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "This Terraform resource is used to manage clones on Apex Navigator. We can create, read, update and delete the Clones using this resource.We can also import an existing clone from Apex Navigator.",
+		MarkdownDescription: "This Terraform resource is used to manage clones on Apex Navigator. We can create, read, update and delete the Clones using this resource.We can also import an existing clone from Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The ID of the clone",
+				Description:         "The ID of the clone",
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
@@ -73,11 +76,13 @@ func (r *clonesResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the clone",
+				Description:         "Name of the clone",
 				Optional:            true,
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: " ",
+				Description:         "Description of the clone",
+				MarkdownDescription: "Description of the clone",
 				Optional:            true,
 				Computed:            true,
 			},
@@ -86,71 +91,99 @@ func (r *clonesResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Required:            true,
 			},
 			"mobility_target_id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Target ID",
+				Description:         "Target ID",
 				Required:            true,
 			},
 			"creation_timestamp": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "When the clone was created",
+				Description:         "When the clone was created",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"refresh_timestamp": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "When the clone was last updated",
+				Description:         "When the clone was last updated",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"image_timestamp": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Image timestamp",
+				Description:         "Image timestamp",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"clone_volumes": schema.ListNestedAttribute{
-				Computed: true,
+				Description:         "A clone mobility member provides details of clone volume",
+				MarkdownDescription: "A clone mobility member provides details of clone volume",
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Computed: true,
+							Description:         "ID of the member",
+							MarkdownDescription: "ID of the member",
+							Computed:            true,
 						},
 						"parent_id": schema.StringAttribute{
-							Computed: true,
+							Description:         "Identifier of the related mobility member",
+							MarkdownDescription: "Identifier of the related mobility member",
+							Computed:            true,
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Description:         "Name of the member",
+							MarkdownDescription: "Name of the member",
+							Computed:            true,
 						},
 						"size": schema.StringAttribute{
-							Computed: true,
+							Description:         "Size of the member",
+							MarkdownDescription: "Size of the member",
+							Computed:            true,
 						},
 					},
 				},
 			},
 			"host_mappings": schema.ListNestedAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "This represents the mapping of a repurposed (clone) storage object to a host (presumably using the clone for some analytical workload)",
+				MarkdownDescription: "This represents the mapping of a repurposed (clone) storage object to a host (presumably using the clone for some analytical workload)",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"host_name": schema.StringAttribute{
-							Computed: true,
+							Description:         "Name of host/SDC to be mapped to the clone",
+							MarkdownDescription: "Name of host/SDC to be mapped to the clone",
+							Computed:            true,
 						},
 						"host_ip": schema.StringAttribute{
-							Computed: true,
+							Description:         "IP address of host",
+							MarkdownDescription: "IP address of host",
+							Computed:            true,
 						},
 						"host_id": schema.StringAttribute{
-							Required: true,
+							Description:         "Identifier of the host",
+							MarkdownDescription: "Identifier of the host",
+							Required:            true,
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Description:         "This is a host mappings id generated by APEX Navigator for Multicloud Storage",
+							MarkdownDescription: "This is a host mappings id generated by APEX Navigator for Multicloud Storage",
+							Computed:            true,
 						},
 						"nqn": schema.StringAttribute{
-							Computed: true,
+							Description:         "NVMe qualified name. Only applicable if host_initiator_protocol is NVMe",
+							MarkdownDescription: "NVMe qualified name. Only applicable if host_initiator_protocol is NVMe",
+							Computed:            true,
 						},
 						"host_initiator_protocol": schema.StringAttribute{
-							Computed: true,
+							Description:         "Type of the host",
+							MarkdownDescription: "Type of the host",
+							Computed:            true,
 						},
 					},
 				},

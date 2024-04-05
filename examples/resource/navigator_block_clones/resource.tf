@@ -16,10 +16,15 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_clones" "example" {
-  name               = "CloneTerraformName"
-  description        = "consulente autem dictum est, altum videtur esse ius potest"
+  # Name of the clone
+  name = "CloneTerraformName"
+  # Description of the clone
+  description = "consulente autem dictum est, altum videtur esse ius potest"
+  # Mobility target ID
   mobility_target_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
-  system_id          = "POWERFLEX-ELMSIOENG10015"
+  # System ID
+  system_id = "POWERFLEX-ELMSIOENG10015"
+  # List of host ids you want to add to the clone
   host_mappings = [
     {
       host_id = "POWERFLEX-ABCD1234567890__HOST__12345678901234"

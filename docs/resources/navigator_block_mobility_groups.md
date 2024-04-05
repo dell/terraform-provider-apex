@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_mobility_groups Resource - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform resource is used to manage Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.
 ---
 
 # apex_navigator_block_mobility_groups (Resource)
 
-
+This Terraform resource is used to manage Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.
 
 
 
@@ -17,21 +17,21 @@ description: |-
 
 ### Required
 
-- `name` (String)
-- `system_id` (String)
-- `system_type` (String)
-- `volume_id` (List of String)
+- `name` (String) Mobility group name
+- `system_id` (String) Identifier of the system for the mobility group members
+- `system_type` (String) The source system type (e.g.: POWERFLEX)
+- `volume_id` (List of String) List of volume ids you want to add to the group
 
 ### Optional
 
-- `description` (String)
-- `id` (String)
+- `description` (String) Mobility group description
+- `id` (String) Mobility group identifier
 - `powerflex` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex))
 
 ### Read-Only
 
-- `creation_timestamp` (String)
-- `members` (Attributes List) (see [below for nested schema](#nestedatt--members))
+- `creation_timestamp` (String) When the mobility group was created
+- `members` (Attributes List) A mobility member is an object (e.g. volume) that is part of a mobility group that will be the source of mobility copy operations. (see [below for nested schema](#nestedatt--members))
 
 <a id="nestedblock--powerflex"></a>
 ### Nested Schema for `powerflex`
@@ -53,6 +53,6 @@ Optional:
 
 Read-Only:
 
-- `id` (String)
-- `name` (String)
-- `size` (String)
+- `id` (String) Identifier of the member (e.g. PowerFlex volume identifier)
+- `name` (String) Name of the member (e.g. name of the volume)
+- `size` (String) Size of the member (e.g. volume size in bytes)

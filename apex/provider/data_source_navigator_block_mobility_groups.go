@@ -53,12 +53,20 @@ func (d *mobilityGroupsDataSource) Metadata(_ context.Context, req datasource.Me
 // Schema defines the acceptable configuration and state attribute names and types.
 func (d *mobilityGroupsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) { // nolint:funlen, dupl
 	resp.Schema = schema.Schema{
+		Description: "This Terraform Datasource is used to query existing mobility groups(source) on Apex Navigator." +
+			" The information fetched from this block can be further used for resource block.",
+		MarkdownDescription: "This Terraform Datasource is used to query existing mobility groups(source) on Apex Navigator." +
+			" The information fetched from this block can be further used for resource block.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID of the Mobility Group datasource",
+				MarkdownDescription: "ID of the Mobility Group datasource",
+				Computed:            true,
 			},
 			"mobility_groups": schema.ListNestedAttribute{
-				Computed: true,
+				Description:         "List of mobility groups(source) available on Apex Navigator.",
+				MarkdownDescription: "List of mobility groups(source) available on Apex Navigator.",
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: MobilityGroupsDataSourceSchema.Attributes,
 				},

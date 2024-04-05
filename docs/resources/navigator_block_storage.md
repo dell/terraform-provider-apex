@@ -17,62 +17,62 @@ description: |-
 
 ### Required
 
-- `name` (String)
-- `product_version` (String)
-- `system_type` (String)
+- `name` (String) The user-defined name of the system.
+- `product_version` (String) Product version.
+- `system_type` (String) Type of the system
 
 ### Optional
 
-- `bandwidth` (Number)
-- `capacity_impact` (Number)
-- `capacity_issue_count` (Number)
-- `cirrus_deployed` (Boolean)
-- `compression_savings` (Number)
-- `configuration_impact` (Number)
-- `configuration_issue_count` (Number)
-- `configured_size` (Number)
-- `connectivity_status` (String)
-- `contract_coverage_type` (String)
-- `contract_expiration_date_timestamp` (String)
-- `data_protection_impact` (Number)
-- `data_protection_issue_count` (Number)
-- `deployment_details` (Attributes) (see [below for nested schema](#nestedatt--deployment_details))
-- `display_identifier` (String)
-- `free_percent` (Number)
-- `free_size` (Number)
-- `health_connectivity_status` (String)
-- `health_issue_count` (Number)
-- `health_score` (Number)
-- `health_state` (String)
-- `iops` (Number)
-- `ipv4_address` (String)
-- `ipv6_address` (String)
-- `last_contact_timestamp` (String)
-- `latency` (Number)
-- `license_expiration_date_timestamp` (String)
-- `license_type` (String)
-- `logical_size` (Number)
-- `model` (String)
-- `overall_efficiency` (Number)
-- `performance_impact` (Number)
-- `performance_issue_count` (Number)
-- `serial_number` (String)
-- `site_name` (String)
-- `snaps_savings` (Number)
-- `system_health_impact` (Number)
-- `system_health_issue_count` (Number)
-- `system_id` (String)
-- `thin_savings` (Number)
-- `total_size` (Number)
-- `unconfigured_size` (Number)
-- `used_percent` (Number)
-- `used_size` (Number)
-- `vendor` (String)
+- `bandwidth` (Number) The system bandwidth. Aggregated for a rolling average over the last 24 hours - Unit: bytes/s
+- `capacity_impact` (Number) Impact point of highest impacting issue in the capacity health category
+- `capacity_issue_count` (Number) Total number of issues in the capacity health category
+- `cirrus_deployed` (Boolean) If the system deployed in Cirrus
+- `compression_savings` (Number) Storage efficiency ratio of data which has compression applied to it on the system.
+- `configuration_impact` (Number) Impact point of highest impacting issue in the configuration health category.
+- `configuration_issue_count` (Number) Total number of issues in the configuration health category.
+- `configured_size` (Number) The configured size for this system - Unit: bytes.
+- `connectivity_status` (String) Connectivity status.
+- `contract_coverage_type` (String) Type of the service contract of the system.
+- `contract_expiration_date_timestamp` (String) Expiration date for the service contract of the system.
+- `data_protection_impact` (Number) Impact point of highest impacting issue in the data protection health category.
+- `data_protection_issue_count` (Number) Total number of issues in the data protection health category.
+- `deployment_details` (Attributes) Details of the deployment (see [below for nested schema](#nestedatt--deployment_details))
+- `display_identifier` (String) Unique identifier for the system.
+- `free_percent` (Number) The %free capacity.
+- `free_size` (Number) The free size value - Unit: bytes.
+- `health_connectivity_status` (String) Health connectivity status.
+- `health_issue_count` (Number) Total amount of health issues.
+- `health_score` (Number) The overall health score of the system.
+- `health_state` (String) Health state of the system.
+- `id` (String) Identifier for the storage system
+- `iops` (Number) The IOPS for the system. Aggregated for a rolling average over the last 24 hours - Unit: IO/s.
+- `ipv4_address` (String) IPv4 address of the system.
+- `ipv6_address` (String) IPv6 address of the system.
+- `last_contact_timestamp` (String) Last time that CloudIQ received data from the system.
+- `latency` (Number) The latency for the system. Aggregated for a rolling average over the last 24 hours - Unit: microseconds.
+- `license_expiration_date_timestamp` (String) Expiration date for the license on the system.
+- `license_type` (String) Type of the license on the system.
+- `logical_size` (Number) The logical size written - Unit: bytes.
+- `model` (String) The model of the system.
+- `overall_efficiency` (Number) The overall system-level storage efficiency ratio based on Thin, Snapshots, Deduplication, and Data Reduction.
+- `performance_impact` (Number) Impact point of highest impacting issue in the performance health category.
+- `performance_issue_count` (Number) Total number of issues in the performance health category.
+- `serial_number` (String) The serial number for this system.
+- `site_name` (String) Name of the site where the system is registered to.
+- `snaps_savings` (Number) The snaps savings for this system.
+- `system_health_impact` (Number) Health impact for the system.
+- `system_health_issue_count` (Number) Total amount of health issues for the system.
+- `system_id` (String) Unique identifier for the device or appliance
+- `thin_savings` (Number) The savings due to thin provisioning.
+- `total_size` (Number) The total size of the system - Unit: bytes.
+- `unconfigured_size` (Number) The unconfigured capacity for this system - Unit: bytes.
+- `used_percent` (Number) Percentage of capacity used for this system.
+- `used_size` (Number) The value of used capacity for this system - Unit: bytes.
+- `vendor` (String) Name of the vendor who makes the system.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `version` (String)
+- `version` (String) Version identifier.
 
 <a id="nestedatt--deployment_details"></a>
 ### Nested Schema for `deployment_details`
@@ -87,15 +87,15 @@ Optional:
 
 Optional:
 
-- `city` (String)
-- `country` (String)
-- `deployment_type` (String)
-- `location` (String)
-- `site_name` (String)
-- `state` (String)
-- `street_address_1` (String)
-- `street_address_2` (String)
-- `zip_code` (String)
+- `city` (String) Name of the city where the system is located.
+- `country` (String) Name of the country where the system is located.
+- `deployment_type` (String) System deployment types (e.g. PUBLIC_CLOUD)
+- `location` (String) User provided description of where the system is located.
+- `site_name` (String) Name of the site where the system is located
+- `state` (String) Name of the state where the system is located.
+- `street_address_1` (String) Street address 1 of where the system is located
+- `street_address_2` (String) Street address 2 of where the system is located
+- `zip_code` (String) Zip code of where the system is located
 
 
 <a id="nestedatt--deployment_details--system_public_cloud"></a>
@@ -103,22 +103,22 @@ Optional:
 
 Required:
 
-- `cloud_account` (String)
-- `cloud_region` (String)
-- `cloud_type` (String)
-- `minimum_capacity` (Number)
-- `minimum_iops` (Number)
+- `cloud_account` (String) Cloud provider account where the storage system resides
+- `cloud_region` (String) Cloud provider region where the storage system resides
+- `cloud_type` (String) Enum for all the supported cloud providers * AWS - Amazon Web Services
+- `minimum_capacity` (Number) Minimum capacity requested during the deployment time - Unit: bytes
+- `minimum_iops` (Number) Minimum IOPS requested during the deployment time - Unit: IO/s
 - `ssh_key_name` (String)
-- `subnet_options` (Attributes List) (see [below for nested schema](#nestedatt--deployment_details--system_public_cloud--subnet_options))
-- `tier_type` (String)
-- `vpc` (Attributes) (see [below for nested schema](#nestedatt--deployment_details--system_public_cloud--vpc))
+- `subnet_options` (Attributes List) Subnet options (see [below for nested schema](#nestedatt--deployment_details--system_public_cloud--subnet_options))
+- `tier_type` (String) Tier type requested during the deployment time
+- `vpc` (Attributes) VPC (see [below for nested schema](#nestedatt--deployment_details--system_public_cloud--vpc))
 
 Optional:
 
-- `availability_zone_topology` (String)
-- `cloud_management_address` (String)
-- `deployment_type` (String)
-- `virtual_private_cloud` (String)
+- `availability_zone_topology` (String) This enum represents all the availability zone topology * SINGLE_AVAILABILITY_ZONE * MULTIPLE_AVAILABILITY_ZONE
+- `cloud_management_address` (String) Management IPv4 or IPv6 address or DNS name of the storage system in cloud
+- `deployment_type` (String) System deployment types (e.g. PUBLIC_CLOUD)
+- `virtual_private_cloud` (String) Cloud virtual private environment identifier
 
 <a id="nestedatt--deployment_details--system_public_cloud--subnet_options"></a>
 ### Nested Schema for `deployment_details.system_public_cloud.subnet_options`

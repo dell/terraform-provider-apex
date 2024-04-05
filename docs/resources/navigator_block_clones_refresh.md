@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_clones_refresh Resource - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform resource is used to manage clones refreshes on Apex Navigator.
 ---
 
 # apex_navigator_block_clones_refresh (Resource)
 
-
+This Terraform resource is used to manage clones refreshes on Apex Navigator.
 
 
 
@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `clone_id` (String)
+- `clone_id` (String) Unique identifier for the clone to be refreshed.
 - `system_id` (String)
 
 ### Optional
@@ -26,8 +26,8 @@ description: |-
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `status` (String)
+- `id` (String) ID for the clone refresh Job
+- `status` (String) Status of the clone refresh Job
 
 <a id="nestedblock--powerflex"></a>
 ### Nested Schema for `powerflex`

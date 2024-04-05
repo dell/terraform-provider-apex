@@ -61,9 +61,12 @@ func (r *mobilityGroupsResource) Metadata(_ context.Context, req resource.Metada
 // Schema defines the acceptable configuration and state attribute names and types.
 func (r *mobilityGroupsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
+		Description:         "This Terraform resource is used to manage SOurce Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.",
+		MarkdownDescription: "This Terraform resource is used to manage Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Mobility group identifier",
+				Description:         "Mobility group identifier",
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
@@ -71,45 +74,60 @@ func (r *mobilityGroupsResource) Schema(_ context.Context, _ resource.SchemaRequ
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Mobility group name",
+				Description:         "Mobility group name",
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Mobility group description",
+				Description:         "Mobility group description",
 				Optional:            true,
 				Computed:            true,
 			},
 			"system_id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Identifier of the system for the mobility group members",
+				Description:         "Identifier of the system for the mobility group members",
 				Required:            true,
 			},
 			"system_type": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "The source system type (e.g.: POWERFLEX)",
+				Description:         "The source system type (e.g.: POWERFLEX)",
 				Required:            true,
 			},
 			"creation_timestamp": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "When the mobility group was created",
+				Description:         "When the mobility group was created",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"volume_id": schema.ListAttribute{
-				ElementType: types.StringType,
-				Required:    true,
+				Description:         "List of volume ids you want to add to the group",
+				MarkdownDescription: "List of volume ids you want to add to the group",
+				ElementType:         types.StringType,
+				Required:            true,
 			},
 			"members": schema.ListNestedAttribute{
-				Computed: true,
+				Description:         "A mobility member is an object (e.g. volume) that is part of a mobility group that will be the source of mobility copy operations.",
+				MarkdownDescription: "A mobility member is an object (e.g. volume) that is part of a mobility group that will be the source of mobility copy operations.",
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Computed: true,
+							Description:         "Identifier of the member (e.g. PowerFlex volume identifier)",
+							MarkdownDescription: "Identifier of the member (e.g. PowerFlex volume identifier)",
+							Computed:            true,
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Description:         "Name of the member (e.g. name of the volume)",
+							MarkdownDescription: "Name of the member (e.g. name of the volume)",
+							Computed:            true,
 						},
 						"size": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Size of the member (e.g. volume size in bytes)",
+							MarkdownDescription: "Size of the member (e.g. volume size in bytes)",
 						},
 					},
 				},

@@ -16,8 +16,11 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_clones_map" "example" {
-  clone_id  = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  # Clone Id you want to map hosts to
+  clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  # System ID
   system_id = "POWERFLEX-ELMSIOENG10015"
+  # Host ids you want to add to the clone
   host_ids = [
     "POWERFLEX-ABCD1234567890__HOST__abcdef1234567890"
   ]

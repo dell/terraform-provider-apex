@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_mobility_targets Resource - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform resource is used to manage Mobility Targets on Apex Navigator. We can create, read, update, delete Data Mobility Targets on Apex Navigator.We can also import existing Data Mobility Targets from Apex Navigator.
 ---
 
 # apex_navigator_block_mobility_targets (Resource)
 
-
+This Terraform resource is used to manage Mobility Targets on Apex Navigator. We can create, read, update, delete Data Mobility Targets on Apex Navigator.We can also import existing Data Mobility Targets from Apex Navigator.
 
 
 
@@ -17,25 +17,25 @@ description: |-
 
 ### Required
 
-- `name` (String)
-- `source_mobility_group_id` (String)
-- `system_id` (String)
-- `system_type` (String)
-- `target_system_options` (String)
+- `name` (String) Name of the mobility target
+- `source_mobility_group_id` (String) ID of the source mobility group
+- `system_id` (String) ID of the target system
+- `system_type` (String) The source system type (e.g.: POWERFLEX)
+- `target_system_options` (String) Storage pool id to use for allocating target volumes
 
 ### Optional
 
-- `bandwidth_limit` (Number)
-- `description` (String)
+- `bandwidth_limit` (Number) Bandwidth limit in Mbps (Mega bits per second)
+- `description` (String) Description of the mobility target
 - `powerflex` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex))
 
 ### Read-Only
 
-- `creation_timestamp` (String)
-- `id` (String)
-- `image_timestamp` (String)
-- `last_copy_job_id` (String)
-- `target_members` (Attributes List) (see [below for nested schema](#nestedatt--target_members))
+- `creation_timestamp` (String) Timestamp from when the group was created
+- `id` (String) Idenifier of this target mobility group
+- `image_timestamp` (String) Timestamp of the last source image copied to this target
+- `last_copy_job_id` (String) Last copy job ID
+- `target_members` (Attributes List) A mobility member map is a mapping of a mobility member and it's related member. For example a target volume with a reference to the source volume. Or a clone volume and its related target volume. (see [below for nested schema](#nestedatt--target_members))
 - `type` (String)
 
 <a id="nestedblock--powerflex"></a>
@@ -58,7 +58,7 @@ Optional:
 
 Read-Only:
 
-- `id` (String)
-- `name` (String)
-- `parent_id` (String)
-- `size` (String)
+- `id` (String) ID of the member
+- `name` (String) Name of the member
+- `parent_id` (String) Identifier of the related mobility member
+- `size` (String) Size of the member

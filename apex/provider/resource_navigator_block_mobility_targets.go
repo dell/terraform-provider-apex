@@ -61,37 +61,46 @@ func (r *mobilityTargetsResource) Metadata(_ context.Context, req resource.Metad
 // Schema defines the acceptable configuration and state attribute names and types.
 func (r *mobilityTargetsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
+		Description:         "This Terraform resource is used to manage Mobility Targets on Apex Navigator. We can create, read, update, delete Data Mobility Targets on Apex Navigator.We can also import existing Data Mobility Targets from Apex Navigator.",
+		MarkdownDescription: "This Terraform resource is used to manage Mobility Targets on Apex Navigator. We can create, read, update, delete Data Mobility Targets on Apex Navigator.We can also import existing Data Mobility Targets from Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Idenifier of this target mobility group",
+				Description:         "Idenifier of this target mobility group",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Name of the mobility target",
+				Description:         "Name of the mobility target",
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Description of the mobility target",
+				Description:         "Description of the mobility target",
 				Optional:            true,
 				Computed:            true,
 			},
 			"system_id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "ID of the target system",
+				Description:         "ID of the target system",
 				Required:            true,
 			},
 			"system_type": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "The source system type (e.g.: POWERFLEX)",
+				Description:         "The source system type (e.g.: POWERFLEX)",
 				Required:            true,
 			},
 			"source_mobility_group_id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "ID of the source mobility group",
+				Description:         "ID of the source mobility group",
 				Required:            true,
 			},
 			"creation_timestamp": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Timestamp from when the group was created",
+				Description:         "Timestamp from when the group was created",
 				Optional:            false,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
@@ -99,7 +108,8 @@ func (r *mobilityTargetsResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 			},
 			"image_timestamp": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Timestamp of the last source image copied to this target",
+				Description:         "Timestamp of the last source image copied to this target",
 				Optional:            false,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
@@ -107,41 +117,55 @@ func (r *mobilityTargetsResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 			},
 			"target_members": schema.ListNestedAttribute{
-				Optional: false,
-				Computed: true,
+				Optional:            false,
+				Computed:            true,
+				Description:         "A mobility member map is a mapping of a mobility member and it's related member. For example a target volume with a reference to the source volume. Or a clone volume and its related target volume.",
+				MarkdownDescription: "A mobility member map is a mapping of a mobility member and it's related member. For example a target volume with a reference to the source volume. Or a clone volume and its related target volume.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Optional: false,
-							Computed: true,
+							Optional:            false,
+							Computed:            true,
+							Description:         "ID of the member",
+							MarkdownDescription: "ID of the member",
 						},
 						"parent_id": schema.StringAttribute{
-							Optional: false,
-							Computed: true,
+							Optional:            false,
+							Computed:            true,
+							Description:         "Identifier of the related mobility member",
+							MarkdownDescription: "Identifier of the related mobility member",
 						},
 						"name": schema.StringAttribute{
-							Optional: false,
-							Computed: true,
+							Optional:            false,
+							Computed:            true,
+							Description:         "Name of the member",
+							MarkdownDescription: "Name of the member",
 						},
 						"size": schema.StringAttribute{
-							Optional: false,
-							Computed: true,
+							Optional:            false,
+							Computed:            true,
+							Description:         "Size of the member",
+							MarkdownDescription: "Size of the member",
 						},
 					},
 				},
 			},
 			"last_copy_job_id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Last copy job ID",
+				Description:         "Last copy job ID",
 				Optional:            false,
 				Computed:            true,
 			},
 			"bandwidth_limit": schema.Int64Attribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Bandwidth limit in Mbps (Mega bits per second)",
+				Description:         "Bandwidth limit in Mbps (Mega bits per second)",
 				Optional:            true,
 				Computed:            true,
 			},
 			"target_system_options": schema.StringAttribute{
-				Required: true,
+				Description:         "Storage pool id to use for allocating target volumes",
+				MarkdownDescription: "Storage pool id to use for allocating target volumes",
+				Required:            true,
 			},
 			"type": schema.StringAttribute{
 				Computed: true,
