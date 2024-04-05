@@ -23,6 +23,21 @@ import (
 
 // ClonesModel defines the attribute names and types for a Clones TF model
 type ClonesModel struct {
+	ID                    types.String           `tfsdk:"id"`
+	Name                  types.String           `tfsdk:"name"`
+	Description           types.String           `tfsdk:"description"`
+	SystemID              types.String           `tfsdk:"system_id"`
+	MobilityTargetID      types.String           `tfsdk:"mobility_target_id"`
+	CreationTimestamp     types.String           `tfsdk:"creation_timestamp"`
+	RefreshTimestamp      types.String           `tfsdk:"refresh_timestamp"`
+	ImageTimestamp        types.String           `tfsdk:"image_timestamp"`
+	CloneVolumes          basetypes.ListValue    `tfsdk:"clone_volumes"`
+	HostMappings          basetypes.ListValue    `tfsdk:"host_mappings"`
+	ActivationClientModel *ActivationClientModel `tfsdk:"powerflex"`
+}
+
+// ClonesModelDs defines the attribute names and types for a Clones TF model
+type ClonesModelDs struct {
 	ID                types.String        `tfsdk:"id"`
 	Name              types.String        `tfsdk:"name"`
 	Description       types.String        `tfsdk:"description"`
@@ -36,7 +51,7 @@ type ClonesModel struct {
 
 // ClonesDataSourceModel maps the data source schema data.
 type ClonesDataSourceModel struct {
-	Clones []ClonesModel    `tfsdk:"clones"`
+	Clones []ClonesModelDs  `tfsdk:"clones"`
 	ID     types.String     `tfsdk:"id"`
 	Filter *CloneFilterType `tfsdk:"filter"`
 }
@@ -48,7 +63,9 @@ type CloneFilterType struct {
 
 // ClonesRefreshModel defines the attribute names and types for a Clones Refresh TF model
 type ClonesRefreshModel struct {
-	ID      types.String `tfsdk:"id"`
-	CloneID types.String `tfsdk:"clone_id"`
-	Status  types.String `tfsdk:"status"`
+	ID                    types.String           `tfsdk:"id"`
+	CloneID               types.String           `tfsdk:"clone_id"`
+	SystemID              types.String           `tfsdk:"system_id"`
+	Status                types.String           `tfsdk:"status"`
+	ActivationClientModel *ActivationClientModel `tfsdk:"powerflex"`
 }

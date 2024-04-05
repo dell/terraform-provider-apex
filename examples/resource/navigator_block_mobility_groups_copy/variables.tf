@@ -15,16 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_block_clones_refresh" "example" {
-  clone_id  = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
-  system_id = "POWERFLEX-ELMSIOENG10015"
-  powerflex {
-    username = "example-username"
-    password = "example-pass"
-  }
+variable "JWT_TOKEN" {
+  type    = string
+  default = "insert-token-here"
 }
 
-output "examples_clones_refresh" {
-  value     = apex_navigator_block_clones_refresh.example
-  sensitive = true
+variable "HOST" {
+  type    = string
+  default = "https://example-host.com"
+}
+
+variable "JMS_ENDPOINT" {
+  type    = string
+  default = "https://example-jobs-endpoint.com"
+}
+
+variable "mobility_group" {
+  type = map(object({
+    powerflex_source_user     = string
+    powerflex_source_password = string
+    powerflex_target_user     = string
+    powerflex_target_password = string
+    insecure                  = bool
+    mobility_source_id        = string
+    mobility_target_id        = string
+  }))
 }

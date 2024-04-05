@@ -94,6 +94,10 @@ func (r *clonesMapResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				ElementType: types.StringType,
 				Required:    true,
 			},
+			"system_id": schema.StringAttribute{
+				MarkdownDescription: " ",
+				Required:            true,
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 				Optional: true,
@@ -103,6 +107,11 @@ func (r *clonesMapResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+		},
+		Blocks: map[string]schema.Block{
+			"powerflex": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
 			},
 		},
 	}
@@ -135,6 +144,16 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -188,8 +207,10 @@ func (r *clonesMapResource) Create(ctx context.Context, req resource.CreateReque
 		HostIDs:      plan.HostIDs,
 		HostMappings: helper.UpdateHostMappings(clone),
 		Status:       types.StringValue(string(*jobStatus.State)),
+		SystemID:     plan.SystemID,
 	}
 
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
@@ -209,11 +230,13 @@ func (r *clonesMapResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	state = models.ClonesMapModel{
-		ID:           state.ID,
-		CloneID:      state.CloneID,
-		HostMappings: state.HostMappings,
-		HostIDs:      state.HostIDs,
-		Status:       state.Status,
+		ID:                    state.ID,
+		CloneID:               state.CloneID,
+		HostMappings:          state.HostMappings,
+		HostIDs:               state.HostIDs,
+		Status:                state.Status,
+		SystemID:              state.SystemID,
+		ActivationClientModel: state.ActivationClientModel,
 	}
 
 	// Set refreshed state

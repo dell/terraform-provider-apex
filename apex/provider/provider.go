@@ -85,7 +85,8 @@ func (p *myProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *p
 				Optional: true,
 			},
 			"token": schema.StringAttribute{
-				Optional: true,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"jms_endpoint": schema.StringAttribute{
 				Optional: true,

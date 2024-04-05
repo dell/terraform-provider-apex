@@ -51,6 +51,17 @@ func TestAccResourceClonesUnmapError(t *testing.T) {
 				Config:      ProviderConfig + clonesUnmapResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error creating Clones Unmap request*.`),
 			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + clonesUnmapResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+			},
 			{
 				// error getting clone
 				PreConfig: func() {
@@ -91,8 +102,14 @@ func TestAccResourceClonesUnmapError(t *testing.T) {
 var clonesUnmapResourceConfig = `
 resource "apex_navigator_block_clones_unmap" "example" {
 	clone_id                 = "` + cloneUnmapID + `"
+	system_id                = "` + systemID + `"
 	host_ids                = [
 		  "` + cloneUnmapHost + `"
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
 `

@@ -18,6 +18,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -27,7 +28,6 @@ import (
 
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -115,6 +115,11 @@ func (r *mobilityGroupsResource) Schema(_ context.Context, _ resource.SchemaRequ
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"powerflex": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
+			},
+		},
 	}
 }
 
@@ -148,6 +153,15 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
+		return
+	}
 	// Executing job request
 	job, status, err := helper.CreateMobilityGroup(ctx, r.client, plan)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
@@ -186,6 +200,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 		result.VolumeID = append(result.VolumeID, plan.VolumeID...)
 	}
 
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
+
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -222,6 +238,8 @@ func (r *mobilityGroupsResource) Read(ctx context.Context, req resource.ReadRequ
 		result.VolumeID = append(result.VolumeID, state.VolumeID...)
 	}
 
+	result.ActivationClientModel = helper.SetPowerflexClientState(*state.ActivationClientModel)
+
 	// Set refresded state
 	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
@@ -237,6 +255,16 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -293,6 +321,7 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	if plan.VolumeID != nil {
 		result.VolumeID = append(result.VolumeID, plan.VolumeID...)
 	}
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -308,6 +337,16 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -336,6 +375,45 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *mobilityGroupsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	type params struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Host     string `json:"host"`
+		Scheme   string `json:"scheme"`
+		Insecure bool   `json:"insecure"`
+		ID       string `json:"id"`
+	}
+
+	var p params
+	err := json.Unmarshal([]byte(req.ID), &p)
+	if err != nil {
+		resp.Diagnostics.AddError(", make sure you include username, password, host, scheme, insecure and id", err.Error())
+	}
+
+	mobilityGroup, status, err := helper.GetMobilityGroup(r.client, p.ID)
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error Reading Apex Navigator mobility group",
+			"Could not retrieve Mobility Groups during import: "+newErr,
+		)
+		return
+	}
+
+	// Overwrite items with refreshed state
+	result := helper.GetMobilityGroupModel(*mobilityGroup)
+
+	result.ActivationClientModel = &models.ActivationClientModel{
+		Username: types.StringValue(p.Username),
+		Password: types.StringValue(p.Password),
+		Host:     types.StringValue(p.Host),
+		Scheme:   types.StringValue(p.Scheme),
+		Insecure: types.BoolValue(p.Insecure),
+	}
+
+	diags := resp.State.Set(ctx, &result)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

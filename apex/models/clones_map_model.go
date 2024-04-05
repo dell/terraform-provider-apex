@@ -23,9 +23,11 @@ import (
 
 // ClonesMapModel defines the attribute names and types for a Clones Map TF model
 type ClonesMapModel struct {
-	ID           types.String        `tfsdk:"id"`
-	CloneID      types.String        `tfsdk:"clone_id"`
-	HostMappings basetypes.ListValue `tfsdk:"host_mappings"`
-	HostIDs      []types.String      `tfsdk:"host_ids"`
-	Status       types.String        `tfsdk:"status"`
+	ID                    types.String           `tfsdk:"id"`
+	CloneID               types.String           `tfsdk:"clone_id"`
+	SystemID              types.String           `tfsdk:"system_id"`
+	HostMappings          basetypes.ListValue    `tfsdk:"host_mappings"`
+	HostIDs               []types.String         `tfsdk:"host_ids"`
+	Status                types.String           `tfsdk:"status"`
+	ActivationClientModel *ActivationClientModel `tfsdk:"powerflex"`
 }

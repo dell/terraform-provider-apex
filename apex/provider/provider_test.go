@@ -61,7 +61,12 @@ var cloneID2 = setDefault(os.Getenv("CLONE_ID_2"), "clone_read_Id_2")
 var sourceMobilityTargetGroupID = setDefault(os.Getenv("SOURCE_MOBILITY_TARGET_GROUP_ID"), "test_source_group_id")
 var mobilityTargetOptions = setDefault(os.Getenv("MOBILITY_TARGET_OPTIONS"), "test_target_options")
 var mobilityTargetSystemID = setDefault(os.Getenv("MOBILITY_TARGET_SYSTEM_ID"), "test_system_id")
-
+var powerflexUser = setDefault(os.Getenv("POWERFLEX_USER"), "test_user")
+var powerflexPass = setDefault(os.Getenv("POWERFLEX_PASS"), "test_pass")
+var powerflexTargetUser = setDefault(os.Getenv("POWERFLEX_TARGET_USER"), "test_target_user")
+var powerflexTargetPass = setDefault(os.Getenv("POWERFLEX_TARGET_PASS"), "test_target_pass")
+var powerflexScheme = setDefault(os.Getenv("POWERFLEX_TARGET_PASS"), "http")
+var OnPremIP = setDefault(os.Getenv("ON_PREM_IP"), "localhost:3005")
 var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"apex": providerserver.NewProtocol6WithError(New("test")()),

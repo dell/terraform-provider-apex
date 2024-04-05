@@ -22,8 +22,10 @@ import (
 
 // MobilityGroupCopyModel defines the attribute names and types for a Mobility Target TF model
 type MobilityGroupCopyModel struct {
-	ID               types.String   `tfsdk:"id"`
-	MobilitySourceID types.String   `tfsdk:"mobility_source_id"`
-	MobilityTargetID []types.String `tfsdk:"mobility_target_id"`
-	Status           types.String   `tfsdk:"status"`
+	ID                    types.String           `tfsdk:"id"`
+	MobilitySourceID      types.String           `tfsdk:"mobility_source_id"`
+	MobilityTargetID      types.String           `tfsdk:"mobility_target_id"`
+	Status                types.String           `tfsdk:"status"`
+	PowerFlexClientSource *ActivationClientModel `tfsdk:"powerflex_source"`
+	PowerFlexClientTarget *ActivationClientModel `tfsdk:"powerflex_target"`
 }

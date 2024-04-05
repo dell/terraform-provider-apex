@@ -18,6 +18,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -28,11 +29,11 @@ import (
 
 	helper "github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -79,6 +80,10 @@ func (r *clonesResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				MarkdownDescription: " ",
 				Optional:            true,
 				Computed:            true,
+			},
+			"system_id": schema.StringAttribute{
+				MarkdownDescription: " ",
+				Required:            true,
 			},
 			"mobility_target_id": schema.StringAttribute{
 				MarkdownDescription: " ",
@@ -151,6 +156,11 @@ func (r *clonesResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"powerflex": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
+			},
+		},
 	}
 }
 
@@ -182,6 +192,16 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -236,12 +256,9 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 	// Updating TFState with Clone info
-	result := helper.GetClonesModel(*clone)
-
+	result := helper.GetClonesModel(*clone, plan.SystemID.ValueString())
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -272,11 +289,11 @@ func (r *clonesResource) Read(ctx context.Context, req resource.ReadRequest, res
 		)
 		return
 	}
-	// Overwrite items with refreshed state
-	state = helper.GetClonesModel(*clone)
-
+	// set the updated state.
+	result := helper.GetClonesModel(*clone, state.SystemID.ValueString())
+	result.ActivationClientModel = helper.SetPowerflexClientState(*state.ActivationClientModel)
 	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -319,6 +336,16 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
+		return
+	}
+
 	clone, status, _ := helper.GetCloneInstance(r.client, plan.ID.ValueString())
 	if isInvalidUpdate(clone, plan) {
 		resp.Diagnostics.AddError(
@@ -349,10 +376,6 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Fetching Job Status
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
@@ -379,7 +402,8 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Updating TFState with Clone info
-	result := helper.GetClonesModel(*clone)
+	result := helper.GetClonesModel(*clone, plan.SystemID.ValueString())
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
@@ -395,6 +419,16 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -415,10 +449,6 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	poller := helper.NewPoller(r.jobsClient)
 	resourceID, err := poller.WaitForResource(ctx, job.Id)
 	if (err != nil) || (resourceID == "") {
@@ -429,12 +459,48 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
 }
 
 func (r *clonesResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	type params struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Host     string `json:"host"`
+		Scheme   string `json:"scheme"`
+		Insecure bool   `json:"insecure"`
+		ID       string `json:"id"`
+		SystemID string `json:"system_id"`
+	}
+
+	var p params
+	err := json.Unmarshal([]byte(req.ID), &p)
+	if err != nil {
+		resp.Diagnostics.AddError(", make sure you include system_id, username, password, host, scheme, insecure and id", err.Error())
+	}
+
+	// Get refreshed clones value from Apex Navigator
+	clone, status, err := helper.GetCloneInstance(r.client, p.ID)
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error Reading Apex Navigator Clones",
+			"Could not retrieve Clones during import: "+newErr,
+		)
+		return
+	}
+	// set the updated state.
+	result := helper.GetClonesModel(*clone, p.SystemID)
+	result.ActivationClientModel = &models.ActivationClientModel{
+		Username: types.StringValue(p.Username),
+		Password: types.StringValue(p.Password),
+		Host:     types.StringValue(p.Host),
+		Scheme:   types.StringValue(p.Scheme),
+		Insecure: types.BoolValue(p.Insecure),
+	}
+
+	diags := resp.State.Set(ctx, &result)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

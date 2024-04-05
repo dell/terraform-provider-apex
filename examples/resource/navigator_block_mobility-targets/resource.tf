@@ -22,8 +22,13 @@ resource "apex_navigator_block_mobility_targets" "example" {
   system_type              = "POWERFLEX"
   target_system_options    = "POWERFLEX-ABCD1234567890_STORAGE_POOL__1234567890123456"
 
+  powerflex {
+    username = "example-username"
+    password = "example-pass"
+  }
 }
 
 output "examples_mobility_target" {
-  value = apex_navigator_block_mobility_targets.example
+  value     = apex_navigator_block_mobility_targets.example
+  sensitive = true
 }

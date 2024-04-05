@@ -1,0 +1,15 @@
+openapi: 3.0.3
+info:
+  title: Error Message
+  version: '1.0'
+paths: {}
+components:
+  schemas:
+    ErrorMessageSeverityEnum:
+      type: string
+      description: error message severity enum
+      enum:
+        - INFO
+        - WARNING
+        - ERROR
+        - CRITICAL

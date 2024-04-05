@@ -5,6 +5,7 @@ go 1.21
 require (
 	dell/apex-client v0.0.0
 	dell/apex-job-client v0.0.0
+	dell/powerflex-client v0.0.0
 	github.com/bytedance/mockey v1.2.10
 	github.com/hashicorp/terraform-plugin-docs v0.18.0
 	github.com/hashicorp/terraform-plugin-framework v1.5.0
@@ -17,6 +18,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
+	github.com/antihax/optional v1.0.0 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/go-test/deep v1.0.7 // indirect
@@ -39,6 +41,7 @@ require (
 	github.com/yuin/goldmark v1.6.0 // indirect
 	github.com/yuin/goldmark-meta v1.1.0 // indirect
 	golang.org/x/arch v0.0.0-20201008161808-52c3e6f60cff // indirect
+	golang.org/x/oauth2 v0.13.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
@@ -100,3 +103,5 @@ require (
 replace dell/apex-client => ./apexclient
 
 replace dell/apex-job-client => ./jobsclient
+
+replace dell/powerflex-client => ./powerflexclient

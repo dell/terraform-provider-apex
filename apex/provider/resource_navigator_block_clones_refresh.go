@@ -67,11 +67,20 @@ func (r *clonesRefreshResource) Schema(_ context.Context, _ resource.SchemaReque
 			"status": schema.StringAttribute{
 				Computed: true,
 			},
+			"system_id": schema.StringAttribute{
+				MarkdownDescription: " ",
+				Required:            true,
+			},
 			"id": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+		},
+		Blocks: map[string]schema.Block{
+			"powerflex": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
 			},
 		},
 	}
@@ -104,6 +113,16 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
 		return
 	}
 
@@ -143,10 +162,13 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 
 	// Updating TFState with Clones refresh info
 	result := models.ClonesRefreshModel{
-		ID:      types.StringValue(job.Id),
-		CloneID: plan.CloneID,
-		Status:  types.StringValue(string(*jobStatus.State)),
+		ID:       types.StringValue(job.Id),
+		CloneID:  plan.CloneID,
+		Status:   types.StringValue(string(*jobStatus.State)),
+		SystemID: plan.SystemID,
 	}
+
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
@@ -167,9 +189,11 @@ func (r *clonesRefreshResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	state = models.ClonesRefreshModel{
-		ID:      state.ID,
-		CloneID: state.CloneID,
-		Status:  state.Status,
+		ID:                    state.ID,
+		CloneID:               state.CloneID,
+		Status:                state.Status,
+		SystemID:              state.SystemID,
+		ActivationClientModel: state.ActivationClientModel,
 	}
 
 	// Set refreshed state

@@ -25,6 +25,19 @@ import (
 
 // MobilityGroupModel defines the attribute names and types for a Mobility Target TF model
 type MobilityGroupModel struct {
+	ID                    types.String                  `tfsdk:"id"`
+	Name                  types.String                  `tfsdk:"name"`
+	Description           types.String                  `tfsdk:"description"`
+	SystemID              types.String                  `tfsdk:"system_id"`
+	SystemType            *client.StorageSystemTypeEnum `tfsdk:"system_type"`
+	CreationTimeStamp     types.String                  `tfsdk:"creation_timestamp"`
+	Members               basetypes.ListValue           `tfsdk:"members"`
+	VolumeID              []types.String                `tfsdk:"volume_id"`
+	ActivationClientModel *ActivationClientModel        `tfsdk:"powerflex"`
+}
+
+// MobilityGroupModelDs defines the attribute names and types for a Mobility Target TF model
+type MobilityGroupModelDs struct {
 	ID                types.String                  `tfsdk:"id"`
 	Name              types.String                  `tfsdk:"name"`
 	Description       types.String                  `tfsdk:"description"`
@@ -37,7 +50,7 @@ type MobilityGroupModel struct {
 
 // MobilityGroupsDataSourceModel defines the attribute names and types for a Mobility Target TF model
 type MobilityGroupsDataSourceModel struct {
-	MobilityGroups []MobilityGroupModel     `tfsdk:"mobility_groups"`
+	MobilityGroups []MobilityGroupModelDs   `tfsdk:"mobility_groups"`
 	ID             types.String             `tfsdk:"id"`
 	Filter         *MobilityGroupFilterType `tfsdk:"filter"`
 }

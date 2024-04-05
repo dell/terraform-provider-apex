@@ -120,6 +120,46 @@ func GetMobilityGroupModel(mobilityGroup client.MobilityGroup) (model models.Mob
 	return model
 }
 
+// GetMobilityGroupModelDs returns a new mobilityGroupModel based on data from the given mobilityGroup
+func GetMobilityGroupModelDs(mobilityGroup client.MobilityGroup) (model models.MobilityGroupModelDs) {
+	model = models.MobilityGroupModelDs{
+		ID:                types.StringValue(mobilityGroup.Id),
+		Name:              types.StringValue(mobilityGroup.Name),
+		Description:       types.StringPointerValue(mobilityGroup.Description),
+		SystemID:          types.StringValue(mobilityGroup.SystemId),
+		SystemType:        (&mobilityGroup.SystemType),
+		CreationTimeStamp: types.StringValue(mobilityGroup.CreationTimestamp),
+	}
+	attrTypes := map[string]attr.Type{
+		"id":   types.StringType,
+		"name": types.StringType,
+		"size": types.StringType,
+	}
+	var groupValues []attr.Value
+
+	if mobilityGroup.Members != nil { //nolint:dupl
+		for _, member := range mobilityGroup.Members {
+			attrValues := map[string]attr.Value{
+				"id":   types.StringValue(member.Id),
+				"name": types.StringValue(member.Name),
+				"size": types.StringValue(member.Size),
+			}
+			// TF Object representing a group member
+			object, _ := types.ObjectValue(attrTypes, attrValues)
+			groupValues = append(groupValues, object)
+		}
+		newObjectType := types.ObjectType{}
+		newObjectType.AttrTypes = map[string]attr.Type{
+			"id":   types.StringType,
+			"name": types.StringType,
+			"size": types.StringType,
+		}
+
+		model.Members = basetypes.NewListValueMust(newObjectType, groupValues)
+	}
+	return model
+}
+
 // CopyMobilityGroups copies a Mobility Group
 func CopyMobilityGroups(request client.ApiMobilityGroupsCopyRequest, input client.StartCopyInput) (*client.Job, *http.Response, error) {
 	request = request.StartCopyInput(input)

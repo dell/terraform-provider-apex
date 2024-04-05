@@ -49,9 +49,16 @@ func TestAccResourceMobilityTargets(t *testing.T) {
 			},
 			//Import testing
 			{
-				ResourceName:      resTerraformName,
-				ImportState:       true,
-				ImportStateVerify: false,
+				ResourceName:  resTerraformName,
+				ImportStateId: "{\"id\":\"" + mobilityTargetID + "\",\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
+			},
+			//Import Error testing
+			{
+				ResourceName:  resTerraformName,
+				ImportStateId: "{\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
+				ExpectError:   regexp.MustCompile(`.*Could not retrieve Mobility Target during import*.`),
 			},
 			//Update testing
 			{
@@ -72,6 +79,17 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfig + mobilityTargetResourceConfig,
+			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
 			},
 			{
 				// Read failure
@@ -129,6 +147,17 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
 				ExpectError: regexp.MustCompile(".*Could not create Mobility Target*"),
 			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + mobilityTargetResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+			},
 			{
 				// Read failure after create
 				PreConfig: func() {
@@ -164,6 +193,11 @@ resource "apex_navigator_block_mobility_targets" "example" {
 	system_id                = "` + mobilityTargetSystemID + `"
 	system_type              = "POWERFLEX"
 	target_system_options    = "` + mobilityTargetOptions + `"
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
 `
 var mobilityTargetResourceUpdateConfig = `
@@ -173,5 +207,10 @@ resource "apex_navigator_block_mobility_targets" "example" {
 	system_id                = "` + mobilityTargetSystemID + `"
 	system_type              = "POWERFLEX"
 	target_system_options    = "` + mobilityTargetOptions + `"
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
 `

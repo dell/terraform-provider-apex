@@ -52,6 +52,28 @@ func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error creating Mobility Group Copy*.`),
 			},
+			// GetMobilityGroup Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetMobilityGroup).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Could not read Apex Navigator mobility group*.`),
+			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+			},
 			{
 				// Error while waiting for job to complete
 				PreConfig: func() {
@@ -81,12 +103,20 @@ func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 var mobilityGroupsCopyResourceConfig = `
 resource "apex_navigator_block_mobility_groups_copy" "example" {
 	mobility_source_id = "` + mobilitySourceID + `"
-	mobility_target_id = [
-		"` + mobilityTargetID + `"
-	]
+	mobility_target_id = "` + mobilityTargetID + `"
+	
+	powerflex_source {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `" 
+		insecure = "true"
+	}
+	powerflex_target {
+		username = "` + powerflexTargetUser + `"
+		password = "` + powerflexTargetPass + `"
+		scheme   = "` + powerflexScheme + `" 
+		insecure = "true"
+	}
   }
-  
-  output "examples_mobility_groups_copy" {
-	value = apex_navigator_block_mobility_groups_copy.example
-  }
+
 `

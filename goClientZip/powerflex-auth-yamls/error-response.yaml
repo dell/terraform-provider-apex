@@ -1,0 +1,16 @@
+openapi: 3.0.3
+info:
+  title: Error Message
+  version: '1.0'
+paths: {}
+components:
+  schemas:
+    error-response:
+      properties:
+        http_status_code:
+          type: integer
+          format: int32
+        messages:
+          type: array
+          items:
+            $ref: ./error-message.yaml#/components/schemas/error-message

@@ -19,10 +19,12 @@ description: |-
 
 - `clone_id` (String)
 - `host_ids` (List of String)
+- `system_id` (String)
 
 ### Optional
 
 - `host_mappings` (Attributes List) (see [below for nested schema](#nestedatt--host_mappings))
+- `powerflex` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex))
 - `status` (String)
 
 ### Read-Only
@@ -40,3 +42,18 @@ Read-Only:
 - `host_name` (String)
 - `id` (String)
 - `nqn` (String)
+
+
+<a id="nestedblock--powerflex"></a>
+### Nested Schema for `powerflex`
+
+Required:
+
+- `password` (String, Sensitive) Password of the powerflex
+- `username` (String) Username of the powerflex
+
+Optional:
+
+- `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
+- `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `scheme` (String) Scheme of the powerflex, defaults if unset to https

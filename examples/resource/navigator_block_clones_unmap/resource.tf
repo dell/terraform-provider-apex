@@ -20,8 +20,14 @@ resource "apex_navigator_block_clones_unmap" "example" {
   host_ids = [
     "POWERFLEX-ABCD1234567890__DATAMOBILITYHOST__12345678-1234-1234-1234-123456789012"
   ]
+
+  powerflex {
+    username = "example-username"
+    password = "example-pass"
+  }
 }
 
 output "examples_clones_unmap" {
-  value = apex_navigator_block_clones_unmap.example
+  value     = apex_navigator_block_clones_unmap.example
+  sensitive = true
 }

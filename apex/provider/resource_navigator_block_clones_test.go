@@ -32,7 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceClone(t *testing.T) {
+func TestAccResourceCloneR(t *testing.T) {
 	var resTerraformName = "apex_navigator_block_clones.example"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -48,9 +48,16 @@ func TestAccResourceClone(t *testing.T) {
 			},
 			// Import testing
 			{
-				ResourceName:      resTerraformName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:  resTerraformName,
+				ImportStateId: "{\"id\":\"" + cloneID + "\",\"system_id\":\"" + systemID + "\",\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
+			},
+			//Import Error testing
+			{
+				ResourceName:  resTerraformName,
+				ImportStateId: "{\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
+				ExpectError:   regexp.MustCompile(`.*Could not retrieve Clones during import*.`),
 			},
 			// Update testing
 			{
@@ -79,6 +86,17 @@ func TestAccResourceCloneUpdateError(t *testing.T) {
 			{
 				Config:      ProviderConfig + cloneResourceUpdateError2Config,
 				ExpectError: regexp.MustCompile(".*Could not update Clones*"),
+			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + cloneResourceUpdateConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
 			},
 			{
 				PreConfig: func() {
@@ -179,11 +197,20 @@ resource "apex_navigator_block_clones" "example" {
 	name               = "CloneTerraformName"
 	description        = "Atlas Test BFF - test clone description."
 	mobility_target_id = "POWERFLEX-ELMSIOENG10016__DATAMOBILITYGROUP__f71a0ef1-0a00-4c72-89e7-30d5180b1a0d"
+	system_id          = "` + systemID + `"
 	host_mappings = [
 	  {
 		host_id = "POWERFLEX-ELMSIOENG10016__HOST__5d743dc200000000"
 	  }
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
+  }
+  output "local_id" {
+	value = apex_navigator_block_clones.example.id
   }
 `
 var cloneResourceUpdateConfig = `
@@ -191,11 +218,17 @@ resource "apex_navigator_block_clones" "example" {
 	name               = "CloneTerraformNameUpdated"
 	description        = "Atlas Test BFF - test clone description."
 	mobility_target_id = "POWERFLEX-ELMSIOENG10016__DATAMOBILITYGROUP__f71a0ef1-0a00-4c72-89e7-30d5180b1a0d"
+	system_id          = "` + systemID + `"
 	host_mappings = [
 	  {
 		host_id = "POWERFLEX-ELMSIOENG10016__HOST__5d743dc200000000"
 	  }
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
 `
 var cloneResourceUpdateErrorConfig = `
@@ -203,11 +236,17 @@ var cloneResourceUpdateErrorConfig = `
 					name               = "CloneTerraformNameUpdateError"
 					description        = "Atlas Test BFF - test clone description."
 					mobility_target_id = "error"
+					system_id          = "` + systemID + `"
 					host_mappings = [
 					  {
 						host_id = "POWERFLEX-ELMSIOENG10016__HOST__5d743dc200000000"
 					  }
 					]
+					powerflex {
+						username = "` + powerflexUser + `"
+						password = "` + powerflexPass + `"
+						scheme   = "` + powerflexScheme + `" 
+					}
 				  }
 				
 `
@@ -216,7 +255,13 @@ resource "apex_navigator_block_clones" "example" {
 	name               = "CloneTerraformNameUpdatedError"
 	description        = "Atlas Test BFF - test clone description."
 	mobility_target_id = "error"
+	system_id          = "` + systemID + `"
 	host_mappings = [
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
 `

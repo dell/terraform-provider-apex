@@ -103,3 +103,56 @@ func GetMobilityTargetModel(mobilityTarget client.MobilityTarget) (model models.
 	}
 	return model
 }
+
+// GetMobilityTargetModelDs creates a new MobilityTargetModel based on the provided mobilityTarget
+func GetMobilityTargetModelDs(mobilityTarget client.MobilityTarget) (model models.MobilityTargetModelDs) {
+	model = models.MobilityTargetModelDs{
+		ID:                    types.StringValue(mobilityTarget.Id),
+		Name:                  types.StringValue(mobilityTarget.Name),
+		Description:           types.StringValue(mobilityTarget.Description),
+		SystemID:              types.StringValue(mobilityTarget.SystemId),
+		SystemType:            (mobilityTarget.SystemType),
+		SourceMobilityGroupID: types.StringValue(mobilityTarget.SourceMobilityGroupId),
+		CreationTimestamp:     types.StringValue(mobilityTarget.CreationTimestamp),
+		Type:                  types.StringValue(mobilityTarget.Type),
+		ImageTimestamp:        types.StringPointerValue(mobilityTarget.ImageTimestamp),
+		LastCopyJobID:         types.StringPointerValue(mobilityTarget.LastCopyJobId),
+	}
+
+	// Do the null check specifically instead of using `types.Int64PointerValue` since we have to do the int64 conversion
+	if mobilityTarget.BandwidthLimit != nil {
+		model.BandwidthLimit = types.Int64Value(int64(*mobilityTarget.BandwidthLimit))
+	}
+
+	attrTypes := map[string]attr.Type{
+		"id":        types.StringType,
+		"parent_id": types.StringType,
+		"name":      types.StringType,
+		"size":      types.StringType,
+	}
+	var targetValues []attr.Value
+
+	if mobilityTarget.TargetMembers != nil { //nolint:dupl
+		for _, target := range mobilityTarget.TargetMembers {
+			attrValues := map[string]attr.Value{
+				"id":        types.StringValue(target.Id),
+				"parent_id": types.StringValue(target.ParentId),
+				"name":      types.StringValue(target.Name),
+				"size":      types.StringValue(target.Size),
+			}
+			// TF Object representing a target member
+			object, _ := types.ObjectValue(attrTypes, attrValues)
+			targetValues = append(targetValues, object)
+		}
+		newObjectType := types.ObjectType{}
+		newObjectType.AttrTypes = map[string]attr.Type{
+			"id":        types.StringType,
+			"parent_id": types.StringType,
+			"name":      types.StringType,
+			"size":      types.StringType,
+		}
+
+		model.TargetMembers = basetypes.NewListValueMust(newObjectType, targetValues)
+	}
+	return model
+}

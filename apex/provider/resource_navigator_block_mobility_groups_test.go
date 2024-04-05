@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceMobilityGroup(t *testing.T) {
+func TestAccResourceMobilityGroupR(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -33,6 +33,19 @@ func TestAccResourceMobilityGroup(t *testing.T) {
 			{
 				Config: ProviderConfig + moblilityGroupResourceConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			// Import testing
+			{
+				ResourceName:  "apex_navigator_block_mobility_groups.example",
+				ImportStateId: "{\"id\":\"" + mobilityID1 + "\",\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
+			},
+			//Import Error testing
+			{
+				ResourceName:  "apex_navigator_block_mobility_groups.example",
+				ImportStateId: "{\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
+				ExpectError:   regexp.MustCompile(`.*Could not retrieve Mobility Groups during import*.`),
 			},
 			{
 				Config: ProviderConfig + moblilityGroupResourceUpdateConfig,
@@ -46,7 +59,7 @@ func TestAccResourceMobilityGroup(t *testing.T) {
 	})
 }
 
-func TestAccResourceMobilityGroupError(t *testing.T) {
+func TestAccResourceMobilityGroupRError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -58,6 +71,17 @@ func TestAccResourceMobilityGroupError(t *testing.T) {
 				},
 				Config:      ProviderConfig + moblilityGroupResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error creating Mobility Group*.`),
+			},
+			// Activate Powerflex Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + moblilityGroupResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
 			},
 			// Job failure error case
 			{
@@ -136,11 +160,13 @@ resource "apex_navigator_block_mobility_groups" "example" {
 	volume_id = [
 	  "` + volumeID + `"
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"
+	}
   }
   
-  output "examples_mobility_group" {
-	value = apex_navigator_block_mobility_groups.example
-  }
 `
 
 var moblilityGroupResourceUpdateConfig = `
@@ -151,11 +177,13 @@ resource "apex_navigator_block_mobility_groups" "example" {
 	volume_id = [
 	  "` + volumeID + `"
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
   
-  output "examples_mobility_group" {
-	value = apex_navigator_block_mobility_groups.example
-  }
 `
 
 var moblilityGroupResourceErrorUpdateConfig = `
@@ -166,9 +194,11 @@ resource "apex_navigator_block_mobility_groups" "example" {
 	volume_id = [
 	  "` + volumeID + `"
 	]
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
   }
   
-  output "examples_mobility_group" {
-	value = apex_navigator_block_mobility_groups.example
-  }
 `

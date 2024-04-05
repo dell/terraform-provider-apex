@@ -38,11 +38,29 @@ type MobilityTargetModel struct {
 	TargetSystemOptions   types.String                  `tfsdk:"target_system_options"`
 	BandwidthLimit        types.Int64                   `tfsdk:"bandwidth_limit"`
 	Type                  types.String                  `tfsdk:"type"`
+	ActivationClientModel *ActivationClientModel        `tfsdk:"powerflex"`
+}
+
+// MobilityTargetModelDs defines the attribute names and types for a Mobility Target TF model
+type MobilityTargetModelDs struct {
+	ID                    types.String                  `tfsdk:"id"`
+	Name                  types.String                  `tfsdk:"name"`
+	Description           types.String                  `tfsdk:"description"`
+	SystemID              types.String                  `tfsdk:"system_id"`
+	SystemType            *client.StorageSystemTypeEnum `tfsdk:"system_type"`
+	SourceMobilityGroupID types.String                  `tfsdk:"source_mobility_group_id"`
+	CreationTimestamp     types.String                  `tfsdk:"creation_timestamp"`
+	ImageTimestamp        types.String                  `tfsdk:"image_timestamp"`
+	LastCopyJobID         types.String                  `tfsdk:"last_copy_job_id"`
+	TargetMembers         basetypes.ListValue           `tfsdk:"target_members"`
+	TargetSystemOptions   types.String                  `tfsdk:"target_system_options"`
+	BandwidthLimit        types.Int64                   `tfsdk:"bandwidth_limit"`
+	Type                  types.String                  `tfsdk:"type"`
 }
 
 // MobilityTargetsDataSourceModel defines the attribute names and types for a Mobility Targets Collection
 type MobilityTargetsDataSourceModel struct {
-	MobilityTargets []MobilityTargetModel     `tfsdk:"mobility_targets"`
+	MobilityTargets []MobilityTargetModelDs   `tfsdk:"mobility_targets"`
 	ID              types.String              `tfsdk:"id"`
 	Filter          *MobilityTargetFilterType `tfsdk:"filter"`
 }

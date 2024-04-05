@@ -18,9 +18,43 @@ description: |-
 ### Required
 
 - `mobility_source_id` (String)
-- `mobility_target_id` (List of String)
+- `mobility_target_id` (String)
+
+### Optional
+
+- `powerflex_source` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex_source))
+- `powerflex_target` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex_target))
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `status` (String)
+
+<a id="nestedblock--powerflex_source"></a>
+### Nested Schema for `powerflex_source`
+
+Required:
+
+- `password` (String, Sensitive) Password of the powerflex
+- `username` (String) Username of the powerflex
+
+Optional:
+
+- `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
+- `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `scheme` (String) Scheme of the powerflex, defaults if unset to https
+
+
+<a id="nestedblock--powerflex_target"></a>
+### Nested Schema for `powerflex_target`
+
+Required:
+
+- `password` (String, Sensitive) Password of the powerflex
+- `username` (String) Username of the powerflex
+
+Optional:
+
+- `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
+- `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `scheme` (String) Scheme of the powerflex, defaults if unset to https
