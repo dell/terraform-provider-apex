@@ -29,6 +29,10 @@ import (
 
 // GetHostCollection gets list of hosts.
 func GetHostCollection(client *client.APIClient, filter string) (*client.HostsCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.HostsAPI.HostsCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.HostsAPI.HostsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 

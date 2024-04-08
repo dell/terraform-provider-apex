@@ -31,6 +31,10 @@ import (
 
 // GetMobilityGroupCollection returns a list of all Mobility Groups
 func GetMobilityGroupCollection(client *client.APIClient, filter string) (*client.MobilityGroupsCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.MobilityGroupsAPI.MobilityGroupsCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.MobilityGroupsAPI.MobilityGroupsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 

@@ -32,6 +32,10 @@ import (
 
 // GetBlockStorageCollection gets list of block storage instances
 func GetBlockStorageCollection(client *client.APIClient, filter string) (*client.StorageSystemsCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.StorageSystemsAPI.StorageSystemsCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.StorageSystemsAPI.StorageSystemsCollection(context.Background()).Limit(500).Filter(filter).Execute()
 }
 

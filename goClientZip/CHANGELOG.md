@@ -20,6 +20,10 @@ Updated example for Body(ResponseContent -> Body) : Line 318,402
 
 apex-jobs-client-openapi-1.0.0 : .\model_response_content.go line 26 Changed type of Body from map[string]interface{} to *string
 
+## Apex Client
+
+Remove - refresh_timestamp clonesModel as a required paramter from the clones model (since APEX does not return in every object and this can make the datasource fail). 
+
 ## PowerFlex Client
  
 1. Change LogininResponseYaml (expires_in, refresh_expires_in) from string to int64
