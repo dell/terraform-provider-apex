@@ -14,6 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+// Resource to manage lifecycle for apex_navigator_block_clones_refresh
+resource "terraform_data" "always_run_mobility_clones_refresh" {
+  input = timestamp()
+}
 
 resource "apex_navigator_block_clones_refresh" "example" {
   # Clone Id you want to refresh
@@ -23,6 +27,12 @@ resource "apex_navigator_block_clones_refresh" "example" {
   powerflex {
     username = "example-username"
     password = "example-pass"
+  }
+  // This will allow terraform create process to trigger each time we run terraform apply.
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.always_run_mobility_clones_refresh
+    ]
   }
 }
 

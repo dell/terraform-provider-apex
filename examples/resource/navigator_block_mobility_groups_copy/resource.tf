@@ -14,6 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+// Resource to manage lifecycle for apex_navigator_block_mobility_groups_copy
+resource "terraform_data" "always_run_mobility_groups_copy" {
+  input = timestamp()
+}
 
 resource "apex_navigator_block_mobility_groups_copy" "example" {
   for_each           = var.mobility_group
@@ -29,6 +33,12 @@ resource "apex_navigator_block_mobility_groups_copy" "example" {
     username = each.value.powerflex_target_user
     password = each.value.powerflex_target_password
     insecure = each.value.insecure
+  }
+  // This will allow terraform create process to trigger each time we run terraform apply.
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.always_run_mobility_groups_copy
+    ]
   }
 }
 
