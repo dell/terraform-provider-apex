@@ -55,58 +55,81 @@ func (d *storageProductsDataSource) Metadata(_ context.Context, req datasource.M
 // Schema defines the acceptable configuration and state attribute names and types.
 func (d *storageProductsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "This Terraform Datasource is used to query existing storage products on Apex Navigator.",
+		MarkdownDescription: "This Terraform Datasource is used to query existing storage products on Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID of the storage products datasource",
+				MarkdownDescription: "ID of the storage products datasource",
+				Computed:            true,
 			},
 			"storage_products": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "List of storage products",
+				MarkdownDescription: "List of storage products",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "",
+							Description:         "Identifier of the storage product.",
+							MarkdownDescription: "Identifier of the storage product.",
 							Optional:            true,
 						},
 						"name": schema.StringAttribute{
-							MarkdownDescription: "Name of the storage proct",
+							Description:         "Name of the storage product.",
+							MarkdownDescription: "Name of the storage product.",
 							Optional:            true,
 						},
 						"system_type": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Enum for all the supported storage products (e.g., POWERFLEX, APEX block storage for cloud).",
+							MarkdownDescription: "Enum for all the supported storage products (e.g., POWERFLEX, APEX block storage for cloud).",
 							Optional:            true,
 						},
 						"storage_type": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Enum representing all the supported storage types (e.g., BLOCK).",
+							MarkdownDescription: "Enum representing all the supported storage types (e.g., BLOCK).",
 							Optional:            true,
 						},
 						"description": schema.StringAttribute{
-							MarkdownDescription: "Description of the storage product and its capabilities",
+							Description:         "Description of the storage product and its capabilities.",
+							MarkdownDescription: "Description of the storage product and its capabilities.",
 							Optional:            true,
 						},
 						"cloud_type": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Enum for all the supported cloud providers (e.g., AWS - Amazon Web Services).",
+							MarkdownDescription: "Enum for all the supported cloud providers (e.g., AWS - Amazon Web Services).",
 							Optional:            true,
 						},
 						"latest_version": schema.StringAttribute{
-							MarkdownDescription: "Latest supported version of the storage product on the cloud",
+							Description:         "Latest supported version of the storage product on the cloud.",
+							MarkdownDescription: "Latest supported version of the storage product on the cloud.",
 							Optional:            true,
 						},
 
 						"support_map": schema.ListNestedAttribute{
-							Optional: true,
+							Description:         "Array of support mappings for the storage product.",
+							MarkdownDescription: "Array of support mappings for the storage product.",
+							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										Optional: true,
+										Description:         "Identifier of the support mapping.",
+										MarkdownDescription: "Identifier of the support mapping.",
+										Optional:            true,
 									},
 									"supported_evaluation_period": schema.Int64Attribute{
-										Optional: true,
+										Description:         "Evaluation period in days. After the evaluation period is expired, you need to purchase a license from Dell, to continue using the product.",
+										MarkdownDescription: "Evaluation period in days. After the evaluation period is expired, you need to purchase a license from Dell, to continue using the product.",
+										Optional:            true,
 									},
 									"version": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Version of the storage product on the cloud.",
+										MarkdownDescription: "Version of the storage product on the cloud.",
 									},
 									"supported_actions": schema.ListNestedAttribute{
-										Optional: true,
+										Description:         "Enum for all the supported storage products actions (e.g., CREATE, DELETE, DEPLOY).",
+										MarkdownDescription: "Enum for all the supported storage products actions (e.g., CREATE, DELETE, DEPLOY).",
+										Optional:            true,
 									},
 								},
 							},

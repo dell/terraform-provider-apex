@@ -54,12 +54,18 @@ func (d *blockStoragesDataSource) Metadata(_ context.Context, req datasource.Met
 // Schema defines the acceptable configuration and state attribute names and types.
 func (d *blockStoragesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
+		Description:         "This Terraform Datasource is used to query existing block storages on Apex Navigator.",
+		MarkdownDescription: "This Terraform Datasource is used to query existing block storages on Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID of the block storage datasource",
+				MarkdownDescription: "ID of the block storage datasource",
+				Computed:            true,
 			},
 			"block_storages": schema.ListNestedAttribute{
-				Computed: true,
+				Description:         "List of block storages",
+				MarkdownDescription: "List of block storages",
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: BlockStorageDataSourceSchema.Attributes,
 				},

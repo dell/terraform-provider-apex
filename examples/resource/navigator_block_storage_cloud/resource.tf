@@ -16,9 +16,13 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_storage" "cloud_instance" {
-  system_type     = "POWERFLEX"
-  name            = "apex-navigator-terraform"
+  # Type of system you want to deploy
+  system_type = "POWERFLEX"
+  # The name of the system.
+  name = "apex-navigator-terraform"
+
   product_version = "4.5.1"
+  # deployment_details (can be either system_on_prem or system_public_cloud)
   deployment_details = {
     system_public_cloud = {
       deployment_type            = "PUBLIC_CLOUD"

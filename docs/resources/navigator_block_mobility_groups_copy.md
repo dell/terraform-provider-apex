@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_mobility_groups_copy Resource - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform resource is used to copy source Data Mobility Group to target on Apex Navigator.
 ---
 
 # apex_navigator_block_mobility_groups_copy (Resource)
 
-
+This Terraform resource is used to copy source Data Mobility Group to target on Apex Navigator.
 
 
 
@@ -17,8 +17,8 @@ description: |-
 
 ### Required
 
-- `mobility_source_id` (String)
-- `mobility_target_id` (String)
+- `mobility_source_id` (String) Source ID of the Mobility Group
+- `mobility_target_id` (String) Target ID of the Mobility Group
 
 ### Optional
 
@@ -27,8 +27,8 @@ description: |-
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `status` (String)
+- `id` (String) ID of the Mobility Group Copy Job
+- `status` (String) Status of the Mobility Group Copy Job
 
 <a id="nestedblock--powerflex_source"></a>
 ### Nested Schema for `powerflex_source`

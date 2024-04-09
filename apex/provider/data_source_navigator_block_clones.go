@@ -54,12 +54,20 @@ func (d *clonesDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 // Schema defines the acceptable configuration and state attribute names and types.
 func (d *clonesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "This Terraform Datasource is used to query existing clones on Apex Navigator." +
+			" The information fetched from this block can be further used for resource block.",
+		MarkdownDescription: "This Terraform Datasource is used to query existing clones on Apex Navigator." +
+			" The information fetched from this block can be further used for resource block.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID of the clone datasource",
+				MarkdownDescription: "ID of the clone datasource",
+				Computed:            true,
 			},
 			"clones": schema.ListNestedAttribute{
-				Computed: true,
+				Description:         "List of clones",
+				MarkdownDescription: "List of clones",
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: ClonesDataSourceSchema.Attributes,
 				},

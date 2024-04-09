@@ -16,9 +16,13 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_mobility_groups" "example" {
-  name        = "TerraformMobilityGroup"
-  system_id   = "POWERFLEX-ABCD1234567890"
+  # Name of the Mobility Group source
+  name = "TerraformMobilityGroup"
+  # ID of the target system
+  system_id = "POWERFLEX-ABCD1234567890"
+  # Type of the target system
   system_type = "POWERFLEX"
+  # ID of the volume you want to add to the group
   volume_id = [
     "POWERFLEX-ABCD1234567890__VOLUME__1234567890123456"
   ]

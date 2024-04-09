@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_hosts Data Source - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform Datasource is used to query existing hosts on Apex Navigator. The information fetched from this block can be further used for resource block.
 ---
 
 # apex_navigator_block_hosts (Data Source)
 
-
+This Terraform Datasource is used to query existing hosts on Apex Navigator. The information fetched from this block can be further used for resource block.
 
 
 
@@ -21,8 +21,8 @@ description: |-
 
 ### Read-Only
 
-- `hosts` (Attributes List) (see [below for nested schema](#nestedatt--hosts))
-- `id` (String) The ID of this resource.
+- `hosts` (Attributes List) List of hosts (see [below for nested schema](#nestedatt--hosts))
+- `id` (String) ID of the host datasource
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
@@ -37,18 +37,18 @@ Optional:
 
 Optional:
 
-- `description` (String)
-- `id` (String) Unique Host Claim ID
-- `initiator_count` (Number)
-- `initiator_protocol` (String)
-- `issue_count` (Number)
-- `name` (String)
-- `native_id` (String)
+- `description` (String) Description of the host
+- `id` (String) Host identifier
+- `initiator_count` (Number) Number of initiators that are connected between the host or server and the monitored system
+- `initiator_protocol` (String) Type of initiator (FC or iSCSI) that the host or server uses to connect to a monitored system
+- `issue_count` (Number) Number of health issues that are present on the host or server
+- `name` (String) Name of the host or server
+- `native_id` (String) Identifier of the host, defined by the system
 - `network_addresses` (String)
-- `operating_system` (String)
-- `system_id` (String)
-- `system_model` (String)
-- `system_name` (String)
-- `system_type` (String)
-- `total_size` (Number)
-- `type` (String)
+- `operating_system` (String) Operating system of the host or server
+- `system_id` (String) Unique identifier for the system that the host is connected to
+- `system_model` (String) Model of the system
+- `system_name` (String) Name of the system
+- `system_type` (String) Product type of the system
+- `total_size` (Number) Total size of all LUNs or Volumes that are provisioned to the host or server from the system - Unit: bytes
+- `type` (String) Type of the host

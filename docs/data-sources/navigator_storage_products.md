@@ -3,12 +3,12 @@
 page_title: "apex_navigator_storage_products Data Source - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform Datasource is used to query existing storage products on Apex Navigator.
 ---
 
 # apex_navigator_storage_products (Data Source)
 
-
+This Terraform Datasource is used to query existing storage products on Apex Navigator.
 
 
 
@@ -21,8 +21,8 @@ description: |-
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `storage_products` (Attributes List) (see [below for nested schema](#nestedatt--storage_products))
+- `id` (String) ID of the storage products datasource
+- `storage_products` (Attributes List) List of storage products (see [below for nested schema](#nestedatt--storage_products))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
@@ -37,24 +37,24 @@ Optional:
 
 Optional:
 
-- `cloud_type` (String)
-- `description` (String) Description of the storage product and its capabilities
-- `id` (String)
-- `latest_version` (String) Latest supported version of the storage product on the cloud
-- `name` (String) Name of the storage proct
-- `storage_type` (String)
-- `support_map` (Attributes List) (see [below for nested schema](#nestedatt--storage_products--support_map))
-- `system_type` (String)
+- `cloud_type` (String) Enum for all the supported cloud providers (e.g., AWS - Amazon Web Services).
+- `description` (String) Description of the storage product and its capabilities.
+- `id` (String) Identifier of the storage product.
+- `latest_version` (String) Latest supported version of the storage product on the cloud.
+- `name` (String) Name of the storage product.
+- `storage_type` (String) Enum representing all the supported storage types (e.g., BLOCK).
+- `support_map` (Attributes List) Array of support mappings for the storage product. (see [below for nested schema](#nestedatt--storage_products--support_map))
+- `system_type` (String) Enum for all the supported storage products (e.g., POWERFLEX, APEX block storage for cloud).
 
 <a id="nestedatt--storage_products--support_map"></a>
 ### Nested Schema for `storage_products.support_map`
 
 Optional:
 
-- `id` (String)
-- `supported_actions` (Attributes List) (see [below for nested schema](#nestedatt--storage_products--support_map--supported_actions))
-- `supported_evaluation_period` (Number)
-- `version` (String)
+- `id` (String) Identifier of the support mapping.
+- `supported_actions` (Attributes List) Enum for all the supported storage products actions (e.g., CREATE, DELETE, DEPLOY). (see [below for nested schema](#nestedatt--storage_products--support_map--supported_actions))
+- `supported_evaluation_period` (Number) Evaluation period in days. After the evaluation period is expired, you need to purchase a license from Dell, to continue using the product.
+- `version` (String) Version of the storage product on the cloud.
 
 <a id="nestedatt--storage_products--support_map--supported_actions"></a>
 ### Nested Schema for `storage_products.support_map.supported_actions`

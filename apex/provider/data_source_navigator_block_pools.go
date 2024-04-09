@@ -54,76 +54,98 @@ func (d *poolsDataSource) Metadata(_ context.Context, req datasource.MetadataReq
 // Schema defines the acceptable configuration and state attribute names and types.
 func (d *poolsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "This Terraform Datasource is used to query existing pools on Apex Navigator. ",
+		MarkdownDescription: "This Terraform Datasource is used to query existing pools on Apex Navigator. ",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID of the pools datasource",
+				MarkdownDescription: "ID of the pools datasource",
+				Computed:            true,
 			},
 			"pools": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "List of pools",
+				MarkdownDescription: "List of pools",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "Unique Pool Claim ID",
+							MarkdownDescription: "Identifier of the pool",
+							Description:         "Identifier of the pool",
 							Optional:            true,
 						},
 						"system_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							Description:         "Unique identifier for the device or appliance.",
+							MarkdownDescription: "Unique identifier for the device or appliance.",
 							Optional:            true,
 						},
 						"system_type": schema.StringAttribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Type of the system",
+							Description:         "Type of the system",
 							Optional:            true,
 						},
 						"free_size": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Available capacity - Unit: bytes",
+							Description:         "Available capacity - Unit: bytes",
 							Optional:            true,
 						},
 						"issue_count": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							Description:         "Number of health issues that are present on the pool",
+							MarkdownDescription: "Number of health issues that are present on the pool",
 							Optional:            true,
 						},
 						"name": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Name of the pool",
+							MarkdownDescription: "Name of the pool",
 							Optional:            true,
 						},
 						"native_id": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Native identifier of the pool, defined by the system",
+							MarkdownDescription: "Native identifier of the pool, defined by the system",
 							Optional:            true,
 						},
 						"subscribed_percent": schema.Float64Attribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Percentage of pool capacity that is provisioned",
+							Description:         "Percentage of pool capacity that is provisioned",
 							Optional:            true,
 						},
 						"subscribed_size": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							Description:         "Total subscribed capacity of the pool - Unit: bytes",
+							MarkdownDescription: "Total subscribed capacity of the pool - Unit: bytes",
 							Optional:            true,
 						},
 						"system_model": schema.StringAttribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Model of the system",
+							Description:         "Model of the system",
 							Optional:            true,
 						},
 						"system_name": schema.StringAttribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Name of the system",
+							Description:         "Name of the system",
 							Optional:            true,
 						},
 						"time_to_full_prediction": schema.StringAttribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "This is an enumerated type showing a prediction of when the pool may become full. Possible values are: DAY (imminent); FULL (pool is full); WEEK (full in a week); MONTH (full in a month); QUARTER (full within a quarter); BEYOND (more than a quarter to become full); LEARNING (not enough data to perform an analysis); UNPREDICTABLE (missing or invalid data); or UNKNOWN (system error).",
+							Description:         "This is an enumerated type showing a prediction of when the pool may become full. Possible values are: DAY (imminent); FULL (pool is full); WEEK (full in a week); MONTH (full in a month); QUARTER (full within a quarter); BEYOND (more than a quarter to become full); LEARNING (not enough data to perform an analysis); UNPREDICTABLE (missing or invalid data); or UNKNOWN (system error).",
 							Optional:            true,
 						},
 						"total_size": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							Description:         "Total capacity of the pool - Unit: bytes",
+							MarkdownDescription: "Total capacity of the pool - Unit: bytes",
 							Optional:            true,
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "The type of pool",
+							Description:         "The type of pool",
 							Optional:            true,
 						},
 						"used_percent": schema.Float64Attribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Percentage of pool capacity that is being used",
+							Description:         "Percentage of pool capacity that is being used",
 							Optional:            true,
 						},
 						"used_size": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							MarkdownDescription: "Capacity of the pool that is being used - Unit: bytes",
+							Description:         "Capacity of the pool that is being used - Unit: bytes",
 							Optional:            true,
 						},
 					},

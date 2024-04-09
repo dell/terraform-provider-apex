@@ -16,7 +16,9 @@ limitations under the License.
 */
 
 resource "apex_navigator_block_clones_refresh" "example" {
-  clone_id  = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  # Clone Id you want to refresh
+  clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
+  # System ID
   system_id = "POWERFLEX-ELMSIOENG10015"
   powerflex {
     username = "example-username"

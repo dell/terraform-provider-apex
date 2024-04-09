@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_pools Data Source - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform Datasource is used to query existing pools on Apex Navigator.
 ---
 
 # apex_navigator_block_pools (Data Source)
 
-
+This Terraform Datasource is used to query existing pools on Apex Navigator.
 
 
 
@@ -21,8 +21,8 @@ description: |-
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `pools` (Attributes List) (see [below for nested schema](#nestedatt--pools))
+- `id` (String) ID of the pools datasource
+- `pools` (Attributes List) List of pools (see [below for nested schema](#nestedatt--pools))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
@@ -37,19 +37,19 @@ Optional:
 
 Optional:
 
-- `free_size` (Number)
-- `id` (String) Unique Pool Claim ID
-- `issue_count` (Number)
-- `name` (String)
-- `native_id` (String)
-- `subscribed_percent` (Number)
-- `subscribed_size` (Number)
-- `system_id` (String)
-- `system_model` (String)
-- `system_name` (String)
-- `system_type` (String)
-- `time_to_full_prediction` (String)
-- `total_size` (Number)
-- `type` (String)
-- `used_percent` (Number)
-- `used_size` (Number)
+- `free_size` (Number) Available capacity - Unit: bytes
+- `id` (String) Identifier of the pool
+- `issue_count` (Number) Number of health issues that are present on the pool
+- `name` (String) Name of the pool
+- `native_id` (String) Native identifier of the pool, defined by the system
+- `subscribed_percent` (Number) Percentage of pool capacity that is provisioned
+- `subscribed_size` (Number) Total subscribed capacity of the pool - Unit: bytes
+- `system_id` (String) Unique identifier for the device or appliance.
+- `system_model` (String) Model of the system
+- `system_name` (String) Name of the system
+- `system_type` (String) Type of the system
+- `time_to_full_prediction` (String) This is an enumerated type showing a prediction of when the pool may become full. Possible values are: DAY (imminent); FULL (pool is full); WEEK (full in a week); MONTH (full in a month); QUARTER (full within a quarter); BEYOND (more than a quarter to become full); LEARNING (not enough data to perform an analysis); UNPREDICTABLE (missing or invalid data); or UNKNOWN (system error).
+- `total_size` (Number) Total capacity of the pool - Unit: bytes
+- `type` (String) The type of pool
+- `used_percent` (Number) Percentage of pool capacity that is being used
+- `used_size` (Number) Capacity of the pool that is being used - Unit: bytes

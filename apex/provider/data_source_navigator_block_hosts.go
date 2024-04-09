@@ -55,70 +55,94 @@ func (d *hostsDataSource) Metadata(_ context.Context, req datasource.MetadataReq
 // Schema defines the acceptable configuration and state attribute names and types.
 func (d *hostsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "This Terraform Datasource is used to query existing hosts on Apex Navigator." +
+			" The information fetched from this block can be further used for resource block.",
+		MarkdownDescription: "This Terraform Datasource is used to query existing hosts on Apex Navigator." +
+			" The information fetched from this block can be further used for resource block.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID of the host datasource",
+				MarkdownDescription: "ID of the host datasource",
+				Computed:            true,
 			},
 			"hosts": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "List of hosts",
+				Description:         "List of hosts",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "Unique Host Claim ID",
+							MarkdownDescription: "Host identifier",
 							Optional:            true,
 						},
 						"system_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Unique identifier for the system that the host is connected to",
+							Description:         "Unique identifier for the system that the host is connected to",
 							Optional:            true,
 						},
 						"system_type": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Product type of the system",
+							MarkdownDescription: "Product type of the system",
 							Optional:            true,
 						},
 						"description": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Description of the host",
+							MarkdownDescription: "Description of the host",
 							Optional:            true,
 						},
 						"initiator_count": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							Description:         "Number of initiators that are connected between the host or server and the monitored system",
+							MarkdownDescription: "Number of initiators that are connected between the host or server and the monitored system",
 							Optional:            true,
 						},
 						"initiator_protocol": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Type of initiator (FC or iSCSI) that the host or server uses to connect to a monitored system",
+							MarkdownDescription: "Type of initiator (FC or iSCSI) that the host or server uses to connect to a monitored system",
 							Optional:            true,
 						},
 						"issue_count": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							Description:         "Number of health issues that are present on the host or server",
+							MarkdownDescription: "Number of health issues that are present on the host or server",
 							Optional:            true,
 						},
 						"name": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Name of the host or server",
+							MarkdownDescription: "Name of the host or server",
 							Optional:            true,
 						},
 						"native_id": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Identifier of the host, defined by the system",
+							MarkdownDescription: "Identifier of the host, defined by the system",
 							Optional:            true,
 						},
 						"network_addresses": schema.StringAttribute{
+							Description:         "IPv4 or IPv6 IP addresses, domain names, or netgroup name associated with the host or server",
 							MarkdownDescription: " ",
 							Optional:            true,
-						}, "type": schema.StringAttribute{
-							MarkdownDescription: " ",
+						},
+						"type": schema.StringAttribute{
+							Description:         "Type of the host",
+							MarkdownDescription: "Type of the host",
 							Optional:            true,
-						}, "operating_system": schema.StringAttribute{
-							MarkdownDescription: " ",
+						},
+						"operating_system": schema.StringAttribute{
+							Description:         "Operating system of the host or server",
+							MarkdownDescription: "Operating system of the host or server",
 							Optional:            true,
 						},
 						"system_model": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Model of the system",
+							MarkdownDescription: "Model of the system",
 							Optional:            true,
 						},
 						"system_name": schema.StringAttribute{
-							MarkdownDescription: " ",
+							Description:         "Name of the system",
+							MarkdownDescription: "Name of the system",
 							Optional:            true,
 						},
 						"total_size": schema.Int64Attribute{
-							MarkdownDescription: " ",
+							Description:         "Total size of all LUNs or Volumes that are provisioned to the host or server from the system - Unit: bytes",
+							MarkdownDescription: "Total size of all LUNs or Volumes that are provisioned to the host or server from the system - Unit: bytes",
 							Optional:            true,
 						},
 					},

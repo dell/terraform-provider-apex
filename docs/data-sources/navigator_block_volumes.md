@@ -3,12 +3,12 @@
 page_title: "apex_navigator_block_volumes Data Source - apex"
 subcategory: ""
 description: |-
-  
+  This Terraform Datasource is used to query existing volumes on Apex Navigator.
 ---
 
 # apex_navigator_block_volumes (Data Source)
 
-
+This Terraform Datasource is used to query existing volumes on Apex Navigator.
 
 
 
@@ -21,8 +21,8 @@ description: |-
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `volumes` (Attributes List) (see [below for nested schema](#nestedatt--volumes))
+- `id` (String) ID of the volume datasource
+- `volumes` (Attributes List) List of volumes (see [below for nested schema](#nestedatt--volumes))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
@@ -37,35 +37,35 @@ Optional:
 
 Read-Only:
 
-- `allocated_size` (Number)
-- `bandwidth` (Number)
-- `consistency_group_name` (String)
-- `data_reduction_percent` (Number)
-- `data_reduction_ratio` (Number)
-- `data_reduction_saved_size` (Number)
-- `id` (String)
-- `io_limit_policy_name` (String)
-- `iops` (Number)
-- `is_compressed_or_deduped` (String)
-- `is_thin_enabled` (Boolean)
-- `issue_count` (Number)
-- `latency` (Number)
-- `logical_size` (Number)
-- `name` (String)
-- `native_id` (String)
-- `pool_id` (String)
-- `pool_name` (String)
-- `pool_type` (String)
-- `snap_shot_count` (Number)
-- `snap_shot_policy` (String)
-- `snap_shot_size` (Number)
-- `storage_resource_id` (String)
-- `storage_resource_native_id` (String)
-- `system_id` (String)
-- `system_model` (String)
-- `system_name` (String)
-- `system_type` (String)
-- `total_size` (Number)
-- `type` (String)
-- `used_size` (Number)
-- `used_size_unique` (Number)
+- `allocated_size` (Number) The allocated size of the volume - Unit: bytes
+- `bandwidth` (Number) The bandwidth consumed by the volume. Aggregated for a rolling average over the last 24 hours - Unit: bytes/s
+- `consistency_group_name` (String) Consistency group name of the volume.
+- `data_reduction_percent` (Number) The data reduction percent for the volume.
+- `data_reduction_ratio` (Number) The data reduction ratio for the volume.
+- `data_reduction_saved_size` (Number) The data reduction capacity saved for the volume - Unit: bytes
+- `id` (String) Identifier of the volume
+- `io_limit_policy_name` (String) The IO limit policy name for the volume.
+- `iops` (Number) The IOPS for the volume. Aggregated for a rolling average over the last 24 hours - Unit: IO/s
+- `is_compressed_or_deduped` (String) Identifies whether the volume is compressed or deduplicated.
+- `is_thin_enabled` (Boolean) Identifies whether the volume has thin provisioning enabled.
+- `issue_count` (Number) Number of health issues that are present on the volume.
+- `latency` (Number) The latency for the volume. Aggregated for a rolling average over the last 24 hours - Unit: microseconds
+- `logical_size` (Number) The logical size for the volume - Unit: bytes
+- `name` (String) The name of the volume.
+- `native_id` (String) Identifier of the volume, defined by the system.
+- `pool_id` (String) The pool identifier for the volume.
+- `pool_name` (String) The pool name for the volume.
+- `pool_type` (String) Type of the pool.
+- `snap_shot_count` (Number) The snapshot count for the volume.
+- `snap_shot_policy` (String) The snapshot policy for the volume.
+- `snap_shot_size` (Number) The snapshot size for the volume - Unit: bytes
+- `storage_resource_id` (String) The storage resource identifier for the volume.
+- `storage_resource_native_id` (String) The storage resource native identifier for the volume.
+- `system_id` (String) Unique identifier for the device or appliance.
+- `system_model` (String) The model of the system.
+- `system_name` (String) Name of the system for the volume.
+- `system_type` (String) Type of the system for the volume
+- `total_size` (Number) The total provisioned size of the volume - Unit: bytes
+- `type` (String) Type of the volume, which is either LUN or VOLUME.
+- `used_size` (Number) The used size of the volume - Unit: bytes
+- `used_size_unique` (Number) The unique used size of the volume - Unit: bytes

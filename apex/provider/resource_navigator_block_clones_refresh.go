@@ -59,20 +59,26 @@ func (r *clonesRefreshResource) Metadata(_ context.Context, req resource.Metadat
 // Schema defines the acceptable configuration and state attribute names and types.
 func (r *clonesRefreshResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
+		Description: "This Terraform resource is used to manage clones refreshes on Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"clone_id": schema.StringAttribute{
-				MarkdownDescription: " ",
+				MarkdownDescription: "Unique identifier for the clone to be refreshed.",
+				Description:         "Unique identifier for the clone to be refreshed.",
 				Required:            true,
 			},
 			"status": schema.StringAttribute{
-				Computed: true,
+				Description:         "Status of the clone refreh Job",
+				MarkdownDescription: "Status of the clone refresh Job",
+				Computed:            true,
 			},
 			"system_id": schema.StringAttribute{
 				MarkdownDescription: " ",
 				Required:            true,
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description:         "ID for the clone refresh Job",
+				MarkdownDescription: "ID for the clone refresh Job",
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
