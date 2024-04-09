@@ -152,7 +152,7 @@ func getApexActivationToken(ctx context.Context, clientAPI *apexClient.APIClient
 	_, status, err := post.Execute()
 
 	// 409 attempt to extract the old token from the error response
-	if status.StatusCode == http.StatusConflict {
+	if status != nil && status.StatusCode == http.StatusConflict {
 		if err == nil {
 			return ""
 		}
