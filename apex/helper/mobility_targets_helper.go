@@ -31,6 +31,10 @@ import (
 
 // GetMobilityTargetCollection returns a list of all Mobility Targets
 func GetMobilityTargetCollection(client *client.APIClient, filter string) (*client.MobilityTargetsCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.MobilityTargetsAPI.MobilityTargetsCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.MobilityTargetsAPI.MobilityTargetsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 
@@ -152,6 +156,25 @@ func GetMobilityTargetModelDs(mobilityTarget client.MobilityTarget) (model model
 			"size":      types.StringType,
 		}
 
+		model.TargetMembers = basetypes.NewListValueMust(newObjectType, targetValues)
+
+	} else { // Send an empty list
+
+		attrValues := map[string]attr.Value{
+			"id":        types.StringValue(""),
+			"parent_id": types.StringValue(""),
+			"name":      types.StringValue(""),
+			"size":      types.StringValue(""),
+		}
+		object, _ := types.ObjectValue(attrTypes, attrValues)
+		targetValues = append(targetValues, object)
+		newObjectType := types.ObjectType{}
+		newObjectType.AttrTypes = map[string]attr.Type{
+			"id":        types.StringType,
+			"parent_id": types.StringType,
+			"name":      types.StringType,
+			"size":      types.StringType,
+		}
 		model.TargetMembers = basetypes.NewListValueMust(newObjectType, targetValues)
 	}
 	return model

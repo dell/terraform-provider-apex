@@ -31,6 +31,10 @@ import (
 
 // GetCloneCollection is a collection of clones
 func GetCloneCollection(client *client.APIClient, filter string) (*client.ClonesCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.ClonesAPI.ClonesCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.ClonesAPI.ClonesCollection(context.Background()).Limit(500).Filter(filter).Execute()
 }
 

@@ -29,7 +29,12 @@ import (
 
 // GetStorageProductsCollection returns a list of all Stroage Products
 func GetStorageProductsCollection(client *client.APIClient, filter string) (*client.StorageProductsCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.StorageProductsAPI.StorageProductsCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.StorageProductsAPI.StorageProductsCollection(context.Background()).Filter(filter).Limit(500).Execute()
+
 }
 
 // MapStorageProduct maps storage product to terraformsdk model
@@ -38,7 +43,6 @@ func MapStorageProduct(storageProducts *client.StorageProductsCollection200Respo
 	// Map response body to model
 	for _, storageProduct := range storageProducts.Results {
 		storageProductState := models.StorageProductsModel{
-			ID:            types.StringValue(storageProduct.Id),
 			Name:          types.StringValue(storageProduct.Name),
 			Description:   types.StringValue(storageProduct.Description),
 			LatestVersion: types.StringValue(storageProduct.LatestVersion),

@@ -29,6 +29,10 @@ import (
 
 // GetVolumesCollection returns a list of all Volumes
 func GetVolumesCollection(client *client.APIClient, filter string) (*client.VolumesCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.VolumesAPI.VolumesCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.VolumesAPI.VolumesCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 

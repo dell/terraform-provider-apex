@@ -29,6 +29,10 @@ import (
 
 // GetSourcePoolsCollection returns a list of all Source Pools
 func GetSourcePoolsCollection(client *client.APIClient, filter string) (*client.PoolsCollection200Response, *http.Response, error) {
+	// Check for empty filter
+	if filter == "" {
+		return client.PoolsAPI.PoolsCollection(context.Background()).Limit(500).Execute()
+	}
 	return client.PoolsAPI.PoolsCollection(context.Background()).Filter(filter).Limit(500).Execute()
 }
 
