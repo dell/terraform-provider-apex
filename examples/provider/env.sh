@@ -1,0 +1,6 @@
+export APEX_SAML_TOKEN_SCRIPT_DIR="/my/path"
+export APEX_SAML_TOKEN_SCRIPT_NAME="saml_get_token.py"
+export APEX_SAML_TOKEN_OUTPUT_FILE_NAME="/tmp/samlPipe"
+export APEX_DI_TOKEN_URL="https://example.com/oauth/token"
+export APEX_TOKEN_ACCESS_KEY="aaa-bbb-ccc-ddd-eee"
+export APEX_TOKEN_SECRET="random"

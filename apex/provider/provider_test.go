@@ -27,8 +27,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const ()
-
 var ProviderConfig = ""
 
 // Used for Mocking responses from functions

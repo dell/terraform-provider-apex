@@ -34,6 +34,7 @@ provider "apex" {
   host         = var.HOST
   token        = var.JWT_TOKEN
   jms_endpoint = var.JMS_ENDPOINT
+  insecure     = true
 }
 
 variable "JWT_TOKEN" {
@@ -58,5 +59,6 @@ variable "JMS_ENDPOINT" {
 ### Optional
 
 - `host` (String)
+- `insecure` (Boolean) Boolean variable to specify whether to validate SSL certificate or not.
 - `jms_endpoint` (String)
 - `token` (String, Sensitive)
