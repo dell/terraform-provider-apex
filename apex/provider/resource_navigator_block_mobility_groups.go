@@ -172,7 +172,7 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",
@@ -277,7 +277,7 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",
@@ -359,7 +359,7 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",

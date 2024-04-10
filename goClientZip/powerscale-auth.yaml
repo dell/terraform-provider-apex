@@ -1,0 +1,71 @@
+openapi: 3.0.3
+info:
+  title: auth
+  version: '1.0'
+paths:
+  /session/1/session:
+    post:
+      summary: login
+      tags: []
+      responses:
+        '200':
+          description: Login was Successful
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.yaml'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.yaml'
+      operationId: post-rest-auth-login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login-credentials.yaml'
+            examples:
+              example-1:
+                value:
+                  username: string
+                  password: string
+                  services: array
+                  timeout_absolute: int64
+                  timeout_inactive: int64
+components:
+  schemas:
+    login-credentials.yaml:
+      title: LoginCredentials
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        timeout_absolute:
+          type: int64
+        timeout_inactive:
+          type: int64
+      required:
+        - username
+        - password
+        - services
+        - timeout_absolute
+        - timeout_inactive
+    error.yaml:
+      title: Error
+      type: object
+      properties:
+        code:
+          type: int64
+        message:
+          type: string
+  responses: {}

@@ -229,7 +229,7 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",
@@ -370,7 +370,7 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",
@@ -456,7 +456,7 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",

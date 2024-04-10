@@ -3921,6 +3921,7 @@ components:
       example: POWERFLEX
       enum:
         - POWERFLEX
+        - POWERSCALE
       title: StorageProductEnum
     StorageProductsInstance:
       description: Model for storage product information and its supported cloud mapping along with supported versions
