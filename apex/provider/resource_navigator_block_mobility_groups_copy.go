@@ -150,7 +150,7 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, mobilityGroup.SystemId, *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, mobilityGroup.SystemId, *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",
@@ -160,7 +160,7 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Activate Powerflex
-	act2Err := helper.ActivateSystemPowerflexSystem(ctx, r.client, mobilityTarget.SystemId, *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
+	act2Err := helper.ActivateSystemClientSystem(ctx, r.client, mobilityTarget.SystemId, *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if act2Err != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",

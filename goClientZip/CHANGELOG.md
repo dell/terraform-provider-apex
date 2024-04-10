@@ -23,6 +23,7 @@ apex-jobs-client-openapi-1.0.0 : .\model_response_content.go line 26 Changed typ
 ## Apex Client
 
 Remove - refresh_timestamp clonesModel as a required paramter from the clones model (since APEX does not return in every object and this can make the datasource fail). 
+Add - POWERSCALE to the StorageProductEnum (This is temperary until we have the new client which includes the PowerScale APIs)
 
 ## PowerFlex Client
  

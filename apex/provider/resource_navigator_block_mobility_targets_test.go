@@ -86,7 +86,7 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ActivateSystemClientSystem).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
 				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
@@ -153,7 +153,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ActivateSystemPowerflexSystem).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ActivateSystemClientSystem).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),

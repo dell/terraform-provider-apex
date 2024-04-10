@@ -6,6 +6,7 @@ require (
 	dell/apex-client v0.0.0
 	dell/apex-job-client v0.0.0
 	dell/powerflex-client v0.0.0
+	dell/powerscale-client v0.0.0
 	github.com/bytedance/mockey v1.2.10
 	github.com/hashicorp/terraform-plugin-docs v0.18.0
 	github.com/hashicorp/terraform-plugin-framework v1.5.0
@@ -105,3 +106,5 @@ replace dell/apex-client => ./apexclient
 replace dell/apex-job-client => ./jobsclient
 
 replace dell/powerflex-client => ./powerflexclient
+
+replace dell/powerscale-client => ./powerscaleclient

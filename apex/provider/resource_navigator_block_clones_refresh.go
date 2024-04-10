@@ -123,7 +123,7 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Activate Powerflex
-	actErr := helper.ActivateSystemPowerflexSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
 			"Error activating Powerflex System",
