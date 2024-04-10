@@ -15,6 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Resource to manage lifecycle for apex_navigator_block_clones_map
+resource "terraform_data" "always_run_mobility_clones_map" {
+  input = timestamp()
+}
+
 resource "apex_navigator_block_clones_map" "example" {
   # Clone Id you want to map hosts to
   clone_id = "POWERFLEX-ABCD1234567890__DATAMOBILITYGROUP__12345678-1234-1234-1234-123456789012"
@@ -28,6 +33,13 @@ resource "apex_navigator_block_clones_map" "example" {
   powerflex {
     username = "example-username"
     password = "example-pass"
+  }
+
+  // This will allow terraform create process to trigger each time we run terraform apply.
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.always_run_mobility_clones_map
+    ]
   }
 }
 
