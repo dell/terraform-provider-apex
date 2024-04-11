@@ -66,6 +66,8 @@ var sourcePoolsID1 = setDefault(os.Getenv("SOURCE_POOL_ID1"), "Pool_ID1")
 var sourcePoolsID2 = setDefault(os.Getenv("SOURCE_POOL_ID2"), "Pool_ID2")
 var volumeID1 = setDefault(os.Getenv("VOLUME_ID1"), "volume_id1")
 var volumeID2 = setDefault(os.Getenv("VOLUME_ID2"), "volume_id2")
+var awsAccountID1 = setDefault(os.Getenv("AWS_ACCOUNT_ID1"), "aws_account_id1")
+var awsAccountID2 = setDefault(os.Getenv("AWS_ACCOUNT_ID2"), "aws_account_id2")
 var storageProduct1 = setDefault(os.Getenv("STORAGE_PRODUCT_1"), "POWERFLEX")
 
 var (

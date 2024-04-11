@@ -118,3 +118,14 @@ output "SOURCE_POOL_ID1" {
 output "SOURCE_POOL_ID2" {
   value = data.apex_navigator_block_pools.example.pools[1].id
 }
+
+// AWS Account
+data "apex_navigator_aws_accounts" "example" {}
+
+output "AWS_ACCOUNT_ID1" {
+  value = data.apex_navigator_aws_accounts.example.account[0].id
+}
+
+output "AWS_ACCOUNT_ID2" {
+  value = data.apex_navigator_aws_accounts.example.account[1].id
+}
