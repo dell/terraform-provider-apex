@@ -26,3 +26,13 @@ type ActivationClientModel struct {
 	Password types.String `tfsdk:"password"`
 	Scheme   types.String `tfsdk:"scheme"`
 }
+
+// ActivationAsyncClientModel defines the attribute names and types for a PowerFlex Client TF model
+type ActivationAsyncClientModel struct {
+	Host         types.String `tfsdk:"host"`
+	Insecure     types.Bool   `tfsdk:"insecure"`
+	Username     types.String `tfsdk:"username"`
+	Password     types.String `tfsdk:"password"`
+	Scheme       types.String `tfsdk:"scheme"`
+	PollInterval types.Int64  `tfsdk:"poll_interval"`
+}

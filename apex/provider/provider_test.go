@@ -82,7 +82,7 @@ func init() {
 	}
 
 	host := os.Getenv("APEX_HOST")
-	token := setDefault(os.Getenv("APEX_TOKEN"), "test_token")
+	token := setDefault(os.Getenv("APEX_TOKEN"), "123456789101112131415161718192021222324252627282930")
 
 	ProviderConfig = fmt.Sprintf(` 
 		provider "apex" {

@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -88,10 +89,10 @@ func (r *mobilityGroupsCopyResource) Schema(_ context.Context, _ resource.Schema
 		},
 		Blocks: map[string]schema.Block{
 			"powerflex_source": schema.SingleNestedBlock{
-				Attributes: PowerflexInfo.Attributes,
+				Attributes: PowerflexAsyncInfo.Attributes,
 			},
 			"powerflex_target": schema.SingleNestedBlock{
-				Attributes: PowerflexInfo.Attributes,
+				Attributes: PowerflexAsyncInfo.Attributes,
 			},
 		},
 	}
@@ -109,8 +110,6 @@ func (r *mobilityGroupsCopyResource) Configure(_ context.Context, req resource.C
 			"Unexpected Resource Configure Type",
 			fmt.Sprintf("Expected *provider.Clients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
-
-		return
 	}
 
 	r.client = clients.APIClient
@@ -149,24 +148,42 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	// Activate Powerflex
-	actErr := helper.ActivateSystemClientSystem(ctx, r.client, mobilityGroup.SystemId, *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
-	if actErr != nil {
-		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
-		)
-		return
-	}
+	// Activate Powerflex Source and check every so often while the copy is in progress
+	stopSource := make(chan bool)
+	actErrSource := make(chan error)
+	go helper.AsyncCheckActivation(ctx, stopSource, actErrSource, r.client, mobilityGroup.SystemId, *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 
-	// Activate Powerflex
-	act2Err := helper.ActivateSystemClientSystem(ctx, r.client, mobilityTarget.SystemId, *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
-	if act2Err != nil {
-		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+act2Err.Error(),
-		)
-		return
+	// Activate Powerflex Target and check every so often while the copy is in progress
+	stopTarget := make(chan bool)
+	actErrTarget := make(chan error)
+	go helper.AsyncCheckActivation(ctx, stopTarget, actErrTarget, r.client, mobilityTarget.SystemId, *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
+
+	// Check for Activation Error in a non blocking way
+	select {
+	case chanErrSource, ok := <-actErrSource:
+		if ok {
+			resp.Diagnostics.AddError(
+				"Error activating Powerflex System",
+				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityGroup.SystemId, chanErrSource.Error()),
+			)
+			// Closing channel for activation routine
+			close(stopSource)
+			close(stopTarget)
+			return
+		}
+	case chanErrTarget, ok := <-actErrTarget:
+		if ok {
+			resp.Diagnostics.AddError(
+				"Error activating Powerflex System",
+				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityTarget.SystemId, chanErrTarget.Error()),
+			)
+			// Closing channel for activation routine
+			close(stopSource)
+			close(stopTarget)
+			return
+		}
+	default:
+		// do nothing since the proccess is still running without error
 	}
 
 	// Create Mobility Groups POST request
@@ -179,22 +196,54 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 
 	// Executing copy request request
 	job, status, err := helper.CopyMobilityGroups(createReq, startCopyInput)
+
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
 			"Error creating Mobility Group Copy",
 			"Could not create Mobility Group Copy, unexpected error: "+newErr,
 		)
+		close(stopSource)
+		close(stopTarget)
 		return
 	}
-
 	// Waiting for job to complete
 	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
+		// Check for Activation Error in a non blocking way
+		select {
+		case chanErrSource, ok := <-actErrSource:
+			if ok {
+				resp.Diagnostics.AddError(
+					"Error activating Powerflex System",
+					fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityGroup.SystemId, chanErrSource.Error()),
+				)
+				// Closing channel for activation routine
+				close(stopSource)
+				close(stopTarget)
+				return
+			}
+		case chanErrTarget, ok := <-actErrTarget:
+			if ok {
+				resp.Diagnostics.AddError(
+					"Error activating Powerflex System",
+					fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityTarget.SystemId, chanErrTarget.Error()),
+				)
+				// Closing channel for activation routine
+				close(stopSource)
+				close(stopTarget)
+				return
+			}
+		default:
+			// do nothing since the proccess is still running without error
+		}
+
 		resp.Diagnostics.AddError(
 			"Error getting resourceID",
 			helper.ResourceRetrieveError+err.Error(),
 		)
+		close(stopSource)
+		close(stopTarget)
 		return
 	}
 
@@ -205,8 +254,43 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 			"Error getting job",
 			helper.JobRetrieveError+err.Error(),
 		)
+		close(stopSource)
+		close(stopTarget)
 		return
 	}
+
+	// Check for Activation Error in a non blocking way
+	select {
+	case chanErrSource, ok := <-actErrSource:
+		if ok {
+			resp.Diagnostics.AddError(
+				"Error activating Powerflex System",
+				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityGroup.SystemId, chanErrSource.Error()),
+			)
+			// Closing channel for activation routine
+			close(stopSource)
+			close(stopTarget)
+			return
+		}
+	case chanErrTarget, ok := <-actErrTarget:
+		if ok {
+			resp.Diagnostics.AddError(
+				"Error activating Powerflex System",
+				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityTarget.SystemId, chanErrTarget.Error()),
+			)
+			// Closing channel for activation routine
+			close(stopSource)
+			close(stopTarget)
+			return
+		}
+	default:
+		// do nothing since the proccess is still running without error
+	}
+
+	tflog.Debug(ctx, "Closing Activation Channels")
+	// Closing channel for activation routine
+	close(stopSource)
+	close(stopTarget)
 
 	// Updating TFState with Mobility group copy info
 	result := models.MobilityGroupCopyModel{
@@ -216,8 +300,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		Status:           types.StringValue(string(*jobStatus.State)),
 	}
 
-	result.PowerFlexClientSource = helper.SetPowerflexClientState(*plan.PowerFlexClientSource)
-	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*plan.PowerFlexClientTarget)
+	result.PowerFlexClientSource = helper.SetPowerflexAysncClientState(*plan.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexAysncClientState(*plan.PowerFlexClientTarget)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
@@ -243,8 +327,8 @@ func (r *mobilityGroupsCopyResource) Read(ctx context.Context, req resource.Read
 		Status:           state.Status,
 	}
 
-	result.PowerFlexClientSource = helper.SetPowerflexClientState(*state.PowerFlexClientSource)
-	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*state.PowerFlexClientTarget)
+	result.PowerFlexClientSource = helper.SetPowerflexAysncClientState(*state.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexAysncClientState(*state.PowerFlexClientTarget)
 
 	// Set refresded state
 	diags = resp.State.Set(ctx, &result)
