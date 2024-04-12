@@ -18,15 +18,8 @@ package provider
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"net/url"
 	"os"
-	"strings"
-	"time"
-
-	client "dell/apex-client"
-	jmsClient "dell/apex-job-client"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -55,6 +48,7 @@ type myProviderModel struct {
 	Host        types.String `tfsdk:"host"`
 	Token       types.String `tfsdk:"token"`
 	JMSEndpoint types.String `tfsdk:"jms_endpoint"`
+	Insecure    types.Bool   `tfsdk:"insecure"`
 }
 
 // myProvider is the provider implementation.
@@ -63,12 +57,6 @@ type myProvider struct {
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
-}
-
-// Clients is the implementation for the API client and JMS client.
-type Clients struct {
-	APIClient *client.APIClient
-	JMSClient *jmsClient.APIClient
 }
 
 // Metadata returns the provider type name.
@@ -90,6 +78,11 @@ func (p *myProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *p
 			},
 			"jms_endpoint": schema.StringAttribute{
 				Optional: true,
+			},
+			"insecure": schema.BoolAttribute{
+				MarkdownDescription: "Boolean variable to specify whether to validate SSL certificate or not.",
+				Description:         "Boolean variable to specify whether to validate SSL certificate or not.",
+				Optional:            true,
 			},
 		},
 	}
@@ -178,82 +171,20 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	//TODO: Change the token back to config.Token.ValueString() when the refresh token is implemented, change back the .tf config files also
-	cfg := &client.Configuration{
-		Host:   hostURL.Host,
-		Scheme: hostURL.Scheme,
-		HTTPClient: &http.Client{
-			Transport: &customTransport{
-				originalTransport: http.DefaultTransport,
-				token:             token,
-			},
-			Timeout: time.Second * 10000000,
-		},
-		Servers: client.ServerConfigurations{
-			{
-				URL:         hostURL.Path,
-				Description: "No description provided",
-			},
-		},
+	// Create the API and JMS client
+	apiClients, err := NewApexJmsClient(ctx, *hostURL, *jmsURL, token, config.Insecure.ValueBool())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Could not create client",
+			"Could not create client: "+err.Error(),
+		)
+		return
 	}
-
-	apiClient := client.NewAPIClient(cfg)
-
-	jobCfg := &jmsClient.Configuration{
-		Host:   jmsURL.Host,
-		Scheme: jmsURL.Scheme,
-		HTTPClient: &http.Client{
-			Transport: &customTransport{
-				originalTransport: http.DefaultTransport,
-				token:             token,
-			},
-		},
-		Servers: jmsClient.ServerConfigurations{
-			{
-				URL:         jmsURL.Path,
-				Description: "No description provided",
-			},
-		},
-	}
-
-	jobsClient := jmsClient.NewAPIClient(jobCfg)
 
 	// Make the cirrus client available during DataSource and Resource
 	// Make the Apex Navigator client available during DataSource and Resource
-	// type Configure methods.
-	resp.DataSourceData = apiClient
-	resp.ResourceData = Clients{APIClient: apiClient, JMSClient: jobsClient}
-
-	// Start a goroutine to update the token periodically
-	if !strings.Contains(host, "localhost") {
-		go func() {
-			for {
-
-				// Update the token field of the customTransport struct with the updated value
-				cfg.HTTPClient.Transport.(*customTransport).token = token
-				jobCfg.HTTPClient.Transport.(*customTransport).token = token
-
-				// Sleep for a certain duration before the next update
-				time.Sleep(10 * time.Second)
-			}
-		}()
-	}
-}
-
-type customTransport struct {
-	originalTransport http.RoundTripper
-	token             string
-}
-
-func (c *customTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token))
-
-	resp, err := c.originalTransport.RoundTrip(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	resp.DataSourceData = apiClients.APIClient
+	resp.ResourceData = apiClients
 }
 
 // DataSources defines the data sources implemented in the provider.
