@@ -42,6 +42,7 @@ Optional:
 
 - `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
 - `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `poll_interval` (Number) Poll interval for long-running operations in seconds. This will check if the powerflex is activated every interval. Defaults if unset to 30
 - `scheme` (String) Scheme of the powerflex, defaults if unset to https
 
 
@@ -57,4 +58,5 @@ Optional:
 
 - `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
 - `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `poll_interval` (Number) Poll interval for long-running operations in seconds. This will check if the powerflex is activated every interval. Defaults if unset to 30
 - `scheme` (String) Scheme of the powerflex, defaults if unset to https

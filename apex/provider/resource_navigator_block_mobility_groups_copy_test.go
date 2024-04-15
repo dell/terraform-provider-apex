@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceMobilityGroupsCopy(t *testing.T) {
+func TestAccResourceMobilityGroupsCopyR(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -110,12 +110,14 @@ resource "apex_navigator_block_mobility_groups_copy" "example" {
 		password = "` + powerflexPass + `"
 		scheme   = "` + powerflexScheme + `" 
 		insecure = "true"
+		poll_interval = "0"
 	}
 	powerflex_target {
 		username = "` + powerflexTargetUser + `"
 		password = "` + powerflexTargetPass + `"
 		scheme   = "` + powerflexScheme + `" 
 		insecure = "true"
+		poll_interval = "0"
 	}
   }
 

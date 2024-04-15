@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/antihax/optional"
 	"github.com/dell/terraform-provider-apex/apex/client"
@@ -34,6 +35,37 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
+
+// AsyncCheckActivation checks to see if the current platform (ie.powerflex or powerscale) is activated, if not it will activate it in a go routine.
+func AsyncCheckActivation(ctx context.Context, stop chan bool, err chan error, clientAPI *apexClient.APIClient, systemID string, activateSystemClientSystem models.ActivationAsyncClientModel, storageType apexClient.StorageProductEnum) {
+	tflog.Info(ctx, fmt.Sprintf("Aysnc check activation: %d", stop))
+	for {
+		select {
+		// If stop is sent end loop
+		case <-stop:
+			err <- nil
+			return
+		// Keep checking activation ever 30 seconds
+		default:
+			clientSystem := models.ActivationClientModel{
+				Host:     types.StringValue(activateSystemClientSystem.Host.ValueString()),
+				Username: types.StringValue(activateSystemClientSystem.Username.ValueString()),
+				Password: types.StringValue(activateSystemClientSystem.Password.ValueString()),
+				Scheme:   types.StringValue(activateSystemClientSystem.Scheme.ValueString()),
+				Insecure: types.BoolValue(activateSystemClientSystem.Insecure.ValueBool()),
+			}
+			activeErr := ActivateSystemClientSystem(ctx, clientAPI, systemID, clientSystem, storageType)
+			time.Sleep(time.Duration(activateSystemClientSystem.PollInterval.ValueInt64()) * time.Second)
+			if activeErr != nil {
+				tflog.Debug(ctx, fmt.Sprintf("Aysnc check activation error!!!: %d", err))
+				// return error stop routine
+				err <- activeErr
+				return
+			}
+
+		}
+	}
+}
 
 // ActivateSystemClientSystem checks to see if the current platform (ie.powerflex or powerscale) is activated, if not it will activate it.
 func ActivateSystemClientSystem(ctx context.Context, clientAPI *apexClient.APIClient, systemID string, activateSystemClientSystem models.ActivationClientModel, storageType apexClient.StorageProductEnum) error {
@@ -81,8 +113,9 @@ func ActivateSystemClientSystem(ctx context.Context, clientAPI *apexClient.APICl
 			return err
 		}
 
-		// If token is no longer valid, attempt to activate a new one
-		if !active.IsTokenValid {
+		// If token is no longer valid, or will expire in less the 5 minutes attempt to activate a new one
+		fiveMinutesAgo := time.Now().Add(-5 * time.Minute)
+		if !active.IsTokenValid || active.ExpirationTimestamp.Compare(fiveMinutesAgo) < 0 {
 			token, clientTokenError := getClientActivationToken(ctx, activateSystemClientSystem, apexClient.StorageProductEnum(active.SystemType))
 			if clientTokenError != nil {
 				tflog.Debug(ctx, "Error getting new activation token "+clientTokenError.Error())
@@ -242,6 +275,19 @@ func SetPowerflexClientState(source models.ActivationClientModel) *models.Activa
 		Username: handleNullState(source.Username),
 		Password: handleNullState(source.Password),
 		Scheme:   handleNullState(source.Scheme),
+	}
+	return target
+}
+
+// SetPowerflexAysncClientState sets the powerflex client state
+func SetPowerflexAysncClientState(source models.ActivationAsyncClientModel) *models.ActivationAsyncClientModel {
+	target := &models.ActivationAsyncClientModel{
+		Host:         handleNullState(source.Host),
+		Insecure:     source.Insecure,
+		Username:     handleNullState(source.Username),
+		Password:     handleNullState(source.Password),
+		Scheme:       handleNullState(source.Scheme),
+		PollInterval: types.Int64Value(source.PollInterval.ValueInt64()),
 	}
 	return target
 }

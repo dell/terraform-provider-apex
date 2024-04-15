@@ -184,7 +184,7 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	// Make the cirrus client available during DataSource and Resource
 	// Make the Apex Navigator client available during DataSource and Resource
 	resp.DataSourceData = apiClients.APIClient
-	resp.ResourceData = apiClients
+	resp.ResourceData = Clients{APIClient: apiClients.APIClient, JMSClient: apiClients.JMSClient}
 }
 
 // DataSources defines the data sources implemented in the provider.
