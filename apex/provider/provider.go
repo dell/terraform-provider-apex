@@ -199,6 +199,7 @@ func (p *myProvider) DataSources(_ context.Context) []func() datasource.DataSour
 		NewMobilityGroupsDataSource,
 		NewMobilityTargetsDataSource,
 		NewAwsAccountsDataSource,
+		NewAwsPermissionsDataSource,
 	}
 }
 
