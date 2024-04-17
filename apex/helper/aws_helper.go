@@ -59,3 +59,65 @@ func MapAwsAccount(account client.RedactedAwsAccountInstance) models.AwsAccountM
 		Status: types.StringPointerValue(account.Status),
 	}
 }
+
+// GetAwsPermssionCollection gets list of block storage instances
+func GetAwsPermssionCollection(clientAPI *client.APIClient, filter []basetypes.StringValue) (*client.AwsPermissionPoliciesCollection200Response, *http.Response, error) {
+	permissions, http, err := clientAPI.AwsPermissionPoliciesAPI.AwsPermissionPoliciesCollection(context.Background()).Execute()
+	// If there is an error or the filter is empty just return the full collection and response error
+	if err != nil || len(filter) == 0 {
+		return permissions, http, err
+	}
+
+	// Otherwise filter the collection (this API does not have the filter query param so we need to do it manually)
+	response := client.AwsPermissionPoliciesCollection200Response{
+		Results: make([]client.AwsPermissionPoliciesInstance, 0),
+	}
+	for _, value := range filter {
+		for _, permission := range permissions.Results {
+			if *permission.Id == *value.ValueStringPointer() {
+				response.Results = append(response.Results, permission)
+			}
+		}
+	}
+	return &response, http, nil
+}
+
+// MapAwsPermission maps the AWS permission policy
+func MapAwsPermission(permission client.AwsPermissionPoliciesInstance) models.AwsPermissionsModel {
+	return models.AwsPermissionsModel{
+		ID:      types.StringPointerValue(permission.Id),
+		Version: types.StringPointerValue(permission.Version),
+		PermissionsPolicy: models.PermissionsPolicy{
+			Version:   types.StringPointerValue(permission.PermissionPolicy.Version),
+			Statement: mapStatements(permission.PermissionPolicy.Statement),
+		},
+	}
+}
+
+// mapStatements maps the AWS permssions statements
+func mapStatements(statements []client.AwsPermissionPoliciesInstancePermissionPolicyStatementInner) []models.Statement {
+	response := make([]models.Statement, 0)
+	for _, state := range statements {
+		actions := make([]types.String, 0)
+		iams := make([]types.String, 0)
+
+		for _, action := range state.Action {
+			actions = append(actions, types.StringValue(action))
+		}
+
+		if state.Condition != nil && state.Condition.StringLike != nil && state.Condition.StringLike.IamAWSServiceName != nil {
+			for _, iam := range state.Condition.StringLike.IamAWSServiceName {
+				iams = append(iams, types.StringValue(iam))
+			}
+		}
+
+		response = append(response, models.Statement{
+			Sid:               types.StringPointerValue(state.Sid),
+			Effect:            types.StringPointerValue(state.Effect),
+			Action:            actions,
+			Resource:          types.StringPointerValue(state.Resource),
+			IamAwsServiceName: iams,
+		})
+	}
+	return response
+}

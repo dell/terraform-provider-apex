@@ -68,6 +68,7 @@ var volumeID1 = setDefault(os.Getenv("VOLUME_ID1"), "volume_id1")
 var volumeID2 = setDefault(os.Getenv("VOLUME_ID2"), "volume_id2")
 var awsAccountID1 = setDefault(os.Getenv("AWS_ACCOUNT_ID1"), "aws_account_id1")
 var awsAccountID2 = setDefault(os.Getenv("AWS_ACCOUNT_ID2"), "aws_account_id2")
+var awsPermissionID1 = setDefault(os.Getenv("AWS_PERMISSION_ID1"), "APEX_NAVIGATOR")
 var storageProduct1 = setDefault(os.Getenv("STORAGE_PRODUCT_1"), "POWERFLEX")
 
 var (
