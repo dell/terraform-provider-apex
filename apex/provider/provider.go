@@ -214,5 +214,6 @@ func (p *myProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewClonesMapResource,
 		NewClonesUnmapResource,
 		NewClonesRefreshResource,
+		NewAwsAccountResource,
 	}
 }
