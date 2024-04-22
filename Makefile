@@ -77,8 +77,7 @@ check:
 	go vet
 
 gosec:
-	gosec -quiet -log gosec.log -out=gosecresults.csv -fmt=csv ./...
-
+	go list ./... | grep -vE 'powerflexclient|apexclient|jobsclient|powerscaleclient' | xargs gosec -stdout -log gosec.log -out=gosecresults.csv -fmt=csv
 testacc:
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m   
 

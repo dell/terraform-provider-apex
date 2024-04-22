@@ -86,13 +86,15 @@ func init() {
 
 	host := os.Getenv("APEX_HOST")
 	token := setDefault(os.Getenv("APEX_TOKEN"), "123456789101112131415161718192021222324252627282930")
+	jmsClient := os.Getenv("APEX_JMS_CLIENT")
 
 	ProviderConfig = fmt.Sprintf(` 
 		provider "apex" {
 			host      = "%s"
 			token     = "%s"
+			jms_endpoint = "%s"
 		}
-	`, host, token)
+	`, host, token, jmsClient)
 }
 
 func testAccPreCheck(t *testing.T) {
