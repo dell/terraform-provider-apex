@@ -227,7 +227,9 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	mobilityTargetsInput := *client.NewCreateTargetInput(plan.SourceMobilityGroupID.ValueString(), plan.Name.ValueString(), plan.SystemID.ValueString(), *plan.SystemType.Ptr(), targetSystemOptions)
-
+	mobilityTargetsInput.Description = plan.Description.ValueStringPointer()
+	limit := int32(plan.BandwidthLimit.ValueInt64())
+	mobilityTargetsInput.BandwidthLimit = &limit
 	// Executing job request
 	job, status, err := helper.CreateMobilityTarget(createReq, mobilityTargetsInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
