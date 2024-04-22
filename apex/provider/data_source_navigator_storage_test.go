@@ -27,35 +27,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccDataSourceBlockStorage(t *testing.T) {
+func TestAccDataSourceStorage(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: ProviderConfig + configBlockStorage + blockStorageOutputs,
+				Config: ProviderConfig + configStorage + storageOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
 					resource.TestCheckOutput("fetched_single", "false"),
 				),
 			},
-			// Error getting block storage
+			// Error getting storage
 			{
 				PreConfig: func() {
-					FunctionMocker = Mock(helper.GetBlockStorageCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetStorageCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + configBlockStorage,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Block Storage*.`),
+				Config:      ProviderConfig + configStorage,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
-			// Filter testing single block storage
+			// Filter testing single storage
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfig + configFilteredBlockSingleStorage + blockStorageOutputs,
+				Config: ProviderConfig + configFilteredSingleStorage + storageOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "false"),
@@ -63,9 +63,9 @@ func TestAccDataSourceBlockStorage(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "false"),
 				),
 			},
-			// Filter testing multiple block storage
+			// Filter testing multiple storage
 			{
-				Config: ProviderConfig + configFilteredBlockMultipleStorage + blockStorageOutputs,
+				Config: ProviderConfig + configFilteredMultipleStorage + storageOutputs,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("fetched_any", "true"),
 					resource.TestCheckOutput("fetched_many", "true"),
@@ -73,7 +73,16 @@ func TestAccDataSourceBlockStorage(t *testing.T) {
 					resource.TestCheckOutput("fetched_two", "true"),
 				),
 			},
-			// Error getting block storage
+			// Filter by system type
+			{
+				Config: ProviderConfig + configFilteredSystemType + storageOutputs,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckOutput("fetched_any", "true"),
+					resource.TestCheckOutput("fetched_many", "true"),
+					resource.TestCheckOutput("fetched_single", "false"),
+				),
+			},
+			// Error getting storage
 			{
 				Config:      ProviderConfig + configFilteredInvalidStorage,
 				ExpectError: regexp.MustCompile(`.*one more more of the ids set in the filter is invalid*.`),
@@ -82,42 +91,49 @@ func TestAccDataSourceBlockStorage(t *testing.T) {
 	})
 }
 
-var configBlockStorage = `data "apex_navigator_block_storages" "test" {}`
+var configStorage = `data "apex_navigator_storages" "test" {}`
 
-var blockStorageOutputs = `
+var storageOutputs = `
 output "fetched_many" {
-	value = length(data.apex_navigator_block_storages.test.block_storages) > 1
+	value = length(data.apex_navigator_storages.test.storages) > 1
 }
   
 output "fetched_any" {
-	value = length(data.apex_navigator_block_storages.test.block_storages) != 0
+	value = length(data.apex_navigator_storages.test.storages) != 0
 }
 
 output "fetched_single" {
-	value = length(data.apex_navigator_block_storages.test.block_storages) == 1
+	value = length(data.apex_navigator_storages.test.storages) == 1
 }
 
 output "fetched_two" {
-	value = length(data.apex_navigator_block_storages.test.block_storages) == 2
+	value = length(data.apex_navigator_storages.test.storages) == 2
 }
 `
 
-var configFilteredBlockSingleStorage = `
-data "apex_navigator_block_storages" "test" {
+var configFilteredSystemType = `
+data "apex_navigator_storages" "test" {
+	   filter {
+			system_type = "POWERFLEX" 
+	   }
+}`
+
+var configFilteredSingleStorage = `
+data "apex_navigator_storages" "test" {
 	   filter {
 	     ids = ["` + blockStorageID1 + `"] 
 	   }
 }`
 
-var configFilteredBlockMultipleStorage = `
-data "apex_navigator_block_storages" "test" {
+var configFilteredMultipleStorage = `
+data "apex_navigator_storages" "test" {
 	   filter {
 	     ids = ["` + blockStorageID1 + `", "` + blockStorageID2 + `"] 
 	   }
 }`
 
 var configFilteredInvalidStorage = `
-data "apex_navigator_block_storages" "test" {
+data "apex_navigator_storages" "test" {
 	   filter {
 	     ids = ["invalid-id"] 
 	   }

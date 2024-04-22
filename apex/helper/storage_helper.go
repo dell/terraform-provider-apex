@@ -30,8 +30,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-// GetBlockStorageCollection gets list of block storage instances
-func GetBlockStorageCollection(client *client.APIClient, filter string) (*client.StorageSystemsCollection200Response, *http.Response, error) {
+// GetStorageCollection gets list of storage instances
+func GetStorageCollection(client *client.APIClient, filter string) (*client.StorageSystemsCollection200Response, *http.Response, error) {
 	// Check for empty filter
 	if filter == "" {
 		return client.StorageSystemsAPI.StorageSystemsCollection(context.Background()).Limit(500).Execute()
@@ -39,8 +39,8 @@ func GetBlockStorageCollection(client *client.APIClient, filter string) (*client
 	return client.StorageSystemsAPI.StorageSystemsCollection(context.Background()).Limit(500).Filter(filter).Execute()
 }
 
-// GetBlockStorageInstance gets block storage instance
-func GetBlockStorageInstance(client *client.APIClient, id string) (*client.StorageSystemsInstance, *http.Response, error) {
+// GetStorageInstance gets storage instance
+func GetStorageInstance(client *client.APIClient, id string) (*client.StorageSystemsInstance, *http.Response, error) {
 	return client.StorageSystemsAPI.StorageSystemsInstance(context.Background(), id).Execute()
 }
 
@@ -50,7 +50,7 @@ func CreateBlockStorage(client client.ApiStorageSystemsCreateRequest, systemCrea
 }
 
 // SetCloudConfigSubnetAndVpc sets cloud config from plan
-func SetCloudConfigSubnetAndVpc(plan models.BlockStorageModel, result models.BlockStorageModel) {
+func SetCloudConfigSubnetAndVpc(plan models.StorageModel, result models.StorageModel) {
 	result.DeploymentDetails.SystemPublicCloud.SSHKeyName = plan.DeploymentDetails.SystemPublicCloud.SSHKeyName
 	result.DeploymentDetails.SystemPublicCloud.Vpc = plan.DeploymentDetails.SystemPublicCloud.Vpc
 	result.DeploymentDetails.SystemPublicCloud.MinimumCapacity = basetypes.NewInt64Value(result.DeploymentDetails.SystemPublicCloud.MinimumCapacity.ValueInt64() / (int64)(math.Pow(1024, 4)))
@@ -65,9 +65,9 @@ func SetCloudConfigSubnetAndVpc(plan models.BlockStorageModel, result models.Blo
 	}
 }
 
-// GetBlockStorageSystem returns a storage systems model based on the given storage system instance
-func GetBlockStorageSystem(storageSystem client.StorageSystemsInstance) (blockStorageState models.BlockStorageModel) {
-	blockStorageState = models.BlockStorageModel{
+// GetStorageSystem returns a storage systems model based on the given storage system instance
+func GetStorageSystem(storageSystem client.StorageSystemsInstance) (storageState models.StorageModel) {
+	storageState = models.StorageModel{
 		ID:                              types.StringValue(storageSystem.Id),
 		SystemID:                        types.StringPointerValue(storageSystem.SystemId),
 		SystemType:                      types.StringPointerValue(storageSystem.SystemType),
@@ -121,7 +121,7 @@ func GetBlockStorageSystem(storageSystem client.StorageSystemsInstance) (blockSt
 	switch {
 	case storageSystem.DeploymentDetails == nil:
 	case storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails != nil:
-		blockStorageState.DeploymentDetails = &models.DeploymentDetailsModel{
+		storageState.DeploymentDetails = &models.DeploymentDetailsModel{
 			SystemOnPrem: &models.SystemOnPremDeploymentDetailsModel{
 				DeploymentType: (storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.DeploymentType),
 				SiteName:       types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.SiteName),
@@ -135,7 +135,7 @@ func GetBlockStorageSystem(storageSystem client.StorageSystemsInstance) (blockSt
 			},
 		}
 	case storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil:
-		blockStorageState.DeploymentDetails = &models.DeploymentDetailsModel{
+		storageState.DeploymentDetails = &models.DeploymentDetailsModel{
 			SystemPublicCloud: &models.SystemPublicCloudDeploymentDetailsModel{
 				DeploymentType:         (storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.DeploymentType),
 				CloudAccount:           types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudAccount),
@@ -149,15 +149,15 @@ func GetBlockStorageSystem(storageSystem client.StorageSystemsInstance) (blockSt
 		}
 
 		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType != nil {
-			blockStorageState.DeploymentDetails.SystemPublicCloud.CloudType = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType
+			storageState.DeploymentDetails.SystemPublicCloud.CloudType = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType
 		}
 		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology != nil {
-			blockStorageState.DeploymentDetails.SystemPublicCloud.AvailabilityZoneTopology = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology
+			storageState.DeploymentDetails.SystemPublicCloud.AvailabilityZoneTopology = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology
 		}
 
 	default:
 		fmt.Printf("Unexpected system type")
 	}
 
-	return blockStorageState
+	return storageState
 }

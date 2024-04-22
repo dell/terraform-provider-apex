@@ -65,14 +65,14 @@ output "CLONE_ID2" {
 }
 
 // Block Storage
-data "apex_navigator_block_storages" "example" {}
+data "apex_navigator_storages" "example" {}
 
 output "BLOCK_STORAGE_ID_1" {
-  value = data.apex_navigator_block_storages.example.block_storages[0].id 
+  value = data.apex_navigator_storages.example.block_storages[0].id 
 }
 
 output "BLOCK_STORAGE_ID_2" {
-  value = data.apex_navigator_block_storages.example.block_storages[1].id
+  value = data.apex_navigator_storages.example.block_storages[1].id
 }
 
 // Mobility Groups

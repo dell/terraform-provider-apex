@@ -81,7 +81,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetBlockStorageInstance).Return(nil, &http.Response{StatusCode: 400, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 400, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
 				ExpectError: regexp.MustCompile(`.*Error retrieving created Block storage*.`),
@@ -91,7 +91,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetBlockStorageInstance).Return(nil, &http.Response{StatusCode: 404, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 404, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
 				ExpectError: regexp.MustCompile(`.*Error retrieving created Block storage*.`),
@@ -112,7 +112,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetBlockStorageInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
 				ExpectError: regexp.MustCompile(`.*Error Reading Apex Navigator block storage*.`),

@@ -15,20 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# Returns all of the block storages
-data "apex_navigator_block_storages" "example" {}
+# Returns all of the storages
+data "apex_navigator_storages" "example" {}
 
-output "examples_block_storages" {
-  value = data.apex_navigator_block_storages.example
+output "examples_storages" {
+  value = data.apex_navigator_storages.example
 }
 
-# Returns a filtered list of block storages
-# data "apex_navigator_block_storages" "example" {
+# Returns a filtered list of storages
+# data "apex_navigator_storages" "example" {
 #   filter {
-#     ids = ["block-storage-id"] 
+#     ids = ["POWERFLEX-ELMSIOENG10015"] 
+#     system_type = "ISILON"
 #   }
 # }
 
-# output "examples_block_storages" {
-#   value = data.apex_navigator_block_storages.example
+# output "examples_storages" {
+#   value = data.apex_navigator_storages.example
 # }

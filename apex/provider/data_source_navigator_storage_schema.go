@@ -20,9 +20,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
 
-// BlockStorageDataSourceSchema defines the schema for a storage system instance data source and
+// StorageDataSourceSchema defines the schema for a storage system instance data source and
 // its attributes are used in storage systems collection data source
-var BlockStorageDataSourceSchema schema.Schema = schema.Schema{
+var StorageDataSourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			MarkdownDescription: "Identifier for the storage system",
