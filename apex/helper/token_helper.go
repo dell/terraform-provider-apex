@@ -23,6 +23,7 @@ import (
 	jmsClient "dell/apex-job-client"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -43,10 +44,14 @@ import (
 func GetNewToken(ctx context.Context) (string, error) {
 
 	// values taken from environmental variables
+	// Set the Python script path
+	scriptPath, ok := os.LookupEnv("APEX_SAML_TOKEN_SCRIPT_NAME")
+	if !ok {
+		tflog.Error(ctx, "Error running script for SAML token: APEX_SAML_TOKEN_SCRIPT_NAME not set")
+		return "", errors.New("APEX_SAML_TOKEN_SCRIPT_NAME not set")
+	}
 	// Set the directory path
 	dirPath := os.Getenv("APEX_SAML_TOKEN_SCRIPT_DIR")
-	// Set the Python script path
-	scriptPath := os.Getenv("APEX_SAML_TOKEN_SCRIPT_NAME")
 
 	// Set the command to run the Python script
 	cmd := exec.Command("python", scriptPath)
@@ -108,6 +113,10 @@ func GetNewToken(ctx context.Context) (string, error) {
 			"Error": err,
 		})
 		return "", err
+	}
+	if response == "" {
+		tflog.Error(ctx, "Error in getting token")
+		return "", errors.New("Error in getting token")
 	}
 	return response, nil
 }
@@ -189,10 +198,10 @@ func UpdateToken(ctx context.Context, client *apexClient.APIClient, jmsClient *j
 		return err
 	}
 	if token != "" {
-		if client == nil {
+		if client != nil {
 			client.GetConfig().AddDefaultHeader("Authorization", "Bearer "+token)
 		}
-		if jmsClient == nil {
+		if jmsClient != nil {
 			jmsClient.GetConfig().AddDefaultHeader("Authorization", "Bearer "+token)
 		}
 	}

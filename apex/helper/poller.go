@@ -24,52 +24,69 @@ import (
 
 	"net/http"
 
-	client "dell/apex-job-client"
+	jobsClient "dell/apex-job-client"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Poller interface
 type Poller interface {
 	WaitForResource(ctx context.Context, id string) (string, error)
 	CancelJob(ctx context.Context, id string) (*http.Response, error)
-	GetJob(ctx context.Context, id string) (*client.JobsInstance, error)
+	GetJob(ctx context.Context, id string) (*jobsClient.JobsInstance, error)
 }
 
 // NewPoller returns a new poller object
-func NewPoller(jmsClient *client.APIClient) Poller {
+func NewPoller(jmsClient *jobsClient.APIClient) Poller {
 	return &poller{
-		client: jmsClient,
+		jmsClient: jmsClient,
 	}
 }
 
 type poller struct {
-	client *client.APIClient
+	jmsClient *jobsClient.APIClient
 }
 
 // WaitForResource simulates a long operation of a job.
 func (p poller) WaitForResource(ctx context.Context, id string) (string, error) {
+	// try 3 times for getting updated tokens
+	var retryUnauthorizedCounter = 0
 	for {
 		// TODO: resolve unmarshal error that causes infinite loop on terminating job status (failed, succeeded)
-		job, status, err := p.client.JobsAPI.JobsInstance(ctx, id).Execute()
-		if err != nil && status.StatusCode != http.StatusOK || job == nil {
+		job, status, err := p.jmsClient.JobsAPI.JobsInstance(ctx, id).Execute()
+		//if token gets expired before job is completed
+		if status != nil && status.StatusCode == http.StatusUnauthorized {
+			err = UpdateToken(ctx, nil, p.jmsClient)
+			if err != nil {
+				retryUnauthorizedCounter = retryUnauthorizedCounter + 1
+				if retryUnauthorizedCounter == 3 {
+					tflog.Error(ctx, "Error updating new token", map[string]interface{}{"Error": err})
+					return "", err
+				}
+				time.Sleep(5 * time.Second)
+			}
+			continue
+		}
+		if err != nil && (status != nil && status.StatusCode != http.StatusOK) || job == nil {
 			//  If Error, don't check for status/resource, just poll again
-			fmt.Print("Error getting job")
+			tflog.Error(ctx, "Error getting job", map[string]interface{}{"Error": err})
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
 		if err := status.Body.Close(); err != nil {
-			fmt.Print("Error Closing response body:", err)
+			tflog.Error(ctx, "Error Closing response body:", map[string]interface{}{"Error": err})
 		}
 
 		switch *job.State {
-		case client.JOBSTATEENUM_QUEUED:
-		case client.JOBSTATEENUM_RUNNING:
-		case client.JOBSTATEENUM_SUCCEEDED:
+		case jobsClient.JOBSTATEENUM_QUEUED:
+		case jobsClient.JOBSTATEENUM_RUNNING:
+		case jobsClient.JOBSTATEENUM_SUCCEEDED:
 			if job.Resource.Id == "" {
 				return "", fmt.Errorf("resource id not returned when job completed")
 			}
 			return job.Resource.Id, nil
-		case client.JOBSTATEENUM_FAILED:
+		case jobsClient.JOBSTATEENUM_FAILED:
 			resp, _ := job.GetResponseOk()
 			var message = ""
 			if resp != nil {
@@ -82,11 +99,11 @@ func (p poller) WaitForResource(ctx context.Context, id string) (string, error) 
 				}
 			}
 			return "", fmt.Errorf("job failed: " + message)
-		case client.JOBSTATEENUM_CANCELLING:
-		case client.JOBSTATEENUM_CANCELLED:
+		case jobsClient.JOBSTATEENUM_CANCELLING:
+		case jobsClient.JOBSTATEENUM_CANCELLED:
 			return "", fmt.Errorf("job cancelled")
-		case client.JOBSTATEENUM_PAUSING:
-		case client.JOBSTATEENUM_PAUSED:
+		case jobsClient.JOBSTATEENUM_PAUSING:
+		case jobsClient.JOBSTATEENUM_PAUSED:
 			resp, cancelErr := p.CancelJob(ctx, id)
 			if cancelErr != nil {
 				return "", fmt.Errorf("job failed to cancel")
@@ -94,9 +111,9 @@ func (p poller) WaitForResource(ctx context.Context, id string) (string, error) 
 			if respErr := resp.Body.Close(); respErr != nil {
 				fmt.Print("Error Closing response body")
 			}
-		case client.JOBSTATEENUM_RESUMING:
-		case client.JOBSTATEENUM_SCHEDULED:
-		case client.JOBSTATEENUM_COMPLETED_WITH_MESSAGES:
+		case jobsClient.JOBSTATEENUM_RESUMING:
+		case jobsClient.JOBSTATEENUM_SCHEDULED:
+		case jobsClient.JOBSTATEENUM_COMPLETED_WITH_MESSAGES:
 			return job.Resource.Id, nil
 		}
 		time.Sleep(5 * time.Second)
@@ -104,8 +121,8 @@ func (p poller) WaitForResource(ctx context.Context, id string) (string, error) 
 }
 
 // GetJob returns a job
-func (p poller) GetJob(ctx context.Context, id string) (*client.JobsInstance, error) {
-	job, status, err := p.client.JobsAPI.JobsInstance(ctx, id).Execute()
+func (p poller) GetJob(ctx context.Context, id string) (*jobsClient.JobsInstance, error) {
+	job, status, err := p.jmsClient.JobsAPI.JobsInstance(ctx, id).Execute()
 	if err != nil && status.StatusCode != http.StatusOK || job == nil {
 		return nil, err
 	}
@@ -118,6 +135,6 @@ func (p poller) GetJob(ctx context.Context, id string) (*client.JobsInstance, er
 
 // CancelJob cancels an existing job.
 func (p poller) CancelJob(ctx context.Context, id string) (*http.Response, error) {
-	_, status, err := p.client.JobsAPI.JobsCancel(ctx, id).Execute()
+	_, status, err := p.jmsClient.JobsAPI.JobsCancel(ctx, id).Execute()
 	return status, err
 }
