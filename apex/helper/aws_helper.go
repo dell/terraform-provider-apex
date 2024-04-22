@@ -28,6 +28,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+// ConnectAccount connects an aws account
+func ConnectAccount(clientAPI *client.APIClient, account client.AwsAccountsCreateInput) (*client.RedactedAwsAccountInstance, *http.Response, error) {
+	return clientAPI.AwsAccountsAPI.AwsAccountsCreate(context.Background()).AwsAccountsCreateInput(account).Execute()
+}
+
+// GetAccountInstance gets an aws account
+func GetAccountInstance(clientAPI *client.APIClient, accountID string) (*client.AwsAccountsInstance, *http.Response, error) {
+	return clientAPI.AwsAccountsAPI.AwsAccountsInstance(context.Background(), accountID).Execute()
+}
+
+// UpdateAccount updates an aws account
+func UpdateAccount(clientAPI *client.APIClient, accountID string, roleArn string) (*client.Job, *http.Response, error) {
+	return clientAPI.AwsAccountsAPI.AwsAccountsModify(context.Background(), accountID).AwsAccountModifyInput(client.AwsAccountModifyInput{RoleArn: roleArn}).Execute()
+}
+
+// DisconnectAccount disconnects an aws account
+func DisconnectAccount(clientAPI *client.APIClient, accountID string) (*client.Job, *http.Response, error) {
+	return clientAPI.AwsAccountsAPI.AwsAccountsDelete(context.Background(), accountID).Execute()
+}
+
 // GetAwsAccountCollection gets list of block storage instances
 func GetAwsAccountCollection(clientAPI *client.APIClient, filter []basetypes.StringValue) (*client.AwsAccountsCollection200Response, *http.Response, error) {
 	accounts, http, err := clientAPI.AwsAccountsAPI.AwsAccountsCollection(context.Background()).Execute()

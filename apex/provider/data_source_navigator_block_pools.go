@@ -207,7 +207,7 @@ func (d *poolsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	// Then one or more of the filtered values are invalid
 	if filterUsed && len(pools.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter mobility groups.",
+			"Failed to filter Apex Navigator Pools.",
 			"one more more of the ids set in the filter is invalid.",
 		)
 		return

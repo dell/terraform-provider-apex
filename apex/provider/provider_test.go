@@ -50,6 +50,9 @@ var powerflexScheme = setDefault(os.Getenv("POWERFLEX_TARGET_PASS"), "http")
 var OnPremIP = setDefault(os.Getenv("ON_PREM_IP"), "localhost:3005")
 var mobilitySourceID = setDefault(os.Getenv("MOBILITY_SOURCE_ID"), "test_mobility_source_id")
 var mobilityTargetID = setDefault(os.Getenv("MOBILITY_TARGET_ID"), "test_mobility_target_id")
+var accountID = setDefault(os.Getenv("ACCOUNT_ID"), "test_account_id")
+var roleArn = setDefault(os.Getenv("ROLE_ARN"), "test_role_arn")
+var roleArn2 = setDefault(os.Getenv("ROLE_ARN2"), "test_role_arn2")
 
 // Datasource variables
 var blockStorageID1 = setDefault(os.Getenv("BLOCK_STORAGE_ID_1"), "POWERFLEX-ELMSIO0523STQ3-Mock")

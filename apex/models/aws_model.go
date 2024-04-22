@@ -20,6 +20,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// AwsAccountResourceModel maps storage system schema data.
+type AwsAccountResourceModel struct {
+	AccountID       types.String `tfsdk:"account_id"`
+	RoleArn         types.String `tfsdk:"role_arn"`
+	Status          types.String `tfsdk:"status"`
+	AwsAccountAlias types.String `tfsdk:"aws_account_alias"`
+}
+
 // AwsAccountDataSourceModel maps storage system schema data.
 type AwsAccountDataSourceModel struct {
 	Accounts []AwsAccountModel     `tfsdk:"accounts"`
