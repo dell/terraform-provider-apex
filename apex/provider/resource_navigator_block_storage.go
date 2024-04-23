@@ -552,7 +552,7 @@ func (r *blockStorageResource) Configure(_ context.Context, req resource.Configu
 // Create creates the resource and sets the initial Terraform state.
 func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) { // nolint:funlen, gocognit
 	// Retrieve values from plan
-	var plan models.BlockStorageModel
+	var plan models.StorageModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -677,12 +677,12 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Fetching Block storage after Job Completes
-	storageSystem, status, err := helper.GetBlockStorageInstance(r.client, resourceID)
+	storageSystem, status, err := helper.GetStorageInstance(r.client, resourceID)
 	if (err != nil) || (status.StatusCode != http.StatusOK) {
 		// Try again with POWERFLEX- prefix
 		if status.StatusCode == http.StatusNotFound {
 			resourceIDWithPrefix := "POWERFLEX-" + resourceID
-			storageSystem, status, err = helper.GetBlockStorageInstance(r.client, resourceIDWithPrefix)
+			storageSystem, status, err = helper.GetStorageInstance(r.client, resourceIDWithPrefix)
 			if (err != nil) || (status.StatusCode != http.StatusOK) {
 				newErr := helper.GetErrorString(err, status)
 				resp.Diagnostics.AddError(
@@ -702,7 +702,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Updating TFState with Block Storage info
-	result := helper.GetBlockStorageSystem(*storageSystem)
+	result := helper.GetStorageSystem(*storageSystem)
 
 	if strings.Contains(result.Version.ValueString(), plan.ProductVersion.ValueString()) {
 		result.ProductVersion = plan.ProductVersion
@@ -731,7 +731,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 // Read method is used to refresh the Terraform state based on the schema data.
 func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state models.BlockStorageModel
+	var state models.StorageModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -739,7 +739,7 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	// Get refreshed storage systems value from Apex Navigator
-	storageSystem, status, err := helper.GetBlockStorageInstance(r.client, state.ID.ValueString())
+	storageSystem, status, err := helper.GetStorageInstance(r.client, state.ID.ValueString())
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
@@ -750,7 +750,7 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	// Overwrite items with refreshed state
-	result := helper.GetBlockStorageSystem(*storageSystem)
+	result := helper.GetStorageSystem(*storageSystem)
 
 	if strings.Contains(result.Version.ValueString(), state.ProductVersion.ValueString()) {
 		result.ProductVersion = state.ProductVersion
@@ -780,14 +780,14 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *blockStorageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan models.BlockStorageModel
+	var plan models.StorageModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	// Retrieve values from state
-	var state models.BlockStorageModel
+	var state models.StorageModel
 	diagsState := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diagsState...)
 	if resp.Diagnostics.HasError() {
@@ -806,7 +806,7 @@ func (r *blockStorageResource) Update(ctx context.Context, req resource.UpdateRe
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	// Retrieve values from state
-	var plan models.BlockStorageModel
+	var plan models.StorageModel
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

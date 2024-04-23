@@ -28,11 +28,11 @@ type DeploymentDetailsModel struct {
 	SystemPublicCloud *SystemPublicCloudDeploymentDetailsModel `tfsdk:"system_public_cloud"`
 }
 
-// BlockStoragesDataSourceModel maps storage system schema data.
-type BlockStoragesDataSourceModel struct {
-	BlockStorages []BlockStorageModel     `tfsdk:"block_storages"`
-	ID            types.String            `tfsdk:"id"`
-	Filter        *BlockStorageFilterType `tfsdk:"filter"`
+// StoragesDataSourceModel maps storage system schema data.
+type StoragesDataSourceModel struct {
+	Storages []StorageModel     `tfsdk:"storages"`
+	ID       types.String       `tfsdk:"id"`
+	Filter   *StorageFilterType `tfsdk:"filter"`
 }
 
 // SystemOnPremDeploymentDetailsModel maps storage system schema data.
@@ -48,9 +48,10 @@ type SystemOnPremDeploymentDetailsModel struct {
 	ZipCode        types.String                     `tfsdk:"zip_code"`
 }
 
-// BlockStorageFilterType describes the filter data model.
-type BlockStorageFilterType struct {
-	IDs []types.String `tfsdk:"ids"`
+// StorageFilterType describes the filter data model.
+type StorageFilterType struct {
+	IDs        []types.String `tfsdk:"ids"`
+	SystemType types.String   `tfsdk:"system_type"`
 }
 
 // SystemPublicCloudDeploymentDetailsModel maps storage system schema data.
@@ -83,8 +84,8 @@ type vpcModel struct {
 	VpcName  types.String `tfsdk:"vpc_name"`
 }
 
-// BlockStorageModel maps storage system schema data.
-type BlockStorageModel struct {
+// StorageModel maps storage system schema data.
+type StorageModel struct {
 	ID                              types.String            `tfsdk:"id"`
 	SystemID                        types.String            `tfsdk:"system_id"`
 	SystemType                      types.String            `tfsdk:"system_type"`
