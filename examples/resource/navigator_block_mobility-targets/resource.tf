@@ -27,9 +27,16 @@ resource "apex_navigator_block_mobility_targets" "example" {
   # Storage pool id to use for allocating target volumes
   target_system_options = "POWERFLEX-ABCD1234567890_STORAGE_POOL__1234567890123456"
 
-  powerflex {
-    username = "example-username"
-    password = "example-pass"
+  # The source mobility group Powerflex
+  powerflex_source {
+    username = "example-source-username"
+    password = "example-source-pass"
+  }
+
+  # The Powerflex where you want to create the target
+  powerflex_target {
+    username = "example-target-username"
+    password = "example-target-pass"
   }
 }
 

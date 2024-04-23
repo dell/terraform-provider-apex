@@ -106,6 +106,10 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("APEX_HOST environment variable not set")
 	}
 
+	if os.Getenv("APEX_JMS_CLIENT") == "" {
+		t.Fatal("APEX_JMS_CLIENT environment variable not set")
+	}
+
 	// Make sure to unpatch before each new test is run
 	if FunctionMocker != nil {
 		FunctionMocker.UnPatch()

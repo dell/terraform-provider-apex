@@ -27,7 +27,8 @@ This Terraform resource is used to manage Mobility Targets on Apex Navigator. We
 
 - `bandwidth_limit` (Number) Bandwidth limit in Mbps (Mega bits per second)
 - `description` (String) Description of the mobility target
-- `powerflex` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex))
+- `powerflex_source` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex_source))
+- `powerflex_target` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex_target))
 
 ### Read-Only
 
@@ -38,8 +39,23 @@ This Terraform resource is used to manage Mobility Targets on Apex Navigator. We
 - `target_members` (Attributes List) A mobility member map is a mapping of a mobility member and it's related member. For example a target volume with a reference to the source volume. Or a clone volume and its related target volume. (see [below for nested schema](#nestedatt--target_members))
 - `type` (String)
 
-<a id="nestedblock--powerflex"></a>
-### Nested Schema for `powerflex`
+<a id="nestedblock--powerflex_source"></a>
+### Nested Schema for `powerflex_source`
+
+Required:
+
+- `password` (String, Sensitive) Password of the powerflex
+- `username` (String) Username of the powerflex
+
+Optional:
+
+- `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
+- `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `scheme` (String) Scheme of the powerflex, defaults if unset to https
+
+
+<a id="nestedblock--powerflex_target"></a>
+### Nested Schema for `powerflex_target`
 
 Required:
 

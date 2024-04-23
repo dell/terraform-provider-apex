@@ -15,4 +15,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-terraform import apex_navigator_block_mobility_targets.example "{\"id\":\"<mobility-target-id>\",\"username\":\"<powerflex-username>\",\"password\":\"<powerflex-password>\",\"host\":\"<powerflex-host>\",\"insecure\":\"<insecure>\",\"scheme\":\"<powerflex-scheme>\"}"
+terraform import apex_navigator_block_mobility_targets.example "{\"id\":\"<mobility-target-id>\",\"target_username\":\"<powerflex-target-username>\",\"target_password\":\"<powerflex-target-password>\",\"target_host\":\"<powerflex-target-host>\",\"source_username\":\"<powerflex-source-username>\",\"source_password\":\"<powerflex-source-password>\",\"source_host\":\"<powerflex-source-host>\",\"insecure\":\"<insecure>\",\"scheme\":\"<powerflex-scheme>\"}"
