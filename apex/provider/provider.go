@@ -175,8 +175,8 @@ func (p *myProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	apiClients, err := NewApexJmsClient(ctx, *hostURL, *jmsURL, token, config.Insecure.ValueBool())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Could not create client",
-			"Could not create client: "+err.Error(),
+			"----------Could not create client",
+			"-----------Could not create client: "+err.Error()+"path file"+os.Getenv("APEX_SAML_TOKEN_SCRIPT_DIR")+"--file name"+os.Getenv("APEX_SAML_TOKEN_SCRIPT_NAME"),
 		)
 		return
 	}
