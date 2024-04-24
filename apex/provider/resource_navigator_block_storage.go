@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -655,6 +656,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		)
 		return
 	}
+	tflog.Info(ctx, fmt.Sprintf("Creating Block Storage: %v", systemCreateInput))
 	job, status, err := helper.CreateBlockStorage(r.client.StorageSystemsAPI.StorageSystemsCreate(ctx), systemCreateInput)
 
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {

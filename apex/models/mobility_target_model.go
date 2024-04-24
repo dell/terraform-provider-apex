@@ -38,7 +38,8 @@ type MobilityTargetModel struct {
 	TargetSystemOptions   types.String                  `tfsdk:"target_system_options"`
 	BandwidthLimit        types.Int64                   `tfsdk:"bandwidth_limit"`
 	Type                  types.String                  `tfsdk:"type"`
-	ActivationClientModel *ActivationClientModel        `tfsdk:"powerflex"`
+	PowerFlexClientSource *ActivationClientModel        `tfsdk:"powerflex_source"`
+	PowerFlexClientTarget *ActivationClientModel        `tfsdk:"powerflex_target"`
 }
 
 // MobilityTargetModelDs defines the attribute names and types for a Mobility Target TF model

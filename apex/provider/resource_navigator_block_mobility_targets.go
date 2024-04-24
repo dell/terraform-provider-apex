@@ -172,7 +172,10 @@ func (r *mobilityTargetsResource) Schema(_ context.Context, _ resource.SchemaReq
 			},
 		},
 		Blocks: map[string]schema.Block{
-			"powerflex": schema.SingleNestedBlock{
+			"powerflex_source": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
+			},
+			"powerflex_target": schema.SingleNestedBlock{
 				Attributes: PowerflexInfo.Attributes,
 			},
 		},
@@ -209,12 +212,22 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	// Activate Powerflex
-	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	// Activate Powerflex Source
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
+			"Error activating Powerflex Source System",
 			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
+		return
+	}
+
+	// Activate Powerflex Target
+	actTargetErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex Target System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actTargetErr.Error(),
 		)
 		return
 	}
@@ -267,7 +280,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	// Updating TFState to include target system options
 	result.TargetSystemOptions = plan.TargetSystemOptions
 
-	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
+	result.PowerFlexClientSource = helper.SetPowerflexClientState(*plan.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*plan.PowerFlexClientTarget)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
@@ -309,7 +323,8 @@ func (r *mobilityTargetsResource) Read(ctx context.Context, req resource.ReadReq
 	// Overwrite items with refreshed state
 	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = state.TargetSystemOptions
-	result.ActivationClientModel = helper.SetPowerflexClientState(*state.ActivationClientModel)
+	result.PowerFlexClientSource = helper.SetPowerflexClientState(*state.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*state.PowerFlexClientTarget)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &result)
@@ -329,12 +344,22 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	// Activate Powerflex
-	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	// Activate Powerflex Source
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
+			"Error activating Powerflex Source System",
 			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
+		return
+	}
+
+	// Activate Powerflex Target
+	actTargetErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex Target System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actTargetErr.Error(),
 		)
 		return
 	}
@@ -386,7 +411,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	// Updating TFState with Mobility Target info
 	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = plan.TargetSystemOptions
-	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
+	result.PowerFlexClientSource = helper.SetPowerflexClientState(*plan.PowerFlexClientSource)
+	result.PowerFlexClientTarget = helper.SetPowerflexClientState(*plan.PowerFlexClientTarget)
 	diags = resp.State.Set(ctx, result)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -405,12 +431,22 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	// Activate Powerflex
-	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	// Activate Powerflex Source
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
+			"Error activating Powerflex Source System",
 			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+		)
+		return
+	}
+
+	// Activate Powerflex Target
+	actTargetErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			"Error activating Powerflex Target System",
+			"Could not activate powerflex system, please check username/password and system id are correct: "+actTargetErr.Error(),
 		)
 		return
 	}
@@ -444,12 +480,15 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 func (r *mobilityTargetsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	type params struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Host     string `json:"host"`
-		Scheme   string `json:"scheme"`
-		Insecure bool   `json:"insecure"`
-		ID       string `json:"id"`
+		TargetUsername string `json:"target_username"`
+		TargetPassword string `json:"target_password"`
+		TargetHost     string `json:"target_host"`
+		SourceUsername string `json:"source_username"`
+		SourcePassword string `json:"source_password"`
+		SourceHost     string `json:"source_host"`
+		Scheme         string `json:"scheme"`
+		Insecure       bool   `json:"insecure"`
+		ID             string `json:"id"`
 	}
 
 	var p params
@@ -469,10 +508,18 @@ func (r *mobilityTargetsResource) ImportState(ctx context.Context, req resource.
 	}
 	result := helper.GetMobilityTargetModel(*mobilityTarget)
 	result.TargetSystemOptions = types.StringValue("")
-	result.ActivationClientModel = &models.ActivationClientModel{
-		Username: types.StringValue(p.Username),
-		Password: types.StringValue(p.Password),
-		Host:     types.StringValue(p.Host),
+	result.PowerFlexClientTarget = &models.ActivationClientModel{
+		Username: types.StringValue(p.TargetUsername),
+		Password: types.StringValue(p.TargetPassword),
+		Host:     types.StringValue(p.TargetHost),
+		Scheme:   types.StringValue(p.Scheme),
+		Insecure: types.BoolValue(p.Insecure),
+	}
+
+	result.PowerFlexClientSource = &models.ActivationClientModel{
+		Username: types.StringValue(p.SourceUsername),
+		Password: types.StringValue(p.SourcePassword),
+		Host:     types.StringValue(p.SourceHost),
 		Scheme:   types.StringValue(p.Scheme),
 		Insecure: types.BoolValue(p.Insecure),
 	}

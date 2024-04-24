@@ -50,13 +50,13 @@ func TestAccResourceMobilityTargets(t *testing.T) {
 			//Import testing
 			{
 				ResourceName:  resTerraformName,
-				ImportStateId: "{\"id\":\"" + mobilityTargetID + "\",\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportStateId: "{\"id\":\"" + mobilityTargetID + "\",\"target_username\":\"" + powerflexUser + "\",\"target_password\":\"" + powerflexPass + "\", \"target_host\":\"" + "" + "\", \"source_username\":\"" + powerflexUser + "\",\"source_password\":\"" + powerflexPass + "\",\"source_host\":\"" + "" + "\",\"insecure\":true}",
 				ImportState:   true,
 			},
 			//Import Error testing
 			{
 				ResourceName:  resTerraformName,
-				ImportStateId: "{\"username\":\"" + powerflexUser + "\",\"password\":\"" + powerflexPass + "\",\"host\":\"" + "" + "\",\"insecure\":true}",
+				ImportStateId: "{\"target_username\":\"" + powerflexUser + "\",\"target_password\":\"" + powerflexPass + "\", \"target_host\":\"" + "" + "\", \"source_username\":\"" + powerflexUser + "\",\"source_password\":\"" + powerflexPass + "\",\"source_host\":\"" + "" + "\",\"insecure\":true}",
 				ImportState:   true,
 				ExpectError:   regexp.MustCompile(`.*Could not retrieve Mobility Target during import*.`),
 			},
@@ -89,7 +89,7 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.ActivateSystemClientSystem).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex Source System*.`),
 			},
 			{
 				// Read failure
@@ -156,7 +156,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.ActivateSystemClientSystem).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex Source System*.`),
 			},
 			{
 				// Read failure after create
@@ -193,7 +193,12 @@ resource "apex_navigator_block_mobility_targets" "example" {
 	system_id                = "` + mobilityTargetSystemID + `"
 	system_type              = "POWERFLEX"
 	target_system_options    = "` + mobilityTargetOptions + `"
-	powerflex {
+	powerflex_source {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
+	powerflex_target {
 		username = "` + powerflexUser + `"
 		password = "` + powerflexPass + `"
 		scheme   = "` + powerflexScheme + `"   
@@ -207,7 +212,12 @@ resource "apex_navigator_block_mobility_targets" "example" {
 	system_id                = "` + mobilityTargetSystemID + `"
 	system_type              = "POWERFLEX"
 	target_system_options    = "` + mobilityTargetOptions + `"
-	powerflex {
+	powerflex_source {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"   
+	}
+	powerflex_target {
 		username = "` + powerflexUser + `"
 		password = "` + powerflexPass + `"
 		scheme   = "` + powerflexScheme + `"   
