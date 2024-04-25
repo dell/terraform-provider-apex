@@ -50,23 +50,28 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 
 
 ## List of DataSources in Terraform Provider for Dell Apex
-  * [Block Storage](docs/data-sources/navigator_block_storage.md)
-  * [Clone](docs/data-sources/navigator_clone.md)
-  * [Hosts](docs/data-sources/navigator_hosts.md)
-  * [Mobility Group](docs/data-sources/navigator_mobility_group.md)
-  * [Mobility Target](docs/data-sources/navigator_mobility_target.md)
-  * [Pools](docs/data-sources/navigator_pools.md)
-  * [Volumes](docs/data-sources/navigator_volumes.md)
+  * [AWS Accounts](docs\data-sources\navigator_aws_accounts.md)
+  * [AWS Permissions](docs/data-sources/navigator_aws_permissions.md)
+  * [Storages](docs\data-sources\navigator_storages.md)
+  * [Clones](docs\data-sources\navigator_block_clones.md)
+  * [Hosts](docs\data-sources\navigator_block_hosts.md)
+  * [Mobility Groups](docs\data-sources\navigator_block_mobility_groups.md)
+  * [Mobility Targets](docs\data-sources\navigator_block_mobility_targets.md)
+  * [Pools](docs\data-sources\navigator_block_pools.md)
+  * [Storage Products](docs\data-sources\navigator_storage_products.md)
+  * [Volumes](docs\data-sources\navigator_block_volumes.md)
 
 ## List of Resources in Terraform Provider for Dell Apex
-  * [Block Storage](docs/resources/navigator_block_storage.md)
-  * [Clones Map](docs/resources/navigator_clones_map.md)
-  * [Clones Refresh](docs/resources/navigator_clones_refresh.md)
-  * [Clones Unmap](docs/resources/navigator_clones_unmap.md)
-  * [Clones](docs/resources/navigator_clones.md)
-  * [Mobility Groups Copy](docs/resources/navigator_mobility_groups_copy.md)
-  * [Mobility Groups](docs/resources/navigator_mobility_groups.md)
-  * [Mobility Targets](docs/resources/navigator_mobility_targets.md)
+  * [AWS Account](docs\resources\navigator_aws_account.md)
+  * [AWS Generate Trust](docs\resources\navigator_aws_trust_policy_generate.md)
+  * [Block Storage](docs\resources\navigator_block_storage.md)
+  * [Clones Map](docs\resources\navigator_block_clones_map.md)
+  * [Clones Refresh](docs\resources\navigator_block_clones_refresh.md)
+  * [Clones Unmap](docs\resources\navigator_block_clones_unmap.md)
+  * [Clones](docs\resources\navigator_block_clones.md)
+  * [Mobility Groups Copy](docs\resources\navigator_block_mobility_groups_copy.md)
+  * [Mobility Groups](docs\resources\navigator_block_mobility_groups.md)
+  * [Mobility Targets](docs\resources\navigator_block_mobility_targets.md)
 
 ## Block Storage
 Deploy and Decommision Block Storage Systems to the Cloud 
