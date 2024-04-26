@@ -241,8 +241,10 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 
 	mobilityTargetsInput := *client.NewCreateTargetInput(plan.SourceMobilityGroupID.ValueString(), plan.Name.ValueString(), plan.SystemID.ValueString(), *plan.SystemType.Ptr(), targetSystemOptions)
 	mobilityTargetsInput.Description = plan.Description.ValueStringPointer()
-	limit := int32(plan.BandwidthLimit.ValueInt64())
-	mobilityTargetsInput.BandwidthLimit = &limit
+	if plan.BandwidthLimit.ValueInt64() != 0 {
+		limit := int32(plan.BandwidthLimit.ValueInt64())
+		mobilityTargetsInput.BandwidthLimit = &limit
+	}
 	// Executing job request
 	job, status, err := helper.CreateMobilityTarget(createReq, mobilityTargetsInput)
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
@@ -341,6 +343,19 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+	var state models.MobilityTargetModel
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if plan.SourceMobilityGroupID.ValueString() != state.SourceMobilityGroupID.ValueString() {
+		resp.Diagnostics.AddError(
+			"Error executing Update Mobility Target ",
+			"Source Mobility Group ID cannot be changed",
+		)
 		return
 	}
 
