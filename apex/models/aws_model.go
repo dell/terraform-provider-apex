@@ -18,6 +18,7 @@ package models
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 // AwsAccountResourceModel maps storage system schema data.
@@ -79,4 +80,40 @@ type Statement struct {
 	Action            []types.String `tfsdk:"action"`
 	Resource          types.String   `tfsdk:"resource"`
 	IamAwsServiceName []types.String `tfsdk:"iam_aws_service_name"`
+}
+
+// AwsPolicyGenerateModel maps the Aws Permissions schema data.
+type AwsPolicyGenerateModel struct {
+	AwsAccountID types.String        `tfsdk:"account_id"`
+	Version      types.String        `tfsdk:"version"`
+	Statement    basetypes.ListValue `tfsdk:"statement"`
+}
+
+// PolicyGenerateStatement describes the statement data model.
+type PolicyGenerateStatement struct {
+	Effect    types.String    `tfsdk:"effect"`
+	Action    types.String    `tfsdk:"action"`
+	Principal PolicyPrincipal `tfsdk:"principal"`
+	Condition Condition       `tfsdk:"condition"`
+}
+
+// PolicyPrincipal describes the principal data model.
+type PolicyPrincipal struct {
+	AWS types.String `tfsdk:"aws"`
+}
+
+// Condition describes the condition data model.
+type Condition struct {
+	Bool         BoolStatment `tfsdk:"bool"`
+	StringEquals StringEquals `tfsdk:"string_equals"`
+}
+
+// BoolStatment describes the bool data model.
+type BoolStatment struct {
+	AwsMultiFactorAuthPresent types.String `tfsdk:"aws_multi_factor_auth_present"`
+}
+
+// StringEquals describes the string_equals data model.
+type StringEquals struct {
+	StsExternalID types.String `tfsdk:"sts_external_id"`
 }
