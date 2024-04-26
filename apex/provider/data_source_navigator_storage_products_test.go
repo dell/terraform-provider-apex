@@ -44,7 +44,7 @@ func TestAccDatasourceStorageProducts(t *testing.T) {
 					FunctionMocker = Mock(helper.GetStorageProductsCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + storageProductsConfig,
-				ExpectError: regexp.MustCompile(`.*Unable Read to storage product*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage Products*.`),
 			},
 			// Filter testing single storage products
 			{

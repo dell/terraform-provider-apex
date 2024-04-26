@@ -58,7 +58,7 @@ func TestAccResourceMobilityTargets(t *testing.T) {
 				ResourceName:  resTerraformName,
 				ImportStateId: "{\"target_username\":\"" + powerflexUser + "\",\"target_password\":\"" + powerflexPass + "\", \"target_host\":\"" + "" + "\", \"source_username\":\"" + powerflexUser + "\",\"source_password\":\"" + powerflexPass + "\",\"source_host\":\"" + "" + "\",\"insecure\":true}",
 				ImportState:   true,
-				ExpectError:   regexp.MustCompile(`.*Could not retrieve Mobility Target during import*.`),
+				ExpectError:   regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Targets*.`),
 			},
 			//Update testing
 			{
@@ -89,7 +89,7 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.ActivateSystemClientSystem).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error activating Powerflex Source System*.`),
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
 			},
 			{
 				// Read failure
@@ -101,7 +101,7 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetMobilityTarget).Return(nil, &http.Response{Body: io.NopCloser(strings.NewReader("")), StatusCode: 400}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Could not read Mobility target*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Targets*.`),
 			},
 			{
 				// Update failure
@@ -112,9 +112,8 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.UpdateMobilityTarget).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(".*Error executing Update Mobility Target Job*"),
+				ExpectError: regexp.MustCompile(".*Error updating Apex Navigator Mobility Targets*"),
 			},
-
 			{
 				// Error while waiting for job after update
 				PreConfig: func() {
@@ -125,7 +124,7 @@ func TestAccResourceMobilityTargetsUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 		},
 	})
@@ -145,7 +144,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.CreateMobilityTarget).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
-				ExpectError: regexp.MustCompile(".*Could not create Mobility Target*"),
+				ExpectError: regexp.MustCompile(".*Error creating Apex Navigator Mobility Targets.*"),
 			},
 			// Activate Powerflex Error
 			{
@@ -156,7 +155,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.ActivateSystemClientSystem).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error activating Powerflex Source System*.`),
+				ExpectError: regexp.MustCompile(`.*Error activating Powerflex System*.`),
 			},
 			{
 				// Read failure after create
@@ -168,7 +167,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetMobilityTarget).Return(nil, &http.Response{Body: io.NopCloser(strings.NewReader("")), StatusCode: 400}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Could not retrieve Mobility group*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Targets*.`),
 			},
 			{
 				// Error while waiting for job after create
@@ -180,7 +179,7 @@ func TestAccResourceMobilityTargetsCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityTargetResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 		},
 	})

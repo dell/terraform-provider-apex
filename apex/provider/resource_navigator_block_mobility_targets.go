@@ -26,6 +26,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -191,10 +192,9 @@ func (r *mobilityTargetsResource) Configure(_ context.Context, req resource.Conf
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.CLients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -216,8 +216,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex Source System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -226,8 +226,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	actTargetErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex Target System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actTargetErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actTargetErr.Error(),
 		)
 		return
 	}
@@ -250,8 +250,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Mobility Target",
-			"Could not create Mobility Target, unexpected error: "+newErr,
+			constants.BlockMobilityTargetCreateErrorMsg,
+			constants.BlockMobilityTargetCreateDetailMsg+newErr,
 		)
 		return
 	}
@@ -260,8 +260,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -271,8 +271,8 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving Mobility group",
-			"Could not retrieve Mobility group, unexpected error: "+newErr,
+			constants.BlockMobilityTargetReadErrorMsg,
+			constants.BlockMobilityTargetReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -308,16 +308,8 @@ func (r *mobilityTargetsResource) Read(ctx context.Context, req resource.ReadReq
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator mobility target",
-			"Could not read Mobility target, unexpected error: "+newErr,
-		)
-		return
-	}
-
-	if mobilityTarget.SystemId != state.SystemID.ValueString() || *mobilityTarget.SystemType != *state.SystemType || mobilityTarget.SourceMobilityGroupId != state.SourceMobilityGroupID.ValueString() {
-		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator mobility target",
-			"Attempted to modify unchangeable attribute(s) [SystemID, SystemType, sourceMobilityGroupID]"+fmt.Sprintf(("%s, %s"), *mobilityTarget.SystemType, *state.SystemType),
+			constants.BlockMobilityTargetReadErrorMsg,
+			constants.BlockMobilityTargetReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -345,16 +337,19 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Retrieve values from state
 	var state models.MobilityTargetModel
-	diags = req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
+	diagsState := req.Plan.Get(ctx, &state)
+	resp.Diagnostics.Append(diagsState...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if plan.SourceMobilityGroupID.ValueString() != state.SourceMobilityGroupID.ValueString() {
+
+	if plan.SystemID.ValueString() != state.SystemID.ValueString() || *plan.SystemType != *state.SystemType || plan.SourceMobilityGroupID.ValueString() != state.SourceMobilityGroupID.ValueString() {
 		resp.Diagnostics.AddError(
-			"Error executing Update Mobility Target ",
-			"Source Mobility Group ID cannot be changed",
+			constants.BlockMobilityTargetUpdateErrorMsg,
+			constants.BlockMobilityTargetUpdateInvalidFieldUpdateErrorMsg,
 		)
 		return
 	}
@@ -363,8 +358,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex Source System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -373,8 +368,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	actTargetErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex Target System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actTargetErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actTargetErr.Error(),
 		)
 		return
 	}
@@ -397,8 +392,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error executing Update Mobility Target Job",
-			"Could not execute update mobility target, unexpected error: "+newErr,
+			constants.BlockMobilityTargetUpdateErrorMsg,
+			constants.BlockMobilityTargetUpdateDetailMsg+newErr,
 		)
 		return
 	}
@@ -406,8 +401,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -417,8 +412,8 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving Mobility Target",
-			"Could not retrieve Mobility Target, unexpected error: "+newErr,
+			constants.BlockMobilityTargetReadErrorMsg,
+			constants.BlockMobilityTargetReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -450,8 +445,8 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientSource, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex Source System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -460,8 +455,8 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 	actTargetErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.PowerFlexClientTarget, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex Target System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actTargetErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actTargetErr.Error(),
 		)
 		return
 	}
@@ -473,8 +468,8 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Deleting Apex Navigator Mobility Target",
-			"Could not delete mobility target, unexpected error: "+newErr,
+			constants.BlockMobilityTargetDeleteErrorMsg,
+			constants.BlockMobilityTargetDeleteDetailMsg+newErr,
 		)
 		return
 	}
@@ -483,8 +478,8 @@ func (r *mobilityTargetsResource) Delete(ctx context.Context, req resource.Delet
 	resourceID, err := poller.WaitForResource(ctx, job.Id)
 	if (err != nil) || (resourceID == "") {
 		resp.Diagnostics.AddError(
-			"Error getting Delete Job ID",
-			helper.JobRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.JobRetrieveError+err.Error(),
 		)
 		return
 	}
@@ -516,8 +511,8 @@ func (r *mobilityTargetsResource) ImportState(ctx context.Context, req resource.
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error getting Mobility Target",
-			"Could not retrieve Mobility Target during import, unexpected error: "+newErr,
+			constants.BlockMobilityTargetReadErrorMsg,
+			constants.BlockMobilityTargetImportReadErrorMsg+newErr,
 		)
 		return
 	}

@@ -23,6 +23,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -110,7 +111,7 @@ func (d *mobilityGroupsDataSource) Read(ctx context.Context, req datasource.Read
 	mobilityGroups, status, err := helper.GetMobilityGroupCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Mobility Groups",
+			constants.BlockMobilityGroupReadErrorMsg,
 			err.Error(),
 		)
 		return
@@ -120,8 +121,8 @@ func (d *mobilityGroupsDataSource) Read(ctx context.Context, req datasource.Read
 	// Then one or more of the filtered values are invalid
 	if filterUsed && len(mobilityGroups.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter mobility groups.",
-			"one more more of the ids set in the filter is invalid.",
+			constants.BlockMobilityGroupFilterErrorMsg,
+			constants.FilterGeneralErrorMsg,
 		)
 		return
 	}
@@ -151,8 +152,8 @@ func (d *mobilityGroupsDataSource) Configure(_ context.Context, req datasource.C
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return

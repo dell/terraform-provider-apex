@@ -26,6 +26,7 @@ import (
 
 	jobsClient "dell/apex-job-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -69,7 +70,7 @@ func (p poller) WaitForResource(ctx context.Context, id string) (string, error) 
 		}
 		if err != nil && (status != nil && status.StatusCode != http.StatusOK) || job == nil {
 			//  If Error, don't check for status/resource, just poll again
-			tflog.Error(ctx, "Error getting job", map[string]interface{}{"Error": err})
+			tflog.Error(ctx, constants.ErrorGettingJob, map[string]interface{}{"Error": err})
 			time.Sleep(5 * time.Second)
 			continue
 		}

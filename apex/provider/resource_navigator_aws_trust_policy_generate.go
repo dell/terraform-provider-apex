@@ -22,6 +22,7 @@ import (
 	jmsClient "dell/apex-job-client"
 	"fmt"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -153,10 +154,9 @@ func (r *policyGenerateResource) Configure(_ context.Context, req resource.Confi
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.Clients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -180,8 +180,8 @@ func (r *policyGenerateResource) Create(ctx context.Context, req resource.Create
 	if err != nil {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error generating Trust Policy",
-			"Could not generate Trust Policy, unexpected error: "+newErr,
+			constants.AwsGeneratePolicyErrorMsg,
+			constants.AwsGeneratePolicyDetailMsg+newErr,
 		)
 		return
 	}
@@ -248,14 +248,14 @@ func (r *policyGenerateResource) Update(ctx context.Context, req resource.Update
 	}
 
 	resp.Diagnostics.AddWarning(
-		"Updates are not supported for this resource",
-		"Updates are not supported for this resource",
+		constants.UpdatesNotSupportedErrorMsg,
+		constants.UpdatesNotSupportedErrorMsg,
 	)
 
 	if state.AwsAccountID != plan.AwsAccountID {
 		resp.Diagnostics.AddError(
-			"Error generating Trust Policy",
-			"account_id cannot be updated, please use the lifecycle block to make sure this is run as a new create each terraform apply",
+			constants.AwsGeneratePolicyErrorMsg,
+			constants.AwsUpdateInvalidFieldUpdateErrorMsg,
 		)
 	}
 
@@ -264,7 +264,7 @@ func (r *policyGenerateResource) Update(ctx context.Context, req resource.Update
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *policyGenerateResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	resp.Diagnostics.AddWarning(
-		"Deletes are not supported for this resource",
-		"Deletes are not supported for this resource",
+		constants.DeleteIsNotSupportedErrorMsg,
+		constants.DeleteIsNotSupportedErrorMsg,
 	)
 }

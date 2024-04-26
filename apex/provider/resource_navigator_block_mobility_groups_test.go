@@ -53,7 +53,7 @@ func TestAccResourceMobilityGroupR(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfig + moblilityGroupResourceErrorUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error updating Mobility Group*.`),
+				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator Mobility Groups*.`),
 			},
 		},
 	})
@@ -70,7 +70,7 @@ func TestAccResourceMobilityGroupRError(t *testing.T) {
 					FunctionMocker = Mock(helper.CreateMobilityGroup).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + moblilityGroupResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Mobility Group*.`),
+				ExpectError: regexp.MustCompile(`.*Error creating Apex Navigator Mobility Groups*.`),
 			},
 			// Activate Powerflex Error
 			{
@@ -92,7 +92,7 @@ func TestAccResourceMobilityGroupRError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + moblilityGroupResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 			// Attempt to get a mobility group after a job success error case
 			{
@@ -103,7 +103,7 @@ func TestAccResourceMobilityGroupRError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetMobilityGroup).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + moblilityGroupResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error retrieving created Mobility group*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Groups*.`),
 			},
 			// Do a successful create to test update errors
 			{
@@ -124,7 +124,7 @@ func TestAccResourceMobilityGroupRError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetMobilityGroup).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + moblilityGroupResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error Reading Apex Navigator mobility group*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Groups*.`),
 			},
 			// Update Mobility Group Error
 			{
@@ -135,7 +135,7 @@ func TestAccResourceMobilityGroupRError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + moblilityGroupResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 			// Update Mobility Group Job Error
 			{
@@ -146,7 +146,7 @@ func TestAccResourceMobilityGroupRError(t *testing.T) {
 					FunctionMocker = Mock(helper.UpdateMobilityGroup).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + moblilityGroupResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error executing Update Mobility Group Job*.`),
+				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator Mobility Groups*.`),
 			},
 		},
 	})

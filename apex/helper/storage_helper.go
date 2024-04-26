@@ -25,6 +25,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -156,7 +157,7 @@ func GetStorageSystem(storageSystem client.StorageSystemsInstance) (storageState
 		}
 
 	default:
-		fmt.Printf("Unexpected system type")
+		fmt.Printf(constants.UnexpectedSysteType)
 	}
 
 	return storageState

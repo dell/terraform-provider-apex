@@ -27,6 +27,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	helper "github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -207,10 +208,9 @@ func (r *clonesResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.CLients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -232,8 +232,8 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -261,20 +261,18 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Clones",
-			"Could not create Clones, unexpected error: "+newErr,
+			constants.BlockCloneCreateErrorMsg,
+			constants.BlockCloneCreateDetailMsg+newErr,
 		)
 		return
 	}
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
+
 	// Fetching Job Status
 	resourceID, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if jobErr != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+jobErr.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+jobErr.Error(),
 		)
 		return
 	}
@@ -284,8 +282,8 @@ func (r *clonesResource) Create(ctx context.Context, req resource.CreateRequest,
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving created Clone",
-			"Could not retrieve created Clone, unexpected error: "+newErr,
+			constants.BlockCloneReadErrorMsg,
+			constants.BlockCloneReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -317,8 +315,8 @@ func (r *clonesResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator Clones",
-			"Could not read Clones, unexpected error: "+newErr,
+			constants.BlockCloneReadErrorMsg,
+			constants.BlockCloneReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -373,23 +371,19 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
 
-	clone, status, _ := helper.GetCloneInstance(r.client, plan.ID.ValueString())
+	clone, _, _ := helper.GetCloneInstance(r.client, plan.ID.ValueString())
 	if isInvalidUpdate(clone, plan) {
 		resp.Diagnostics.AddError(
-			"Error updating Clones",
-			"Could not update Clones, invalid field modified [Modifiable fields: Name, Description]",
+			constants.BlockCloneUpdateErrorMsg,
+			constants.BlockCloneInvalidFieldUpdateErrorMsg,
 		)
 		return
-	}
-
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
 	}
 
 	// Update existing clones
@@ -403,8 +397,8 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error executing Update Clone Job",
-			"Could not execute update clones, unexpected error: "+newErr,
+			constants.BlockCloneUpdateErrorMsg,
+			constants.BlockCloneUpdateDetailMsg+newErr,
 		)
 		return
 	}
@@ -413,8 +407,8 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -424,16 +418,11 @@ func (r *clonesResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving updated Clone",
-			"Could not retrieve updated Clone, unexpected error: "+newErr,
+			constants.BlockCloneReadErrorMsg,
+			constants.BlockCloneReadDetailMsg+newErr,
 		)
 		return
 	}
-
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
-	}
-
 	// Updating TFState with Clone info
 	result := helper.GetClonesModel(*clone, plan.SystemID.ValueString())
 	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
@@ -459,8 +448,8 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -476,8 +465,8 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Deleting Apex Navigator Clones",
-			"Could not delete clones, unexpected error: "+newErr,
+			constants.BlockCloneDeleteErrorMsg,
+			constants.BlockCloneDeleteDetailMsg+newErr,
 		)
 		return
 	}
@@ -486,8 +475,8 @@ func (r *clonesResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	resourceID, err := poller.WaitForResource(ctx, job.Id)
 	if (err != nil) || (resourceID == "") {
 		resp.Diagnostics.AddError(
-			"Error getting Delete Job ID",
-			helper.JobRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.JobRetrieveError+err.Error(),
 		)
 		return
 	}
@@ -516,8 +505,8 @@ func (r *clonesResource) ImportState(ctx context.Context, req resource.ImportSta
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator Clones",
-			"Could not retrieve Clones during import: "+newErr,
+			constants.BlockCloneReadErrorMsg,
+			constants.BlockCloneImportReadErrorMsg+newErr,
 		)
 		return
 	}
