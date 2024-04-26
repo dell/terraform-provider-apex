@@ -40,6 +40,7 @@ func TestAccResourceBlockStorageOnPrem(t *testing.T) {
 }
 
 func TestAccResourceBlockStorageCloud(t *testing.T) {
+	var resTerraformName = "apex_navigator_block_storage.cloud_instance"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -47,6 +48,10 @@ func TestAccResourceBlockStorageCloud(t *testing.T) {
 			{
 				Config: ProviderConfig + blockResourceCloudConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			{
+				ResourceName: resTerraformName,
+				ImportState:  true,
 			},
 			{
 				Config:      ProviderConfig + blockResourceCloudUpdateConfig,
