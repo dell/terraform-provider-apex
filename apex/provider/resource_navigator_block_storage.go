@@ -29,7 +29,6 @@ import (
 	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -842,5 +841,27 @@ func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRe
 
 func (r *blockStorageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	storageID := req.ID
+
+	getReq := r.client.StorageSystemsAPI.StorageSystemsInstance(ctx, storageID)
+
+	// Get refreshed storage systems value from Apex Navigator
+	storageSystem, status, err := getReq.Execute()
+	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+		newErr := helper.GetErrorString(err, status)
+		resp.Diagnostics.AddError(
+			"Error Reading Apex Navigator block storage",
+			"Could not read Apex Navigator block storage, unexpected error: "+newErr,
+		)
+		return
+	}
+
+	result := helper.GetStorageSystem(*storageSystem)
+
+	diags := resp.State.Set(ctx, &result)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 }
