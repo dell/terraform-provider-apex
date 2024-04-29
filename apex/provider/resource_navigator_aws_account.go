@@ -24,6 +24,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -97,10 +98,9 @@ func (r *awsAccountResource) Configure(_ context.Context, req resource.Configure
 
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.CLients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -125,8 +125,8 @@ func (r *awsAccountResource) Create(ctx context.Context, req resource.CreateRequ
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error connecting AWS Account",
-			"Could not connect AWS Account, unexpected error: "+newErr,
+			constants.AwsConnectionErrorMsg,
+			constants.AwsConnectionDetailMsg+newErr,
 		)
 		return
 	}
@@ -157,8 +157,8 @@ func (r *awsAccountResource) Read(ctx context.Context, req resource.ReadRequest,
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator Aws Accounts",
-			"Could not read AWS Accounts, unexpected error: "+newErr,
+			constants.AwsAccountReadErrorMsg,
+			constants.AwsAccountReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -193,8 +193,8 @@ func (r *awsAccountResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	if state.AccountID != plan.AccountID {
 		resp.Diagnostics.AddError(
-			"Error Updating Apex Navigator Aws Accounts",
-			"Account ID cannot be updated",
+			constants.AwsAccountUpdateErrorMsg,
+			constants.AwsAccountUpdateIDErrorMsg,
 		)
 		return
 	}
@@ -204,8 +204,8 @@ func (r *awsAccountResource) Update(ctx context.Context, req resource.UpdateRequ
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Updating Apex Navigator Aws Accounts",
-			"Could not update AWS Accounts, unexpected error: "+newErr,
+			constants.AwsAccountUpdateErrorMsg,
+			constants.AwsAccountUpdateErrorMsg+newErr,
 		)
 		return
 	}
@@ -214,8 +214,8 @@ func (r *awsAccountResource) Update(ctx context.Context, req resource.UpdateRequ
 	_, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, updateJob.Id)
 	if jobErr != nil {
 		resp.Diagnostics.AddError(
-			"Error occurred during update job: ",
-			helper.ResourceRetrieveError+jobErr.Error(),
+			constants.UpdateJobErrorMsg,
+			constants.GeneralJobError+jobErr.Error(),
 		)
 		return
 	}
@@ -225,8 +225,8 @@ func (r *awsAccountResource) Update(ctx context.Context, req resource.UpdateRequ
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator AWS Accounts",
-			"Could not read AWS Accounts, unexpected error: "+newErr,
+			constants.AwsAccountReadErrorMsg,
+			constants.AwsAccountReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -256,8 +256,8 @@ func (r *awsAccountResource) Delete(ctx context.Context, req resource.DeleteRequ
 	if err != nil || status == nil {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Deleting Apex Navigator Aws Accounts",
-			"Could not delete AWS Accounts, unexpected error: "+newErr,
+			constants.AwsDisconnectionErrorMsg,
+			constants.AwsDisconnectionDetailMsg+newErr,
 		)
 		return
 	}

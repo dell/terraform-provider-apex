@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -104,7 +105,7 @@ func (d *awsPermissionsDataSource) Read(ctx context.Context, req datasource.Read
 	permissions, status, err := helper.GetAwsPermssionCollection(d.client, state.Filter.IDs)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator AWS Permission Policies",
+			constants.AwsPermissionReadErrorMsg,
 			err.Error(),
 		)
 		return
@@ -114,8 +115,8 @@ func (d *awsPermissionsDataSource) Read(ctx context.Context, req datasource.Read
 	// Then one or more of the filtered values are invalid
 	if len(state.Filter.IDs) > 0 && len(permissions.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter AWS Permission Policies.",
-			"one more more of the ids set in the filter is invalid.",
+			constants.AwsPermissionFilterErrorMsg,
+			constants.FilterGeneralErrorMsg,
 		)
 		return
 	}
@@ -145,8 +146,8 @@ func (d *awsPermissionsDataSource) Configure(_ context.Context, req datasource.C
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return

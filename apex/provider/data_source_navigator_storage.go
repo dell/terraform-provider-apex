@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 )
@@ -132,8 +133,8 @@ func (d *storagesDataSource) Read(ctx context.Context, req datasource.ReadReques
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Storage: "+newErr,
-			err.Error(),
+			constants.StorageReadErrorMsg,
+			newErr,
 		)
 		return
 	}
@@ -142,8 +143,8 @@ func (d *storagesDataSource) Read(ctx context.Context, req datasource.ReadReques
 	// Then one or more of the filtered values are invalid
 	if filterUsed && state.Filter.SystemType.ValueString() == "" && len(storageSystems.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter storage.",
-			"one more more of the ids set in the filter is invalid.",
+			constants.StorageFilterErrorMsg,
+			constants.FilterGeneralErrorMsg,
 		)
 		return
 	}
@@ -158,8 +159,8 @@ func (d *storagesDataSource) Read(ctx context.Context, req datasource.ReadReques
 			}
 		} else {
 			resp.Diagnostics.AddError(
-				"Unexpected system type",
-				"Unexpected system type",
+				constants.UnexpectedSysteType,
+				constants.UnexpectedSysteType,
 			)
 		}
 
@@ -184,8 +185,8 @@ func (d *storagesDataSource) Configure(_ context.Context, req datasource.Configu
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return

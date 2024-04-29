@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -104,7 +105,7 @@ func (d *awsAccountsDataSource) Read(ctx context.Context, req datasource.ReadReq
 	accounts, status, err := helper.GetAwsAccountCollection(d.client, state.Filter.IDs)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Aws Accounts",
+			constants.AwsAccountReadErrorMsg,
 			err.Error(),
 		)
 		return
@@ -114,8 +115,8 @@ func (d *awsAccountsDataSource) Read(ctx context.Context, req datasource.ReadReq
 	// Then one or more of the filtered values are invalid
 	if len(state.Filter.IDs) > 0 && len(accounts.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter aws accounts.",
-			"one more more of the ids set in the filter is invalid.",
+			constants.FilterGeneralErrorMsg,
+			constants.AwsAccountFilterErrorMsg,
 		)
 		return
 	}
@@ -145,8 +146,8 @@ func (d *awsAccountsDataSource) Configure(_ context.Context, req datasource.Conf
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return

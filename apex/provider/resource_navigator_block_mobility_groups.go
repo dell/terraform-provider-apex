@@ -26,6 +26,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -150,10 +151,9 @@ func (r *mobilityGroupsResource) Configure(_ context.Context, req resource.Confi
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.CLients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -175,8 +175,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -185,8 +185,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Mobility Group",
-			"Could not create Mobility Group, unexpected error: "+newErr,
+			constants.MobilityGroupCreateErrorMsg,
+			constants.MobilityGroupCreateDetailMsg+newErr,
 		)
 		return
 	}
@@ -195,8 +195,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -206,8 +206,8 @@ func (r *mobilityGroupsResource) Create(ctx context.Context, req resource.Create
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving created Mobility group",
-			"Could not retrieve created Mobility group, unexpected error: "+newErr,
+			constants.BlockMobilityGroupReadErrorMsg,
+			constants.BlockMobilityGroupReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -243,8 +243,8 @@ func (r *mobilityGroupsResource) Read(ctx context.Context, req resource.ReadRequ
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator mobility group",
-			"Could not read Apex Navigator mobility group, unexpected error: "+newErr,
+			constants.BlockMobilityGroupReadErrorMsg,
+			constants.BlockMobilityGroupReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -280,8 +280,8 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -296,8 +296,8 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 
 	if state.SystemID.ValueString() != plan.SystemID.ValueString() || *state.SystemType != *plan.SystemType {
 		resp.Diagnostics.AddError(
-			"Error updating Mobility Group",
-			"Cannot update Mobility Group, attempted to update unchangeable attribute [SystemID, SystemType]",
+			constants.MobilityGroupUpdateErrorMsg,
+			constants.MobilityGroupUpdateInvalidFieldUpdateErrorMsg,
 		)
 		return
 	}
@@ -307,8 +307,8 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error executing Update Mobility Group Job",
-			"Could not execute update Mobility group, unexpected error: "+newErr,
+			constants.MobilityGroupUpdateErrorMsg,
+			constants.MobilityGroupUpdateDetailMsg+newErr,
 		)
 		return
 	}
@@ -317,8 +317,8 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -328,8 +328,8 @@ func (r *mobilityGroupsResource) Update(ctx context.Context, req resource.Update
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving updated Mobility Group",
-			"Could not retrieve updated Mobility Group, unexpected error: "+newErr,
+			constants.BlockMobilityGroupReadErrorMsg,
+			constants.BlockMobilityGroupReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -362,8 +362,8 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -375,8 +375,8 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Deleting Apex Navigator Mobility Group",
-			"Could not delete mobility group, unexpected error: "+newErr,
+			constants.MobilityGroupDeleteErrorMsg,
+			constants.MobilityGroupDeleteDetailMsg+newErr,
 		)
 		return
 	}
@@ -384,8 +384,8 @@ func (r *mobilityGroupsResource) Delete(ctx context.Context, req resource.Delete
 	resourceID, err := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if (err != nil) || (resourceID == "") {
 		resp.Diagnostics.AddError(
-			"Error getting Delete Job ID",
-			helper.JobRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.JobRetrieveError+err.Error(),
 		)
 		return
 	}
@@ -412,8 +412,8 @@ func (r *mobilityGroupsResource) ImportState(ctx context.Context, req resource.I
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator mobility group",
-			"Could not retrieve Mobility Groups during import: "+newErr,
+			constants.MobilityGroupUpdateErrorMsg,
+			constants.MobilityGroupImportReadErrorMsg+newErr,
 		)
 		return
 	}

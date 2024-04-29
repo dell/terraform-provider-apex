@@ -106,7 +106,7 @@ func TestAccResourceCloneUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.UpdateClone).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + cloneResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(".*Could not execute update clones*"),
+				ExpectError: regexp.MustCompile(".*Error updating Apex Navigator Clones*"),
 			},
 			{
 				PreConfig: func() {
@@ -117,7 +117,7 @@ func TestAccResourceCloneUpdateError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + cloneResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 		},
 	})
@@ -135,7 +135,7 @@ func TestAccResourceCloneCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.CreateClone).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + cloneResourceConfig,
-				ExpectError: regexp.MustCompile(".*Could not create Clones*"),
+				ExpectError: regexp.MustCompile(".*Error creating Apex Navigator Clones*"),
 			},
 			{
 				PreConfig: func() {
@@ -146,7 +146,7 @@ func TestAccResourceCloneCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetCloneInstance).Return(nil, &http.Response{Body: io.NopCloser(strings.NewReader("")), StatusCode: 400}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + cloneResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Could not retrieve created Clone*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Clones*.`),
 			},
 			{
 				PreConfig: func() {
@@ -157,7 +157,7 @@ func TestAccResourceCloneCreateError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + cloneResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 		},
 	})
@@ -186,7 +186,7 @@ func TestAccResourceCloneReadError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetCloneInstance).Return(nil, &http.Response{Body: io.NopCloser(strings.NewReader("")), StatusCode: 400}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + cloneResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Could not read Clones*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Clones*.`),
 			},
 		},
 	})

@@ -53,7 +53,7 @@ func TestAccResourceClonesRefreshError(t *testing.T) {
 					FunctionMocker = Mock(helper.RefreshClone).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + clonesRefreshResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Clones Refresh request*.`),
+				ExpectError: regexp.MustCompile(`.*Error refreshing Apex Navigator Clones*.`),
 			},
 			// Activate Powerflex Error
 			{
@@ -74,7 +74,7 @@ func TestAccResourceClonesRefreshError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + clonesRefreshResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 			{
 				PreConfig: func() {

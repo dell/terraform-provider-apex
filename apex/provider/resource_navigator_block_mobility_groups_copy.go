@@ -25,6 +25,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -107,9 +108,10 @@ func (r *mobilityGroupsCopyResource) Configure(_ context.Context, req resource.C
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.Clients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
+		return
 	}
 
 	r.client = clients.APIClient
@@ -131,8 +133,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator mobility group",
-			"Could not read Apex Navigator mobility group, unexpected error: "+newErr,
+			constants.BlockMobilityGroupReadErrorMsg,
+			constants.BlockMobilityGroupReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -142,8 +144,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator mobility target",
-			"Could not read Mobility target, unexpected error: "+newErr,
+			constants.BlockMobilityGroupReadErrorMsg,
+			constants.BlockMobilityGroupReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -163,8 +165,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	case chanErrSource, ok := <-actErrSource:
 		if ok {
 			resp.Diagnostics.AddError(
-				"Error activating Powerflex System",
-				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityGroup.SystemId, chanErrSource.Error()),
+				constants.ErrorActivatingPowerFlexSystem,
+				fmt.Sprintf(constants.ErrorActivatingPowerFlexSpecificSystemDetail, mobilityGroup.SystemId, chanErrSource.Error()),
 			)
 			// Closing channel for activation routine
 			close(stopSource)
@@ -174,8 +176,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	case chanErrTarget, ok := <-actErrTarget:
 		if ok {
 			resp.Diagnostics.AddError(
-				"Error activating Powerflex System",
-				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityTarget.SystemId, chanErrTarget.Error()),
+				constants.ErrorActivatingPowerFlexSystem,
+				fmt.Sprintf(constants.ErrorActivatingPowerFlexSpecificSystemDetail, mobilityTarget.SystemId, chanErrTarget.Error()),
 			)
 			// Closing channel for activation routine
 			close(stopSource)
@@ -200,8 +202,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Mobility Group Copy",
-			"Could not create Mobility Group Copy, unexpected error: "+newErr,
+			constants.BlockMobilityGroupCopyErrorMsg,
+			constants.BlockMobilityGroupCopyDetailMsg+newErr,
 		)
 		close(stopSource)
 		close(stopTarget)
@@ -215,8 +217,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		case chanErrSource, ok := <-actErrSource:
 			if ok {
 				resp.Diagnostics.AddError(
-					"Error activating Powerflex System",
-					fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityGroup.SystemId, chanErrSource.Error()),
+					constants.ErrorActivatingPowerFlexSystem,
+					fmt.Sprintf(constants.ErrorActivatingPowerFlexSpecificSystemDetail, mobilityGroup.SystemId, chanErrSource.Error()),
 				)
 				// Closing channel for activation routine
 				close(stopSource)
@@ -226,8 +228,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		case chanErrTarget, ok := <-actErrTarget:
 			if ok {
 				resp.Diagnostics.AddError(
-					"Error activating Powerflex System",
-					fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityTarget.SystemId, chanErrTarget.Error()),
+					constants.ErrorActivatingPowerFlexSystem,
+					fmt.Sprintf(constants.ErrorActivatingPowerFlexSpecificSystemDetail, mobilityTarget.SystemId, chanErrTarget.Error()),
 				)
 				// Closing channel for activation routine
 				close(stopSource)
@@ -239,8 +241,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 		}
 
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		close(stopSource)
 		close(stopTarget)
@@ -251,8 +253,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting job",
-			helper.JobRetrieveError+err.Error(),
+			constants.ErrorGettingJob,
+			constants.JobRetrieveError+err.Error(),
 		)
 		close(stopSource)
 		close(stopTarget)
@@ -264,8 +266,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	case chanErrSource, ok := <-actErrSource:
 		if ok {
 			resp.Diagnostics.AddError(
-				"Error activating Powerflex System",
-				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityGroup.SystemId, chanErrSource.Error()),
+				constants.ErrorActivatingPowerFlexSystem,
+				fmt.Sprintf(constants.ErrorActivatingPowerFlexSpecificSystemDetail, mobilityGroup.SystemId, chanErrSource.Error()),
 			)
 			// Closing channel for activation routine
 			close(stopSource)
@@ -275,8 +277,8 @@ func (r *mobilityGroupsCopyResource) Create(ctx context.Context, req resource.Cr
 	case chanErrTarget, ok := <-actErrTarget:
 		if ok {
 			resp.Diagnostics.AddError(
-				"Error activating Powerflex System",
-				fmt.Sprintf("Could not activate powerflex system %s, please check username/password are correct: %s", mobilityTarget.SystemId, chanErrTarget.Error()),
+				constants.ErrorActivatingPowerFlexSystem,
+				fmt.Sprintf(constants.ErrorActivatingPowerFlexSpecificSystemDetail, mobilityTarget.SystemId, chanErrTarget.Error()),
 			)
 			// Closing channel for activation routine
 			close(stopSource)
@@ -341,15 +343,15 @@ func (r *mobilityGroupsCopyResource) Read(ctx context.Context, req resource.Read
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *mobilityGroupsCopyResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddWarning(
-		"Updates are not supported for this resource",
-		"Updates are not supported for this resource",
+		constants.UpdatesNotSupportedErrorMsg,
+		constants.UpdatesNotSupportedErrorMsg,
 	)
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *mobilityGroupsCopyResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	resp.Diagnostics.AddWarning(
-		"Deletes are not supported for this resource",
-		"Deletes are not supported for this resource",
+		constants.DeleteIsNotSupportedErrorMsg,
+		constants.DeleteIsNotSupportedErrorMsg,
 	)
 }

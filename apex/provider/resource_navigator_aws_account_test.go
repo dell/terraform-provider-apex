@@ -91,7 +91,7 @@ func TestAccResourceAwsAccountErrorTesting(t *testing.T) {
 					FunctionMocker = Mock(helper.GetAccountInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + awsAccountResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(".*Error Reading Apex Navigator Aws Accounts*"),
+				ExpectError: regexp.MustCompile(".*Unable to Read Apex Navigator Aws Accounts*"),
 			},
 			// Job Error
 			{

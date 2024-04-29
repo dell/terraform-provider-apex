@@ -25,6 +25,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -148,10 +149,9 @@ func (r *clonesUnmapResource) Configure(_ context.Context, req resource.Configur
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.Clients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -173,8 +173,8 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -187,22 +187,18 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Clones Unmap request",
-			"Could not create Clones Unmap, unexpected error: "+newErr,
+			constants.BlockCloneUnmapErrorMsg,
+			constants.BlockCloneUnmapDetailMsg+newErr,
 		)
 		return
-	}
-
-	if err := status.Body.Close(); err != nil {
-		fmt.Print("Error Closing response body:", err)
 	}
 
 	// Waiting for job to complete
 	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -211,8 +207,8 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting job",
-			helper.JobRetrieveError+err.Error(),
+			constants.ErrorGettingJob,
+			constants.JobRetrieveError+err.Error(),
 		)
 		return
 	}
@@ -221,8 +217,8 @@ func (r *clonesUnmapResource) Create(ctx context.Context, req resource.CreateReq
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error retrieving Clone",
-			"Could not retrieve Clone, unexpected error: "+newErr,
+			constants.BlockCloneReadErrorMsg,
+			constants.BlockCloneReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -277,15 +273,15 @@ func (r *clonesUnmapResource) Read(ctx context.Context, req resource.ReadRequest
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *clonesUnmapResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddWarning(
-		"Updates are not supported for this resource",
-		"Updates are not supported for this resource",
+		constants.UpdatesNotSupportedErrorMsg,
+		constants.UpdatesNotSupportedErrorMsg,
 	)
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *clonesUnmapResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	resp.Diagnostics.AddWarning(
-		"Deletes are not supported for this resource",
-		"Deletes are not supported for this resource",
+		constants.DeleteIsNotSupportedErrorMsg,
+		constants.DeleteIsNotSupportedErrorMsg,
 	)
 }

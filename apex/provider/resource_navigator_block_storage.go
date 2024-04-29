@@ -26,6 +26,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -539,10 +540,9 @@ func (r *blockStorageResource) Configure(_ context.Context, req resource.Configu
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.CLients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -651,8 +651,8 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		systemCreateInput = *client.NewStorageSystemDeploymentRequest(plan.Name.ValueString(), cloudOptions, storageOptions, true)
 	default:
 		resp.Diagnostics.AddError(
-			"Error creating block storage post request",
-			"Could not create block storage post request",
+			constants.BlockStorageCreateErrorMsg,
+			constants.BlockStorageInvalidDeploymentType,
 		)
 		return
 	}
@@ -662,8 +662,8 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Block Storage",
-			"Could not create Block Storage, unexpected error: "+newErr,
+			constants.BlockStorageCreateErrorMsg,
+			constants.BlockStorageCreateDetailMsg+newErr,
 		)
 		return
 	}
@@ -672,8 +672,8 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	resourceID, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if jobErr != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+jobErr.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+jobErr.Error(),
 		)
 		return
 	}
@@ -688,16 +688,16 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 			if (err != nil) || (status.StatusCode != http.StatusOK) {
 				newErr := helper.GetErrorString(err, status)
 				resp.Diagnostics.AddError(
-					"Error retrieving created Block storage",
-					"Could not retrieve created Block storage, unexpected error: "+newErr,
+					constants.StorageReadErrorMsg,
+					constants.StorageReadDetailMsg+newErr,
 				)
 				return
 			}
 		} else {
 			newErr := helper.GetErrorString(err, status)
 			resp.Diagnostics.AddError(
-				"Error retrieving created Block storage",
-				"Could not retrieve created Block storage, unexpected error: "+newErr,
+				constants.StorageReadErrorMsg,
+				constants.StorageReadDetailMsg+newErr,
 			)
 			return
 		}
@@ -717,8 +717,8 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 
 	if result.DeploymentDetails == nil {
 		resp.Diagnostics.AddError(
-			"Unexpected system type",
-			"Unexpected system type",
+			constants.UnexpectedSysteType,
+			constants.UnexpectedSysteType,
 		)
 	}
 
@@ -745,8 +745,8 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	if err != nil || status == nil || status.StatusCode != http.StatusOK {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Reading Apex Navigator block storage",
-			"Could not read Apex Navigator block storage, unexpected error: "+newErr,
+			constants.StorageReadErrorMsg,
+			constants.StorageReadDetailMsg+newErr,
 		)
 		return
 	}
@@ -766,8 +766,8 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 
 	if state.DeploymentDetails == nil {
 		resp.Diagnostics.AddError(
-			"Unexpected system type",
-			"Unexpected system type",
+			constants.UnexpectedSysteType,
+			constants.UnexpectedSysteType,
 		)
 	}
 
@@ -798,8 +798,8 @@ func (r *blockStorageResource) Update(ctx context.Context, req resource.UpdateRe
 
 	if state != plan {
 		resp.Diagnostics.AddError(
-			"Unable to update Apex Navigator block storage",
-			"Update of Block Storage is not supported, please create a new resource",
+			constants.BlockStorageUpdateErrorMsg,
+			constants.BlockStorageUpdateDetailMsg,
 		)
 		return
 	}
@@ -822,8 +822,8 @@ func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRe
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error Deleting Apex Navigator Storage System",
-			"Could not delete block storage, unexpected error: "+newErr,
+			constants.BlockStorageDecomissionErrorMsg,
+			constants.BlockStorageDecomissionDetailMsg+newErr,
 		)
 		return
 	}
@@ -832,8 +832,8 @@ func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRe
 	resourceID, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if jobErr != nil || resourceID == "" {
 		resp.Diagnostics.AddError(
-			"Error getting Delete Job ID",
-			"Could not retrieve delete job id, unexpected error: "+jobErr.Error(),
+			constants.GeneralJobError,
+			jobErr.Error(),
 		)
 		return
 	}

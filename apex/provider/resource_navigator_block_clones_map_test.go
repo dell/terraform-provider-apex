@@ -53,7 +53,7 @@ func TestAccResourceClonesMapError(t *testing.T) {
 					FunctionMocker = Mock(helper.MapClones).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + clonesMapResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Clones Map Request*.`),
+				ExpectError: regexp.MustCompile(`.*Failed to map clones.*.`),
 			},
 			// Activate Powerflex Error
 			{
@@ -75,7 +75,7 @@ func TestAccResourceClonesMapError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetCloneInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + clonesMapResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error retrieving Clone*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Clones*.`),
 			},
 			{
 				// error while waiting for job to complete
@@ -86,7 +86,7 @@ func TestAccResourceClonesMapError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + clonesMapResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 			{
 				// error getting job status

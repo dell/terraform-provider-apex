@@ -23,6 +23,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -187,7 +188,7 @@ func (d *hostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	hosts, status, err := helper.GetHostCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Hosts: ",
+			constants.BlockHostsReadErrorMsg,
 			err.Error(),
 		)
 		return
@@ -198,8 +199,8 @@ func (d *hostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	if filterUsed && len(hosts.Results) != len(state.Filter.IDs) {
 		tflog.Debug(ctx, fmt.Sprintf("hosts: %v, filter: %v", hosts.Results, state.Filter.IDs))
 		resp.Diagnostics.AddError(
-			"Failed to filter hosts.",
-			"one more more of the ids set in the filter is invalid.",
+			constants.FilterGeneralErrorMsg,
+			constants.FilterGeneralErrorMsg,
 		)
 		return
 	}
@@ -225,8 +226,8 @@ func (d *hostsDataSource) Configure(_ context.Context, req datasource.ConfigureR
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return

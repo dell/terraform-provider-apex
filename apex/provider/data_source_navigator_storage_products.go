@@ -24,6 +24,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -172,9 +173,10 @@ func (d *storageProductsDataSource) Read(ctx context.Context, req datasource.Rea
 
 	storageProducts, status, err := helper.GetStorageProductsCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
+		errMsg := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Unable Read to storage product",
-			err.Error(),
+			constants.StorageProductReadErrorMsg,
+			errMsg,
 		)
 		return
 	}
@@ -184,8 +186,8 @@ func (d *storageProductsDataSource) Read(ctx context.Context, req datasource.Rea
 	if filterUsed && len(storageProducts.Results) != 1 {
 		tflog.Info(ctx, fmt.Sprintf("Filtered %v storage products", storageProducts.Results))
 		resp.Diagnostics.AddError(
-			"Failed to filter storage product.",
-			"the system_type in the filter is invalid.",
+			constants.FilterErrorSystemTypeMsg,
+			constants.StorageProductFilterErrorMsg,
 		)
 		return
 	}
@@ -211,8 +213,8 @@ func (d *storageProductsDataSource) Configure(_ context.Context, req datasource.
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return

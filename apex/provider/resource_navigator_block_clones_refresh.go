@@ -25,6 +25,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -101,10 +102,9 @@ func (r *clonesRefreshResource) Configure(_ context.Context, req resource.Config
 	clients, ok := req.ProviderData.(Clients)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.Clients, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.ResourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
-
 		return
 	}
 
@@ -126,8 +126,8 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
 	if actErr != nil {
 		resp.Diagnostics.AddError(
-			"Error activating Powerflex System",
-			"Could not activate powerflex system, please check username/password and system id are correct: "+actErr.Error(),
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
 		)
 		return
 	}
@@ -140,8 +140,8 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
-			"Error creating Clones Refresh request",
-			"Could not create Clones Refresh request, unexpected error: "+newErr,
+			constants.BlockCloneRefreshErrorMsg,
+			constants.BlockCloneRefreshDetailMsg+newErr,
 		)
 		return
 	}
@@ -150,8 +150,8 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	_, err = helper.WaitForJobToComplete(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting resourceID",
-			helper.ResourceRetrieveError+err.Error(),
+			constants.GeneralJobError,
+			constants.GeneralJobError+err.Error(),
 		)
 		return
 	}
@@ -160,8 +160,8 @@ func (r *clonesRefreshResource) Create(ctx context.Context, req resource.CreateR
 	jobStatus, err := helper.GetJobStatus(ctx, r.jobsClient, job.Id)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting job",
-			helper.JobRetrieveError+err.Error(),
+			constants.ErrorGettingJob,
+			constants.JobRetrieveError+err.Error(),
 		)
 		return
 	}
@@ -213,15 +213,15 @@ func (r *clonesRefreshResource) Read(ctx context.Context, req resource.ReadReque
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *clonesRefreshResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddWarning(
-		"Updates are not supported for this resource",
-		"Updates are not supported for this resource",
+		constants.UpdatesNotSupportedErrorMsg,
+		constants.UpdatesNotSupportedErrorMsg,
 	)
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *clonesRefreshResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	resp.Diagnostics.AddWarning(
-		"Deletes are not supported for this resource",
-		"Deletes are not supported for this resource",
+		constants.DeleteIsNotSupportedErrorMsg,
+		constants.DeleteIsNotSupportedErrorMsg,
 	)
 }

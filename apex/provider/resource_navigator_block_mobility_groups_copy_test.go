@@ -50,7 +50,7 @@ func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 					FunctionMocker = Mock(helper.CopyMobilityGroups).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Mobility Group Copy*.`),
+				ExpectError: regexp.MustCompile(`.*Error copying Apex Navigator Mobility Groups*.`),
 			},
 			// GetMobilityGroup Error
 			{
@@ -61,7 +61,7 @@ func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 					FunctionMocker = Mock(helper.GetMobilityGroup).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Could not read Apex Navigator mobility group*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Mobility Groups*.`),
 			},
 			// Activate Powerflex Error
 			{
@@ -83,7 +83,7 @@ func TestAccResourceMobilityGroupsCopyError(t *testing.T) {
 					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + mobilityGroupsCopyResourceConfig,
-				ExpectError: regexp.MustCompile(`.*Error getting resourceID*.`),
+				ExpectError: regexp.MustCompile(`.*Error occurred during job*.`),
 			},
 			{
 				// Error getting job status

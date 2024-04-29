@@ -51,7 +51,7 @@ func TestAccResourceBlockStorageCloud(t *testing.T) {
 			{
 				Config:      ProviderConfig + blockResourceCloudUpdateConfig,
 				Check:       resource.ComposeAggregateTestCheckFunc(),
-				ExpectError: regexp.MustCompile(`.*Unable to update Apex Navigator block storage*.`),
+				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator Block Storage*.`),
 			},
 			{
 				PreConfig: func() {
@@ -74,7 +74,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					FunctionMocker = Mock(helper.CreateBlockStorage).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Block Storage*.`),
+				ExpectError: regexp.MustCompile(`.*Error creating Apex Navigator Block Storage*.`),
 			},
 			{
 				PreConfig: func() {
@@ -84,7 +84,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 400, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
-				ExpectError: regexp.MustCompile(`.*Error retrieving created Block storage*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
 			{
 				PreConfig: func() {
@@ -94,7 +94,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 404, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
-				ExpectError: regexp.MustCompile(`.*Error retrieving created Block storage*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
 			// Step1: To test Read error, do a successful create then fail on update
 			{
@@ -115,7 +115,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
-				ExpectError: regexp.MustCompile(`.*Error Reading Apex Navigator block storage*.`),
+				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
 		},
 	})

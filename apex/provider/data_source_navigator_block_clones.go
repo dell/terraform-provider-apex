@@ -23,6 +23,7 @@ import (
 
 	client "dell/apex-client"
 
+	"github.com/dell/terraform-provider-apex/apex/constants"
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -111,7 +112,7 @@ func (d *clonesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	clones, status, err := helper.GetCloneCollection(d.client, filter)
 	if (err != nil) || (status.StatusCode != http.StatusOK && status.StatusCode != http.StatusPartialContent) {
 		resp.Diagnostics.AddError(
-			"Unable to Read Apex Navigator Clones",
+			constants.BlockCloneReadErrorMsg,
 			err.Error(),
 		)
 		return
@@ -121,8 +122,8 @@ func (d *clonesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	// Then one or more of the filtered values are invalid
 	if filterUsed && len(clones.Results) != len(state.Filter.IDs) {
 		resp.Diagnostics.AddError(
-			"Failed to filter clones.",
-			"one more more of the ids set in the filter is invalid.",
+			constants.BlockCloneFilterErrorMsg,
+			constants.FilterGeneralErrorMsg,
 		)
 		return
 	}
@@ -151,8 +152,8 @@ func (d *clonesDataSource) Configure(_ context.Context, req datasource.Configure
 	client, ok := req.ProviderData.(*client.APIClient)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *openapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			constants.DatasourceConfigureErrorMsg,
+			fmt.Sprintf(constants.GeneralConfigureErrorMsg, req.ProviderData),
 		)
 
 		return
