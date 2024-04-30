@@ -162,3 +162,100 @@ func GetStorageSystem(storageSystem client.StorageSystemsInstance) (storageState
 
 	return storageState
 }
+
+// GetStorageSystemDs returns a storage systems model for datasource based on the given storage system instance
+func GetStorageSystemDs(storageSystem client.StorageSystemsInstance) (storageState models.StorageModelDs) {
+	storageState = models.StorageModelDs{
+		ID:                              types.StringValue(storageSystem.Id),
+		SystemID:                        types.StringPointerValue(storageSystem.SystemId),
+		SystemType:                      types.StringPointerValue(storageSystem.SystemType),
+		Bandwidth:                       types.Int64PointerValue(storageSystem.Bandwidth),
+		CapacityImpact:                  types.Int64PointerValue(storageSystem.CapacityImpact),
+		CapacityIssueCount:              types.Int64PointerValue(storageSystem.CapacityIssueCount),
+		CompressionSavings:              types.Float64PointerValue(storageSystem.CompressionSavings),
+		ConfigurationImpact:             types.Int64PointerValue(storageSystem.ConfigurationImpact),
+		ConfigurationIssueCount:         types.Int64PointerValue(storageSystem.ConfigurationIssueCount),
+		ConfiguredSize:                  types.Int64PointerValue(storageSystem.ConfiguredSize),
+		ConnectivityStatus:              types.StringPointerValue(storageSystem.ConnectivityStatus),
+		LicenseType:                     types.StringPointerValue(storageSystem.LicenseType),
+		LicenseExpirationDateTimestamp:  types.StringValue(ConvertTimeToString(storageSystem.LicenseExpirationDateTimestamp)),
+		ContractCoverageType:            types.StringPointerValue(storageSystem.ContractCoverageType),
+		ContractExpirationDateTimestamp: types.StringValue(ConvertTimeToString(storageSystem.ContractExpirationDateTimestamp)),
+		DataProtectionImpact:            types.Int64PointerValue(storageSystem.DataProtectionImpact),
+		DataProtectionIssueCount:        types.Int64PointerValue(storageSystem.DataProtectionIssueCount),
+		DisplayIdentifier:               types.StringPointerValue(storageSystem.DisplayIdentifier),
+		FreePercent:                     types.Float64PointerValue(storageSystem.FreePercent),
+		FreeSize:                        types.Int64PointerValue(storageSystem.FreeSize),
+		HealthConnectivityStatus:        types.StringPointerValue(storageSystem.HealthConnectivityStatus),
+		HealthIssueCount:                types.Int64PointerValue(storageSystem.HealthIssueCount),
+		HealthScore:                     types.Int64PointerValue(storageSystem.HealthScore),
+		HealthState:                     types.StringPointerValue(storageSystem.HealthState),
+		Iops:                            types.Int64PointerValue(storageSystem.Iops),
+		Ipv4Address:                     types.StringPointerValue(storageSystem.Ipv4Address),
+		Ipv6Address:                     types.StringPointerValue(storageSystem.Ipv6Address),
+		LastContactTimestamp:            types.StringValue(ConvertTimeToString(storageSystem.LastContactTimestamp)),
+		Latency:                         types.Int64PointerValue(storageSystem.Latency),
+		LogicalSize:                     types.Int64PointerValue(storageSystem.LogicalSize),
+		Model:                           types.StringPointerValue(storageSystem.Model),
+		Name:                            types.StringPointerValue(storageSystem.Name),
+		OverallEfficiency:               types.Float64PointerValue(storageSystem.OverallEfficiency),
+		PerformanceImpact:               types.Int64PointerValue(storageSystem.PerformanceImpact),
+		PerformanceIssueCount:           types.Int64PointerValue(storageSystem.PerformanceIssueCount),
+		SerialNumber:                    types.StringPointerValue(storageSystem.SerialNumber),
+		SiteName:                        types.StringPointerValue(storageSystem.SiteName),
+		SnapsSavings:                    types.Float64PointerValue(storageSystem.SnapsSavings),
+		SystemHealthImpact:              types.Int64PointerValue(storageSystem.SystemHealthImpact),
+		SystemHealthIssueCount:          types.Int64PointerValue(storageSystem.SystemHealthIssueCount),
+		ThinSavings:                     types.Float64PointerValue(storageSystem.ThinSavings),
+		TotalSize:                       types.Int64PointerValue(storageSystem.TotalSize),
+		UnconfiguredSize:                types.Int64PointerValue(storageSystem.UnconfiguredSize),
+		UsedPercent:                     types.Float64PointerValue(storageSystem.UsedPercent),
+		UsedSize:                        types.Int64PointerValue(storageSystem.UsedSize),
+		Vendor:                          types.StringPointerValue(storageSystem.Vendor),
+		Version:                         types.StringPointerValue(storageSystem.Version),
+		CirrusDeployed:                  types.BoolPointerValue(storageSystem.CirrusDeployed),
+	}
+
+	switch {
+	case storageSystem.DeploymentDetails == nil:
+	case storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails != nil:
+		storageState.DeploymentDetails = &models.DeploymentDetailsModel{
+			SystemOnPrem: &models.SystemOnPremDeploymentDetailsModel{
+				DeploymentType: (storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.DeploymentType),
+				SiteName:       types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.SiteName),
+				Location:       types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.Location),
+				Country:        types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.Country),
+				State:          types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.State),
+				City:           types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.City),
+				StreetAddress1: types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.StreetAddress1),
+				StreetAddress2: types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.StreetAddress2),
+				ZipCode:        types.StringPointerValue(storageSystem.DeploymentDetails.SystemOnPremDeploymentDetails.ZipCode),
+			},
+		}
+	case storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil:
+		storageState.DeploymentDetails = &models.DeploymentDetailsModel{
+			SystemPublicCloud: &models.SystemPublicCloudDeploymentDetailsModel{
+				DeploymentType:         (storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.DeploymentType),
+				CloudAccount:           types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudAccount),
+				CloudRegion:            types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudRegion),
+				VirtualPrivateCloud:    types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.VirtualPrivateCloud),
+				CloudManagementAddress: types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudManagementAddress),
+				MinimumIops:            types.Int64PointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.MinimumIops),
+				MinimumCapacity:        types.Int64PointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.MinimumCapacity),
+				TierType:               types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.TierType),
+			},
+		}
+
+		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType != nil {
+			storageState.DeploymentDetails.SystemPublicCloud.CloudType = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.CloudType
+		}
+		if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology != nil {
+			storageState.DeploymentDetails.SystemPublicCloud.AvailabilityZoneTopology = storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.AvailabilityZoneTopology
+		}
+
+	default:
+		fmt.Printf(constants.UnexpectedSysteType)
+	}
+
+	return storageState
+}

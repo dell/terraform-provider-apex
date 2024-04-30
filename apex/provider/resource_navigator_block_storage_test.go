@@ -49,21 +49,30 @@ func TestAccResourceBlockStorageCloud(t *testing.T) {
 				Config: ProviderConfig + blockResourceCloudConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
+			//Import testing
 			{
-				ResourceName: resTerraformName,
-				ImportState:  true,
+				ResourceName:  resTerraformName,
+				ImportStateId: "{\"system_id\":\"" + systemID + "\",\"target_username\":\"" + powerflexUser + "\",\"target_password\":\"" + powerflexPass + "\", \"target_host\":\"" + "" + "\", \"source_username\":\"" + powerflexUser + "\",\"source_password\":\"" + powerflexPass + "\",\"source_host\":\"" + "" + "\",\"insecure\":true}",
+				ImportState:   true,
 			},
+			// Update block storage besides powerflex activation block should fail
 			{
-				Config:      ProviderConfig + blockResourceCloudUpdateConfig,
+				Config:      ProviderConfig + blockResourceCloudUpdateErrorConfig,
 				Check:       resource.ComposeAggregateTestCheckFunc(),
 				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator Block Storage*.`),
 			},
+			// Update powerflex activation block should be successful
 			{
-				PreConfig: func() {
-					FunctionMocker = Mock(helper.GetVolumesCollection).Return(nil, nil, fmt.Errorf("Mock error")).Build()
-				},
-				Config:      ProviderConfig + volumeCollectionConfig,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Volumes*.`),
+				Config: ProviderConfig + blockResourceCloudUpdatePowerflexActivationConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("apex_navigator_block_storage.cloud_instance", "powerflex.username", "test-username"),
+					resource.TestCheckResourceAttr("apex_navigator_block_storage.cloud_instance", "powerflex.password", "test-pass"),
+				),
+			},
+			// Update back to original powerflex username and password
+			{
+				Config: ProviderConfig + blockResourceCloudConfig,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
@@ -186,9 +195,15 @@ var blockResourceOnPremConfig = `resource "apex_navigator_block_storage" "onprem
 		zip_code         = "ZipCode"
 	  }
 	}
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"
+	}
   }
   
   output "instance_block_storage_onprem" {
+	sensitive = true
 	value = apex_navigator_block_storage.onprem_instance
   }`
 
@@ -226,13 +241,19 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		]
 	  }
 	}
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"
+	}
   }
   
   output "instance_block_storage_cloud" {
+	sensitive = true
 	value = apex_navigator_block_storage.cloud_instance
   }`
 
-var blockResourceCloudUpdateConfig = `
+var blockResourceCloudUpdateErrorConfig = `
   resource "apex_navigator_block_storage" "cloud_instance" {
 	  system_type                        = "POWERFLEX"
 	  name                               = "Create Cloud Update"
@@ -266,8 +287,60 @@ var blockResourceCloudUpdateConfig = `
 		  ]
 		}
 	  }
+	  powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"
+	}
 	}
 	
 	output "instance_block_storage_cloud" {
+	  sensitive = true
 	  value = apex_navigator_block_storage.cloud_instance
 	}`
+
+var blockResourceCloudUpdatePowerflexActivationConfig = `
+resource "apex_navigator_block_storage" "cloud_instance" {
+	system_type                        = "POWERFLEX"
+	name                               = "Create Cloud"
+	product_version                      = "1.0"
+	deployment_details = {
+	  system_public_cloud = {
+		deployment_type            = "PUBLIC_CLOUD"
+		cloud_type                 = "AWS"
+		cloud_account              = "CloudAccount"
+		cloud_region               = "CloudRegion"
+		availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
+		minimum_iops               = "1"
+		minimum_capacity           = "2"
+		tier_type                  = "TierType"
+		ssh_key_name               = "name"
+		vpc = {
+		  is_new_vpc               = true
+		  vpc_name                 = "my-storage-vpc"
+		}
+		subnet_options = [
+		  {
+		  subnet_id   = "id-1"
+		  # cidr_block  = "10.10.10/21"
+		  subnet_type = "EXTERNAL"
+		},
+		{
+		  # subnet_id   = "id-2"
+		  cidr_block  = "10.10.10/22"
+		  subnet_type = "INTERNAL"
+		}
+		]
+	  }
+	}
+	powerflex {
+		username = "test-username"
+		password = "test-pass"
+		scheme   = "` + powerflexScheme + `"
+	}
+  }
+  
+  output "instance_block_storage_cloud" {
+	sensitive = true
+	value = apex_navigator_block_storage.cloud_instance
+  }`

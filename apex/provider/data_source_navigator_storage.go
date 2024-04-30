@@ -152,7 +152,7 @@ func (d *storagesDataSource) Read(ctx context.Context, req datasource.ReadReques
 	// needs nested for loop for deployment details
 	// Map response body to model
 	for _, storageSystem := range storageSystems.Results {
-		storageSystemsState := helper.GetStorageSystem(storageSystem)
+		storageSystemsState := helper.GetStorageSystemDs(storageSystem)
 		if storageSystem.DeploymentDetails != nil {
 			if storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails != nil {
 				storageSystemsState.DeploymentDetails.SystemPublicCloud.VirtualPrivateCloud = types.StringPointerValue(storageSystem.DeploymentDetails.SystemPublicCloudDeploymentDetails.VirtualPrivateCloud)

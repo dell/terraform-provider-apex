@@ -302,7 +302,7 @@ const (
 	BlockStorageUpdateErrorMsg = "Error updating Apex Navigator Block Storage"
 
 	// BlockStorageUpdateDetailMsg is the Error message for update failure
-	BlockStorageUpdateDetailMsg = "Update of Block Storage is not supported, please create a new resource"
+	BlockStorageUpdateDetailMsg = "The only fields that are avaialble for updating block storage are in the powerflex activation block"
 
 	// BlockStorageDecomissionErrorMsg is the Error message for decomission failure
 	BlockStorageDecomissionErrorMsg = "Error decomissioning Apex Navigator Block Storage"

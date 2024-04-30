@@ -18,6 +18,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -33,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -527,6 +529,11 @@ func (r *blockStorageResource) Schema(_ context.Context, _ resource.SchemaReques
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"powerflex": schema.SingleNestedBlock{
+				Attributes: PowerflexInfo.Attributes,
+			},
+		},
 	}
 }
 
@@ -677,6 +684,9 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	// After the long job make sure to update the client token
+	_ = helper.UpdateToken(ctx, r.client, r.jobsClient)
+
 	// Fetching Block storage after Job Completes
 	storageSystem, status, err := helper.GetStorageInstance(r.client, resourceID)
 	if (err != nil) || (status.StatusCode != http.StatusOK) {
@@ -720,6 +730,8 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 			constants.UnexpectedSysteType,
 		)
 	}
+
+	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
@@ -770,6 +782,8 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 		)
 	}
 
+	result.ActivationClientModel = helper.SetPowerflexClientState(*state.ActivationClientModel)
+
 	// Set refresdhed state
 	diags = resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
@@ -795,6 +809,38 @@ func (r *blockStorageResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	// Allow the user to update the activation user/password
+	if (plan.ActivationClientModel.Username.ValueString() != state.ActivationClientModel.Username.ValueString()) ||
+		(plan.ActivationClientModel.Password.ValueString() != state.ActivationClientModel.Password.ValueString()) ||
+		(plan.ActivationClientModel.Scheme.ValueString() != state.ActivationClientModel.Scheme.ValueString()) ||
+		(plan.ActivationClientModel.Host.ValueString() != state.ActivationClientModel.Host.ValueString()) {
+		state.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
+		if strings.Contains(state.Version.ValueString(), plan.ProductVersion.ValueString()) {
+			state.ProductVersion = plan.ProductVersion
+		}
+
+		// Need to check for on prem deployment details
+		if state.DeploymentDetails != nil &&
+			state.DeploymentDetails.SystemPublicCloud != nil {
+			ioOps := state.DeploymentDetails.SystemPublicCloud.MinimumIops
+			minCap := state.DeploymentDetails.SystemPublicCloud.MinimumCapacity
+			if len(plan.DeploymentDetails.SystemPublicCloud.SubnetOptions) == 0 {
+				helper.SetCloudConfigSubnetAndVpc(plan, state)
+			}
+			state.DeploymentDetails.SystemPublicCloud.MinimumIops = ioOps
+			state.DeploymentDetails.SystemPublicCloud.MinimumCapacity = minCap
+		}
+
+		// Set refresh the state with the updated poweflex client
+		diags = resp.State.Set(ctx, &state)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		return
+	}
+
+	// If it is anything besides the activation username/password show an error
 	if state != plan {
 		resp.Diagnostics.AddError(
 			constants.BlockStorageUpdateErrorMsg,
@@ -811,6 +857,16 @@ func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRe
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Activate Powerflex
+	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERFLEX)
+	if actErr != nil {
+		resp.Diagnostics.AddError(
+			constants.ErrorActivatingPowerFlexSystem,
+			constants.ErrorActivatingPowerFlexSystemDetail+actErr.Error(),
+		)
 		return
 	}
 
@@ -841,9 +897,21 @@ func (r *blockStorageResource) Delete(ctx context.Context, req resource.DeleteRe
 
 func (r *blockStorageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
-	storageID := req.ID
+	type params struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Host     string `json:"host"`
+		Scheme   string `json:"scheme"`
+		Insecure bool   `json:"insecure"`
+		SystemID string `json:"system_id"`
+	}
+	var p params
+	err := json.Unmarshal([]byte(req.ID), &p)
+	if err != nil {
+		resp.Diagnostics.AddError("make sure you include system_id, username, password, host, scheme, insecure", err.Error())
+	}
 
-	getReq := r.client.StorageSystemsAPI.StorageSystemsInstance(ctx, storageID)
+	getReq := r.client.StorageSystemsAPI.StorageSystemsInstance(ctx, p.SystemID)
 
 	// Get refreshed storage systems value from Apex Navigator
 	storageSystem, status, err := getReq.Execute()
@@ -857,6 +925,13 @@ func (r *blockStorageResource) ImportState(ctx context.Context, req resource.Imp
 	}
 
 	result := helper.GetStorageSystem(*storageSystem)
+	result.ActivationClientModel = &models.ActivationClientModel{
+		Username: types.StringValue(p.Username),
+		Password: types.StringValue(p.Password),
+		Host:     types.StringValue(p.Host),
+		Scheme:   types.StringValue(p.Scheme),
+		Insecure: types.BoolValue(p.Insecure),
+	}
 
 	diags := resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
