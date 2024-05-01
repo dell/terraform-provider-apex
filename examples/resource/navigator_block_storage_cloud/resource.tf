@@ -22,7 +22,6 @@ resource "apex_navigator_block_storage" "cloud_instance" {
   name = "apex-navigator-terraform"
 
   product_version = "4.5.1"
-  # deployment_details (can be either system_on_prem or system_public_cloud)
   deployment_details = {
     system_public_cloud = {
       deployment_type            = "PUBLIC_CLOUD"
@@ -53,8 +52,16 @@ resource "apex_navigator_block_storage" "cloud_instance" {
       ]
     }
   }
+
+  # This is only required when decomissioning the system
+  # This should be the username and password of the powerflex.
+  powerflex {
+    username = "example-user"
+    password = "example-password"
+  }
 }
 
 output "navigator_block_storage" {
-  value = apex_navigator_block_storage.cloud_instance
+  sensitive = true
+  value     = apex_navigator_block_storage.cloud_instance
 }

@@ -57,6 +57,7 @@ description: |-
 - `overall_efficiency` (Number) The overall system-level storage efficiency ratio based on Thin, Snapshots, Deduplication, and Data Reduction.
 - `performance_impact` (Number) Impact point of highest impacting issue in the performance health category.
 - `performance_issue_count` (Number) Total number of issues in the performance health category.
+- `powerflex` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex))
 - `serial_number` (String) The serial number for this system.
 - `site_name` (String) Name of the site where the system is registered to.
 - `snaps_savings` (Number) The snaps savings for this system.
@@ -138,3 +139,20 @@ Optional:
 - `is_new_vpc` (Boolean)
 - `vpc_id` (String)
 - `vpc_name` (String)
+
+
+
+
+<a id="nestedblock--powerflex"></a>
+### Nested Schema for `powerflex`
+
+Required:
+
+- `password` (String, Sensitive) Password of the powerflex
+- `username` (String) Username of the powerflex
+
+Optional:
+
+- `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
+- `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
+- `scheme` (String) Scheme of the powerflex, defaults if unset to https
