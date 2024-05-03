@@ -1,9 +1,11 @@
-# v1.0.0-Alpha
+# v1.0.0-Beta
 ## Release Summary
-This Alpha release supports resources and data sources mentioned in the Features section for Dell Apex.
+This Beta release supports resources and data sources mentioned in the Features section for Dell Apex.
 ## Features
 
 ### Data Sources:
+* `apex_navigator_aws_accounts`
+* `apex_navigator_aws_permissions`
 * `apex_navigator_block_storage`
 * `apex_navigator_block_clone`
 * `apex_navigator_block_hosts`
@@ -13,6 +15,8 @@ This Alpha release supports resources and data sources mentioned in the Features
 * `apex_navigator_block_volumes`
 
 ### Resources
+* `apex_navigator_aws_account`
+* `apex_navigator_aws_trust_policy_generate`
 * `apex_navigator_block_storage`
 * `apex_navigator_block_clones_map`
 * `apex_navigator_block_clones_refresh`

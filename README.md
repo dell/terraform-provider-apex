@@ -21,7 +21,7 @@ limitations under the License.
 
 The Terraform Provider for Dell Technologies (Dell) Apex allows Data Center and IT administrators to use Hashicorp Terraform to automate and orchestrate the provisioning and management of Dell Apex resources
 
-Provider is in Alpha. Support is limited.
+Provider is in Beta. Support is limited.
 
 ## Table of contents
 
@@ -45,13 +45,14 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 
 ## Prerequisites
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 1.5.3
-- [Go](https://golang.org/doc/install) >= 1.21
+| **Terraform Provider**  | **OS**                    | **Terraform**               | **Golang** |
+|------------------------ |:-----------------------   |:--------------------------  |------------|
+| v1.0.0-beta             | ubuntu22.04 <br>  rhel9.x | 1.5.x <br> 1.6.x            | 1.21       |
 
 
 ## List of DataSources in Terraform Provider for Dell Apex
   * [AWS Accounts](docs\data-sources\navigator_aws_accounts.md)
-  * [AWS Permissions](docs/data-sources/navigator_aws_permissions.md)
+  * [AWS Permissions](docs\data-sources\navigator_aws_permissions.md)
   * [Storages](docs\data-sources\navigator_storages.md)
   * [Clones](docs\data-sources\navigator_block_clones.md)
   * [Hosts](docs\data-sources\navigator_block_hosts.md)
@@ -73,20 +74,6 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
   * [Mobility Groups Copy](docs\resources\navigator_block_mobility_groups_copy.md)
   * [Mobility Groups](docs\resources\navigator_block_mobility_groups.md)
   * [Mobility Targets](docs\resources\navigator_block_mobility_targets.md)
-
-## Block Storage
-Deploy and Decommision Block Storage Systems to the Cloud 
-
-## File Storage
-Deploy and Decommision File Storage Systems to the Cloud 
-
-## Data Mobility
-Move data on volumes between the on-premises system and the cloud
-The mobility features in Dell APEX Navigator for Multicloud Storage allow you to move storage volumes between your on-premises system and the cloud.
-To use the moved data, you must clone the target copy and make it accessible to hosts.
-To perform mobility operations in Dell APEX Navigator, you must use a Dell Premier account that has been assigned the ITOps role.
-Mobility is a feature available at no additional cost as a technology preview for a limited time.
-In the future, the mobility feature may be available at an additional cost
 
 ## Installation and execution of Terraform Provider for Dell Apex
 The installation and execution steps of Terraform Provider for Dell Apex can be found [here](about/INSTALLATION.md).
