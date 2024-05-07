@@ -79,7 +79,8 @@ func UnmapClones(unmapReq client.ApiClonesUnmapRequest, hosts []basetypes.String
 	for _, mapping := range hosts {
 		hostIds = append(hostIds, mapping.ValueString())
 	}
-	unmapInput := *client.NewUnmapInput(hostIds)
+	unmapInput := *client.NewUnmapInput()
+	unmapInput.HostIds = hostIds
 	unmapReq = unmapReq.UnmapInput(unmapInput)
 	return unmapReq.Async(true).Execute()
 }

@@ -208,6 +208,7 @@ func (p *myProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewClonesResource,
 		NewBlockStorageResource,
+		NewFileStorageResource,
 		NewMobilityGroupsResource,
 		NewMobilityTargetsResource,
 		NewMobilityGroupsCopyResource,

@@ -108,6 +108,7 @@ func GetNewToken(ctx context.Context) (string, error) {
 	data.Set("subject_token_type", "urn:ietf:params:oauth:token-type:saml2")
 
 	response, err := sendGetTokenRequest(urlLink, method, header, data.Encode())
+
 	if err != nil {
 		tflog.Error(ctx, "Error sending API request:", map[string]interface{}{
 			"Error": err,

@@ -36,8 +36,8 @@ const (
 	// ResourceConfigureErrorMsg is the Error message for resource configuration failure
 	ResourceConfigureErrorMsg = "Unexpected Resource Configure Type"
 
-	// UnexpectedSysteType is the error message for an unexpected system type
-	UnexpectedSysteType = "Unexpected system type"
+	// UnexpectedSystemType is the error message for an unexpected system type
+	UnexpectedSystemType = "Unexpected system type"
 
 	// UpdateJobErrorMsg is the Error message for update job failure
 	UpdateJobErrorMsg = "Error occurred during update job: "
@@ -289,8 +289,8 @@ const (
 	// StorageFilterErrorMsg is the Error message for filter failure
 	StorageFilterErrorMsg = "Failed to filter storage."
 
-	// BlockStorageInvalidDeploymentType invalid deployment type
-	BlockStorageInvalidDeploymentType = "Invalid deployment type."
+	// StorageSystemInvalidDeploymentType invalid deployment type
+	StorageSystemInvalidDeploymentType = "Invalid deployment type."
 
 	// BlockStorageCreateErrorMsg is the Error message for create failure
 	BlockStorageCreateErrorMsg = "Error creating Apex Navigator Block Storage"
@@ -309,4 +309,28 @@ const (
 
 	// BlockStorageDecomissionDetailMsg is the Error message for decomission failure
 	BlockStorageDecomissionDetailMsg = "Could not decomission block storage, unexpected error: "
+
+	// FileStorageCreateErrorMsg is the Error message for create failure
+	FileStorageCreateErrorMsg = "Error creating Apex Navigator File Storage"
+
+	// FileStorageCreateDetailMsg is the Error message for create failure
+	FileStorageCreateDetailMsg = "Could not create storage, unexpected error: "
+
+	// FileStorageUpdateErrorMsg is the Error message for update failure
+	FileStorageUpdateErrorMsg = "Error updating Apex Navigator File Storage"
+
+	// FileStorageUpdateDetailMsg is the Error message for update failure
+	FileStorageUpdateDetailMsg = "The only fields that are available for updating file storage are in the powerscale activation block"
+
+	// FileStorageDecomissionErrorMsg is the Error message for decomission failure
+	FileStorageDecomissionErrorMsg = "Error decomissioning Apex Navigator File Storage"
+
+	// FileStorageDecomissionDetailMsg is the Error message for decomission failure
+	FileStorageDecomissionDetailMsg = "Could not decomission file storage, unexpected error: "
+
+	// ErrorActivatingPowerScaleSystem is the Error message for powerscale activation failure
+	ErrorActivatingPowerScaleSystem = "Error activating Powerscale System"
+
+	// ErrorActivatingPowerScaleSystemDetail is the Error message for powerscale activation failure
+	ErrorActivatingPowerScaleSystemDetail = "Could not activate powerscale system, please check username/password and system id are correct: "
 )

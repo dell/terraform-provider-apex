@@ -21,7 +21,6 @@ import (
 	"context"
 	apexClient "dell/apex-client"
 	powerflexClient "dell/powerflex-client"
-	powerscaleClient "dell/powerscale-client"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -83,6 +82,7 @@ func ActivateSystemClientSystem(ctx context.Context, clientAPI *apexClient.APICl
 	}
 
 	systemActivationToken := getApexActivationToken(ctx, clientAPI, systemID, apexClient.StorageProductEnum(storageType))
+
 	tflog.Debug(ctx, "Previous System Activation Token: "+systemActivationToken)
 	// There is no token related to the systemId so we need to create one and relate it
 	if systemActivationToken == "" {
@@ -111,12 +111,24 @@ func ActivateSystemClientSystem(ctx context.Context, clientAPI *apexClient.APICl
 		if err != nil {
 			tflog.Debug(ctx, "Error checking token instance "+err.Error())
 			return err
+
 		}
 
 		// If token is no longer valid, or will expire in less the 5 minutes attempt to activate a new one
 		fiveMinutesAgo := time.Now().Add(-5 * time.Minute)
 		if !active.IsTokenValid || active.ExpirationTimestamp.Compare(fiveMinutesAgo) < 0 {
-			token, clientTokenError := getClientActivationToken(ctx, activateSystemClientSystem, apexClient.StorageProductEnum(active.SystemType))
+			var token = ""
+			var clientTokenError = err
+
+			if storageType == apexClient.STORAGEPRODUCTENUM_POWERFLEX {
+				token, clientTokenError = getClientActivationToken(ctx, activateSystemClientSystem, apexClient.StorageProductEnum(active.SystemType))
+			}
+
+			if storageType == apexClient.STORAGEPRODUCTENUM_POWERSCALE {
+				token, clientTokenError = GetNewToken(ctx)
+
+			}
+
 			if clientTokenError != nil {
 				tflog.Debug(ctx, "Error getting new activation token "+clientTokenError.Error())
 				return clientTokenError
@@ -144,12 +156,26 @@ func ActivateSystemClientSystem(ctx context.Context, clientAPI *apexClient.APICl
 // @return string current activation token. If it is an empty string we were not able to extract and user should try to post a new one
 func getApexActivationToken(ctx context.Context, clientAPI *apexClient.APIClient, systemID string, storageType apexClient.StorageProductEnum) string {
 	post := clientAPI.StorageSystemTokensAPI.StorageSystemTokensCreate(ctx)
+	accessToken := "test-dummy-token"
+
+	if storageType == apexClient.STORAGEPRODUCTENUM_POWERSCALE {
+		accessToken, _ = GetNewToken(ctx)
+	}
+
 	post = post.StorageSystemTokensCreateRequest(apexClient.StorageSystemTokensCreateRequest{
-		AccessToken: "test-dummy-token",
+		AccessToken: accessToken,
 		SystemType:  storageType,
 		SystemId:    systemID,
 	})
-	_, status, err := post.Execute()
+
+	resourceID, status, err := post.Execute()
+
+	// post to PowerScale successfully activated token
+	if storageType == apexClient.STORAGEPRODUCTENUM_POWERSCALE && status != nil && status.StatusCode == http.StatusAccepted {
+		if resourceID != nil {
+			return resourceID.Id
+		}
+	}
 
 	// 409 attempt to extract the old token from the error response
 	if status != nil && status.StatusCode == http.StatusConflict {
@@ -203,7 +229,7 @@ func getClientActivationToken(ctx context.Context, activateSystemClientSystem mo
 		}
 		return tokenNew, nil
 	case apexClient.STORAGEPRODUCTENUM_POWERSCALE:
-		tokenNew, activateTokenErr := getPowerScaleActivationToken(ctx, activateSystemClientSystem)
+		tokenNew, activateTokenErr := GetNewToken(ctx)
 		if activateTokenErr != nil {
 			tflog.Debug(ctx, "Error getting new patch token instance "+activateTokenErr.Error())
 			return "", activateTokenErr
@@ -212,36 +238,6 @@ func getClientActivationToken(ctx context.Context, activateSystemClientSystem mo
 	default:
 		return "", fmt.Errorf("system type %s not supported", storageType)
 	}
-}
-
-func getPowerScaleActivationToken(ctx context.Context, activateSystemClientSystem models.ActivationClientModel) (string, error) {
-	// Create a client
-	createdClient, pClientErr := client.CreatePowerScaleClient(ctx, activateSystemClientSystem.Host.ValueString(), activateSystemClientSystem.Scheme.ValueString(), activateSystemClientSystem.Insecure.ValueBool())
-	if pClientErr != nil {
-		return "", pClientErr
-	}
-
-	resp, loginErr := createdClient.DefaultApi.PostRestAuthLogin(ctx, &powerscaleClient.PostRestAuthLoginOpts{
-		LoginCredentialsYaml: optional.NewInterface(powerscaleClient.LoginCredentialsYaml{
-			Username: activateSystemClientSystem.Username.ValueString(),
-			Password: activateSystemClientSystem.Password.ValueString(),
-			// The services which we require access too
-			Services: []string{"platform", "namespace"},
-			// 15 minute timeout
-			TimeoutAbsolute: 900,
-			TimeoutInactive: 900,
-		}),
-	})
-	if loginErr != nil {
-		return "", loginErr
-	}
-
-	for _, cookie := range resp.Cookies() {
-		if cookie.Name == "isisessid" {
-			return cookie.Value, nil
-		}
-	}
-	return "", fmt.Errorf("unable to authenticate with powerscale")
 }
 
 // getPowerFlexActivationToken gets a new powerflex activation token

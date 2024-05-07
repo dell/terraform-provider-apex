@@ -159,8 +159,8 @@ func (d *storagesDataSource) Read(ctx context.Context, req datasource.ReadReques
 			}
 		} else {
 			resp.Diagnostics.AddError(
-				constants.UnexpectedSysteType,
-				constants.UnexpectedSysteType,
+				constants.UnexpectedSystemType,
+				constants.UnexpectedSystemType,
 			)
 		}
 

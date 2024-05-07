@@ -65,6 +65,7 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
   * [AWS Account](docs\resources\navigator_aws_account.md)
   * [AWS Generate Trust](docs\resources\navigator_aws_trust_policy_generate.md)
   * [Block Storage](docs\resources\navigator_block_storage.md)
+  * [File Storage](docs/resources/navigator_file_storage.md)
   * [Clones Map](docs\resources\navigator_block_clones_map.md)
   * [Clones Refresh](docs\resources\navigator_block_clones_refresh.md)
   * [Clones Unmap](docs\resources\navigator_block_clones_unmap.md)
@@ -75,6 +76,9 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 
 ## Block Storage
 Deploy and Decommision Block Storage Systems to the Cloud 
+
+## File Storage
+Deploy and Decommision File Storage Systems to the Cloud 
 
 ## Data Mobility
 Move data on volumes between the on-premises system and the cloud

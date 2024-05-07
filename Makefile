@@ -16,7 +16,7 @@ clean:
 	rm -f ${BINARY}
 
 extract-client:
-	unzip --qq -o 'goClientZip/apex-client-openapi-1.0.0.zip' -d ./apexclient/
+	unzip --qq -o 'goClientZip/apex-client-openapi-1.1.0.zip' -d ./apexclient/
 	unzip --qq -o 'goClientZip/apex-jobs-client-openapi-1.0.0.zip' -d ./jobsclient/
 	unzip --qq -o 'goClientZip/powerflex-auth-client-4.5.zip' -d ./powerflexclient/
 	unzip --qq -o 'goClientZip/powerscale-auth.zip' -d ./powerscaleclient/

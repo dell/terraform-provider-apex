@@ -65,8 +65,10 @@ type SystemPublicCloudDeploymentDetailsModel struct {
 	CloudManagementAddress   types.String                         `tfsdk:"cloud_management_address"`
 	MinimumIops              types.Int64                          `tfsdk:"minimum_iops"`
 	MinimumCapacity          types.Int64                          `tfsdk:"minimum_capacity"`
+	RawCapacity              types.String                         `tfsdk:"raw_capacity"`
 	TierType                 types.String                         `tfsdk:"tier_type"`
 	SSHKeyName               types.String                         `tfsdk:"ssh_key_name"`
+	IAMInstanceProfile       types.String                         `tfsdk:"iam_instance_profile"`
 	Vpc                      *vpcModel                            `tfsdk:"vpc"`
 	SubnetOptions            []SubnetOptionModel                  `tfsdk:"subnet_options"`
 }
@@ -88,6 +90,7 @@ type vpcModel struct {
 type StorageModel struct {
 	ID                              types.String            `tfsdk:"id"`
 	SystemID                        types.String            `tfsdk:"system_id"`
+	StorageSystemType               types.String            `tfsdk:"storage_system_type"`
 	SystemType                      types.String            `tfsdk:"system_type"`
 	Bandwidth                       types.Int64             `tfsdk:"bandwidth"`
 	CapacityImpact                  types.Int64             `tfsdk:"capacity_impact"`
@@ -135,7 +138,6 @@ type StorageModel struct {
 	ProductVersion                  types.String            `tfsdk:"product_version"`
 	Version                         types.String            `tfsdk:"version"`
 	DeploymentDetails               *DeploymentDetailsModel `tfsdk:"deployment_details"`
-	CirrusDeployed                  types.Bool              `tfsdk:"cirrus_deployed"`
 	ActivationClientModel           *ActivationClientModel  `tfsdk:"powerflex"`
 }
 
@@ -143,6 +145,7 @@ type StorageModel struct {
 type StorageModelDs struct {
 	ID                              types.String            `tfsdk:"id"`
 	SystemID                        types.String            `tfsdk:"system_id"`
+	StorageSystemType               types.String            `tfsdk:"storage_system_type"`
 	SystemType                      types.String            `tfsdk:"system_type"`
 	Bandwidth                       types.Int64             `tfsdk:"bandwidth"`
 	CapacityImpact                  types.Int64             `tfsdk:"capacity_impact"`
@@ -190,5 +193,4 @@ type StorageModelDs struct {
 	ProductVersion                  types.String            `tfsdk:"product_version"`
 	Version                         types.String            `tfsdk:"version"`
 	DeploymentDetails               *DeploymentDetailsModel `tfsdk:"deployment_details"`
-	CirrusDeployed                  types.Bool              `tfsdk:"cirrus_deployed"`
 }

@@ -19,14 +19,13 @@ description: |-
 
 - `name` (String) The user-defined name of the system.
 - `product_version` (String) Product version.
-- `system_type` (String) Type of the system
+- `storage_system_type` (String) Type of the system
 
 ### Optional
 
 - `bandwidth` (Number) The system bandwidth. Aggregated for a rolling average over the last 24 hours - Unit: bytes/s
 - `capacity_impact` (Number) Impact point of highest impacting issue in the capacity health category
 - `capacity_issue_count` (Number) Total number of issues in the capacity health category
-- `cirrus_deployed` (Boolean) If the system deployed in Cirrus
 - `compression_savings` (Number) Storage efficiency ratio of data which has compression applied to it on the system.
 - `configuration_impact` (Number) Impact point of highest impacting issue in the configuration health category.
 - `configuration_issue_count` (Number) Total number of issues in the configuration health category.
@@ -36,7 +35,7 @@ description: |-
 - `contract_expiration_date_timestamp` (String) Expiration date for the service contract of the system.
 - `data_protection_impact` (Number) Impact point of highest impacting issue in the data protection health category.
 - `data_protection_issue_count` (Number) Total number of issues in the data protection health category.
-- `deployment_details` (Attributes) Details of the deployment (see [below for nested schema](#nestedatt--deployment_details))
+- `deployment_details` (Attributes) Details of deployment (see [below for nested schema](#nestedatt--deployment_details))
 - `display_identifier` (String) Unique identifier for the system.
 - `free_percent` (Number) The %free capacity.
 - `free_size` (Number) The free size value - Unit: bytes.
@@ -73,6 +72,7 @@ description: |-
 
 ### Read-Only
 
+- `system_type` (String) Type of the system
 - `version` (String) Version identifier.
 
 <a id="nestedatt--deployment_details"></a>
@@ -119,6 +119,8 @@ Optional:
 - `availability_zone_topology` (String) This enum represents all the availability zone topology * SINGLE_AVAILABILITY_ZONE * MULTIPLE_AVAILABILITY_ZONE
 - `cloud_management_address` (String) Management IPv4 or IPv6 address or DNS name of the storage system in cloud
 - `deployment_type` (String) System deployment types (e.g. PUBLIC_CLOUD)
+- `iam_instance_profile` (String) IAM instance profile requested during the deployment time - Unit: string
+- `raw_capacity` (String) Raw capacity requested during the deployment time - Unit: bytes
 - `virtual_private_cloud` (String) Cloud virtual private environment identifier
 
 <a id="nestedatt--deployment_details--system_public_cloud--subnet_options"></a>

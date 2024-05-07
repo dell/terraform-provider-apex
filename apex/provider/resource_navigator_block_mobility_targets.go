@@ -240,6 +240,7 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	mobilityTargetsInput := *client.NewCreateTargetInput(plan.SourceMobilityGroupID.ValueString(), plan.Name.ValueString(), plan.SystemID.ValueString(), *plan.SystemType.Ptr(), targetSystemOptions)
+
 	mobilityTargetsInput.Description = plan.Description.ValueStringPointer()
 	if plan.BandwidthLimit.ValueInt64() != 0 {
 		limit := int32(plan.BandwidthLimit.ValueInt64())
@@ -378,13 +379,17 @@ func (r *mobilityTargetsResource) Update(ctx context.Context, req resource.Updat
 	updateReq := r.client.MobilityTargetsAPI.MobilityTargetsModify(ctx, plan.ID.ValueString())
 	limit := int32(plan.BandwidthLimit.ValueInt64())
 
-	updateInput := client.UpdateMobilityTargetInput{
+	updateBlockInput := client.UpdateMobilityTargetBlockInput{
 		Name:           plan.Name.ValueStringPointer(),
 		Description:    plan.Description.ValueStringPointer(),
 		BandwidthLimit: &limit,
 	}
 	if limit <= 0 {
-		updateInput.BandwidthLimit = nil
+		updateBlockInput.BandwidthLimit = nil
+	}
+
+	updateInput := client.UpdateMobilityTargetInput{
+		UpdateMobilityTargetBlockInput: &updateBlockInput,
 	}
 
 	// Execute Update Job
