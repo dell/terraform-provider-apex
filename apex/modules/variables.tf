@@ -5,8 +5,7 @@ Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://mozilla.org/MPL/2.0/
-
+	http://mozilla.org/MPL/2.0/
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +16,29 @@ limitations under the License.
 
 variable "JWT_TOKEN" {
   type    = string
-  default = "12345678910111213141516171819202121222324252627282930"
+  default = "insert-token-here"
 }
 
 variable "HOST" {
   type    = string
-  default = "http://localhost:3005"
+  default = "https://example-host.com"
 }
 
 variable "JMS_ENDPOINT" {
   type    = string
-  default = "http://localhost:3005"
+  default = "https://example-jobs-endpoint.com"
+}
+
+variable "aws_account_id" {
+  type = string
+}
+
+variable "policy_name" {
+  type = string
+  default = "aws_apex_policy"
+}
+
+variable "role_name" {
+  type = string
+  default = "aws_apex_role"
 }

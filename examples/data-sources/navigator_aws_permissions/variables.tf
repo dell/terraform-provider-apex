@@ -17,10 +17,10 @@ limitations under the License.
 
 variable "JWT_TOKEN" {
   type    = string
-  default = "insert-token-here"
+  default = "12345678910111213141516171819202121222324252627282930"
 }
 
 variable "HOST" {
   type    = string
-  default = "https://example-host.com"
+  default = "http://localhost:3005"
 }
