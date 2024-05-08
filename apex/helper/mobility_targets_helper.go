@@ -65,7 +65,6 @@ func GetMobilityTargetModel(mobilityTarget client.MobilityTarget) (model models.
 		SystemType:            (mobilityTarget.SystemType),
 		SourceMobilityGroupID: types.StringValue(mobilityTarget.SourceMobilityGroupId),
 		CreationTimestamp:     types.StringValue(mobilityTarget.CreationTimestamp),
-		Type:                  types.StringValue(mobilityTarget.Type),
 		ImageTimestamp:        types.StringPointerValue(mobilityTarget.ImageTimestamp),
 		LastCopyJobID:         types.StringPointerValue(mobilityTarget.LastCopyJobId),
 	}
@@ -118,7 +117,6 @@ func GetMobilityTargetModelDs(mobilityTarget client.MobilityTarget) (model model
 		SystemType:            (mobilityTarget.SystemType),
 		SourceMobilityGroupID: types.StringValue(mobilityTarget.SourceMobilityGroupId),
 		CreationTimestamp:     types.StringValue(mobilityTarget.CreationTimestamp),
-		Type:                  types.StringValue(mobilityTarget.Type),
 		ImageTimestamp:        types.StringPointerValue(mobilityTarget.ImageTimestamp),
 		LastCopyJobID:         types.StringPointerValue(mobilityTarget.LastCopyJobId),
 	}

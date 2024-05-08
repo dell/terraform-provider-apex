@@ -87,7 +87,7 @@ func NewApexJmsClient(ctx context.Context, hostURL url.URL, jmsURL url.URL, toke
 		Scheme:     hostURL.Scheme,
 		UserAgent:  userAgent,
 		HTTPClient: httpclient,
-		Servers: client.ServerConfigurations{
+		Servers: []client.ServerConfiguration{
 			{
 				URL:         hostURL.Path,
 				Description: "API Client for Terraform Provider",

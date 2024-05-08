@@ -26,27 +26,37 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceBlockStorageOnPrem(t *testing.T) {
+func TestAccResourceFileStorageOnPrem(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfig + blockResourceOnPremConfig,
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.UpdateToken).Return(nil).Build()
+					FunctionMocker = Mock(helper.GetNewToken).Return("token", nil).Build()
+				},
+				Config: ProviderConfig + fileResourceOnPremConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func TestAccResourceBlockStorageCloud(t *testing.T) {
-	var resTerraformName = "apex_navigator_block_storage.cloud_instance"
+func TestAccResourceFileStorageCloud(t *testing.T) {
+	var resTerraformName = "apex_navigator_file_storage.cloud_instance"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfig + blockResourceCloudConfig,
+				PreConfig: func() {
+					FunctionMocker = Mock(helper.GetNewToken).Return("token", nil).Build()
+				},
+				Config: ProviderConfig + fileResourceCloudConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 			//Import testing
@@ -55,30 +65,30 @@ func TestAccResourceBlockStorageCloud(t *testing.T) {
 				ImportStateId: "{\"system_id\":\"" + systemID + "\",\"target_username\":\"" + powerflexUser + "\",\"target_password\":\"" + powerflexPass + "\", \"target_host\":\"" + "" + "\", \"source_username\":\"" + powerflexUser + "\",\"source_password\":\"" + powerflexPass + "\",\"source_host\":\"" + "" + "\",\"insecure\":true}",
 				ImportState:   true,
 			},
-			// Update block storage besides powerflex activation block should fail
+			// Update file storage besides powerflex activation file should fail
 			{
-				Config:      ProviderConfig + blockResourceCloudUpdateErrorConfig,
+				Config:      ProviderConfig + fileResourceCloudUpdateErrorConfig,
 				Check:       resource.ComposeAggregateTestCheckFunc(),
-				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator Block Storage*.`),
+				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator File Storage*.`),
 			},
-			// Update powerflex activation block should be successful
+			// Update powerflex activation file should be successful
 			{
-				Config: ProviderConfig + blockResourceCloudUpdatePowerflexActivationConfig,
+				Config: ProviderConfig + fileResourceCloudUpdatePowerScaleActivationConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("apex_navigator_block_storage.cloud_instance", "powerflex.username", "test-username"),
-					resource.TestCheckResourceAttr("apex_navigator_block_storage.cloud_instance", "powerflex.password", "test-pass"),
+					resource.TestCheckResourceAttr("apex_navigator_file_storage.cloud_instance", "powerflex.username", "test-username"),
+					resource.TestCheckResourceAttr("apex_navigator_file_storage.cloud_instance", "powerflex.password", "test-pass"),
 				),
 			},
 			// Update back to original powerflex username and password
 			{
-				Config: ProviderConfig + blockResourceCloudConfig,
+				Config: ProviderConfig + fileResourceCloudConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func TestAccResourceBlockStorageErrorCases(t *testing.T) {
+func TestAccResourceFileStorageErrorCases(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -87,8 +97,8 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.CreateStorageSystem).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + blockResourceCloudConfig,
-				ExpectError: regexp.MustCompile(`.*Error creating Apex Navigator Block Storage*.`),
+				Config:      ProviderConfig + fileResourceCloudConfig,
+				ExpectError: regexp.MustCompile(`.*Error creating Apex Navigator File Storage*.`),
 			},
 			{
 				PreConfig: func() {
@@ -97,7 +107,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					}
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 400, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + blockResourceCloudConfig,
+				Config:      ProviderConfig + fileResourceCloudConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
 			{
@@ -107,7 +117,7 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					}
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 404, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + blockResourceCloudConfig,
+				Config:      ProviderConfig + fileResourceCloudConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
 			// Step1: To test Read error, do a successful create then fail on update
@@ -116,28 +126,26 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
+					FunctionMocker = Mock(helper.GetNewToken).Return("token", nil).Build()
 				},
-				Config: ProviderConfig + blockResourceCloudConfig,
+				Config: ProviderConfig + fileResourceCloudConfig,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 			// Step2: should show error on read
 			{
 				PreConfig: func() {
-					if FunctionMocker != nil {
-						FunctionMocker.UnPatch()
-					}
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, nil, fmt.Errorf("Mock error")).Build()
 				},
-				Config:      ProviderConfig + blockResourceCloudConfig,
+				Config:      ProviderConfig + fileResourceCloudConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Apex Navigator Storage*.`),
 			},
 		},
 	})
 }
 
-var blockResourceOnPremConfig = `resource "apex_navigator_block_storage" "onprem_instance" {
-	system_id                          = "POWERFLEX-ELMSIO0523STQ3-Mock2"
-	storage_system_type                = "POWERFLEX"
+var fileResourceOnPremConfig = `resource "apex_navigator_file_storage" "onprem_instance" {
+	system_id                          = "ONEFS-0afff1f2676bb5f0e6658b17ab7b5139a03e"
+	storage_system_type                = "POWERSCALE"
 	bandwidth                          = "9999"
 	capacity_impact                    = "9999"
 	capacity_issue_count               = "9999"
@@ -146,12 +154,12 @@ var blockResourceOnPremConfig = `resource "apex_navigator_block_storage" "onprem
 	configuration_issue_count          = "9999"
 	configured_size                    = "9999"
 	connectivity_status                = "CONNECTED"
-	license_type                       = "AWS-license-mock"
-	contract_coverage_type             = "covered"
+	license_type                       = "AWS-license-mock"         
+	contract_coverage_type 			   = "covered"
 	contract_expiration_date_timestamp = "0001-01-01 00:00:00 +0000 UTC"
 	data_protection_impact             = "9999"
 	data_protection_issue_count        = "9999"
-	display_identifier                 = "ELMSIO0523STQ3"
+	display_identifier                 = "0afff1f2676bb5f0e6658b17ab7b5139a03e"
 	free_percent                       = "64.64"
 	free_size                          = "9999"
 	health_connectivity_status         = "NORMAL"
@@ -165,8 +173,8 @@ var blockResourceOnPremConfig = `resource "apex_navigator_block_storage" "onprem
 	latency                            = "9999"
 	license_expiration_date_timestamp  = "0001-01-01 00:00:00 +0000 UTC"
 	logical_size                       = "9999"
-	model                              = "PowerFlex software"
-	name                               = "Create Block OnPrem"
+	model                              = "PowerScale software"
+	name                               = "Create File OnPrem"
 	overall_efficiency                 = "9999.0"
 	performance_impact                 = "9999"
 	performance_issue_count            = "9999"
@@ -201,16 +209,15 @@ var blockResourceOnPremConfig = `resource "apex_navigator_block_storage" "onprem
 		scheme   = "` + powerflexScheme + `"
 	}
   }
-  
-  output "instance_block_storage_onprem" {
+
+  output "instance_file_storage_onprem" {
 	sensitive = true
-	value = apex_navigator_block_storage.onprem_instance
+	value = apex_navigator_file_storage.onprem_instance
   }`
 
-var blockResourceCloudConfig = `
-resource "apex_navigator_block_storage" "cloud_instance" {
-	storage_system_type                = "POWERFLEX"
-	name                               = "Create Block Cloud"
+var fileResourceCloudConfig = `resource "apex_navigator_file_storage" "cloud_instance" {
+	storage_system_type                = "POWERSCALE"
+	name                               = "Create File Cloud"
 	product_version                    = "1.0"
 	deployment_details = {
 	  system_public_cloud = {
@@ -219,10 +226,10 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		cloud_account              = "CloudAccount"
 		cloud_region               = "CloudRegion"
 		availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
-		minimum_iops               = "1"
-		minimum_capacity           = "2"
+		raw_capacity 			   = "20"
 		tier_type                  = "TierType"
 		ssh_key_name               = "name"
+		iam_instance_profile 	   = "CreateRole"
 		vpc = {
 		  is_new_vpc               = true
 		  vpc_name                 = "my-storage-vpc"
@@ -230,14 +237,16 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		subnet_options = [
 		  {
 		  subnet_id   = "id-1"
-		  # cidr_block  = "10.10.10/21"
 		  subnet_type = "EXTERNAL"
 		},
 		{
 		  # subnet_id   = "id-2"
-		  cidr_block  = "10.10.10/22"
 		  subnet_type = "INTERNAL"
-		}
+		},
+		{
+			# subnet_id   = "id-2"
+			subnet_type = "SCG"
+		  }
 		]
 	  }
 	}
@@ -247,62 +256,15 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		scheme   = "` + powerflexScheme + `"
 	}
   }
-  
-  output "instance_block_storage_cloud" {
+
+  output "instance_file_storage_cloud" {
 	sensitive = true
-	value = apex_navigator_block_storage.cloud_instance
+	value = apex_navigator_file_storage.cloud_instance
   }`
 
-var blockResourceCloudUpdateErrorConfig = `
-  resource "apex_navigator_block_storage" "cloud_instance" {
-	storage_system_type                  = "POWERFLEX"
-	  name                               = "Create Block Cloud Update"
-	  product_version                    = "1.0"
-	  deployment_details = {
-		system_public_cloud = {
-		  deployment_type            = "PUBLIC_CLOUD"
-		  cloud_type                 = "AWS"
-		  cloud_account              = "CloudAccount"
-		  cloud_region               = "CloudRegion"
-		  availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
-		  minimum_iops               = "1"
-		  minimum_capacity           = "2"
-		  tier_type                  = "TierType"
-		  ssh_key_name               = "name"
-		  vpc = {
-			is_new_vpc               = true
-			vpc_name                 = "my-storage-vpc"
-		  }
-		  subnet_options = [
-			{
-			subnet_id   = "id-1"
-			# cidr_block  = "10.10.10/21"
-			subnet_type = "EXTERNAL"
-		  },
-		  {
-			# subnet_id   = "id-2"
-			cidr_block  = "10.10.10/22"
-			subnet_type = "INTERNAL"
-		  }
-		  ]
-		}
-	  }
-	  powerflex {
-		username = "` + powerflexUser + `"
-		password = "` + powerflexPass + `"
-		scheme   = "` + powerflexScheme + `"
-	}
-	}
-	
-	output "instance_block_storage_cloud" {
-	  sensitive = true
-	  value = apex_navigator_block_storage.cloud_instance
-	}`
-
-var blockResourceCloudUpdatePowerflexActivationConfig = `
-resource "apex_navigator_block_storage" "cloud_instance" {
-	storage_system_type                = "POWERFLEX"
-	name                               = "Create Block Cloud"
+var fileResourceCloudUpdateErrorConfig = `resource "apex_navigator_file_storage" "cloud_instance" {
+	storage_system_type                = "POWERSCALE"
+	name                               = "Create File Cloud Update"
 	product_version                    = "1.0"
 	deployment_details = {
 	  system_public_cloud = {
@@ -311,10 +273,10 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		cloud_account              = "CloudAccount"
 		cloud_region               = "CloudRegion"
 		availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
-		minimum_iops               = "1"
-		minimum_capacity           = "2"
+		raw_capacity 			   = "20"
 		tier_type                  = "TierType"
 		ssh_key_name               = "name"
+		iam_instance_profile 	   = "CreateRole"
 		vpc = {
 		  is_new_vpc               = true
 		  vpc_name                 = "my-storage-vpc"
@@ -322,14 +284,63 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		subnet_options = [
 		  {
 		  subnet_id   = "id-1"
-		  # cidr_block  = "10.10.10/21"
 		  subnet_type = "EXTERNAL"
 		},
 		{
 		  # subnet_id   = "id-2"
-		  cidr_block  = "10.10.10/22"
 		  subnet_type = "INTERNAL"
+		},
+		{
+			# subnet_id   = "id-2"
+			subnet_type = "SCG"
+		  }
+		]
+	  }
+	}
+	powerflex {
+		username = "` + powerflexUser + `"
+		password = "` + powerflexPass + `"
+		scheme   = "` + powerflexScheme + `"
+	}
+  }
+
+  output "instance_file_storage_cloud" {
+	sensitive = true
+	value = apex_navigator_file_storage.cloud_instance
+  }`
+
+var fileResourceCloudUpdatePowerScaleActivationConfig = `resource "apex_navigator_file_storage" "cloud_instance" {
+	storage_system_type                = "POWERSCALE"
+	name                               = "Create File Cloud"
+	product_version                    = "1.0"
+	deployment_details = {
+	  system_public_cloud = {
+		deployment_type            = "PUBLIC_CLOUD"
+		cloud_type                 = "AWS"
+		cloud_account              = "CloudAccount"
+		cloud_region               = "CloudRegion"
+		availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
+		raw_capacity 			   = "20"
+		tier_type                  = "TierType"
+		ssh_key_name               = "name"
+		iam_instance_profile 	   = "CreateRole"
+		vpc = {
+		  is_new_vpc               = true
+		  vpc_name                 = "my-storage-vpc"
 		}
+		subnet_options = [
+		  {
+		  subnet_id   = "id-1"
+		  subnet_type = "EXTERNAL"
+		},
+		{
+		  # subnet_id   = "id-2"
+		  subnet_type = "INTERNAL"
+		},
+		{
+			# subnet_id   = "id-2"
+			subnet_type = "SCG"
+		  }
 		]
 	  }
 	}
@@ -339,8 +350,8 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		scheme   = "` + powerflexScheme + `"
 	}
   }
-  
-  output "instance_block_storage_cloud" {
+
+  output "instance_file_storage_cloud" {
 	sensitive = true
-	value = apex_navigator_block_storage.cloud_instance
+	value = apex_navigator_file_storage.cloud_instance
   }`

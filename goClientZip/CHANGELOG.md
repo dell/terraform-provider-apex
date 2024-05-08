@@ -20,10 +20,16 @@ Updated example for Body(ResponseContent -> Body) : Line 318,402
 
 apex-jobs-client-openapi-1.0.0 : .\model_response_content.go line 26 Changed type of Body from map[string]interface{} to *string
 
-## Apex Client
+## Apex Client 1.0
 
 Remove - refresh_timestamp clonesModel as a required paramter from the clones model (since APEX does not return in every object and this can make the datasource fail). 
 Add - POWERSCALE to the StorageProductEnum (This is temperary until we have the new client which includes the PowerScale APIs)
+
+## Apex Client 1.1
+
+Add - ISILON and POWERSCALE to the StorageSystemTypeEnum
+Remove -oneOf: from TargetSystemOptions and update indentation
+Remove -oneOf: from UpdateMobilityGroupInput and update indentation
 
 ## PowerFlex Client
  

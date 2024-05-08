@@ -68,18 +68,18 @@ func UpdateMobilityGroup(ctx context.Context, clientAPI *client.APIClient, plan 
 	// Create the update request
 	req2 := clientAPI.MobilityGroupsAPI.MobilityGroupsModify(ctx, plan.ID.ValueString())
 
-	updateInput := client.UpdateMobilityGroupInput{
+	updateBlockMobilityInput := client.UpdateMobilityGroupBlockInput{
 		Name:        plan.Name.ValueStringPointer(),
 		Description: plan.Description.ValueStringPointer(),
 	}
 
 	if plan.VolumeID != nil {
 		for _, member := range plan.VolumeID {
-			updateInput.Members = append(updateInput.Members, member.ValueString())
+			updateBlockMobilityInput.Members = append(updateBlockMobilityInput.Members, member.ValueString())
 		}
 	}
 
-	req2 = req2.UpdateMobilityGroupInput(updateInput)
+	req2 = req2.Body(updateBlockMobilityInput)
 	return req2.Async(true).Execute()
 
 }

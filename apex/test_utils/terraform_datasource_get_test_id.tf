@@ -129,3 +129,14 @@ output "AWS_ACCOUNT_ID1" {
 output "AWS_ACCOUNT_ID2" {
   value = data.apex_navigator_aws_accounts.example.account[1].id
 }
+
+// File Storage
+data "apex_navigator_file_storages" "example" {}
+
+output "FILE_STORAGE_ID_1" {
+  value = data.apex_navigator_file_storages.example.file_storages[0].id 
+}
+
+output "FILE_STORAGE_ID_2" {
+  value = data.apex_navigator_file_storages.example.file_storages[1].id
+}

@@ -34,6 +34,11 @@ var StorageDataSourceSchema schema.Schema = schema.Schema{
 			Description:         "Unique identifier for the device or appliance",
 			Computed:            true,
 		},
+		"storage_system_type": schema.StringAttribute{
+			MarkdownDescription: "Type of the system",
+			Description:         "Type of the system",
+			Computed:            true,
+		},
 		"system_type": schema.StringAttribute{
 			MarkdownDescription: "Type of the system",
 			Description:         "Type of the system",
@@ -264,11 +269,6 @@ var StorageDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Version identifier.",
 			Computed:            true,
 		},
-		"cirrus_deployed": schema.BoolAttribute{
-			MarkdownDescription: "If the system deployed in Cirrus",
-			Description:         "If the system deployed in Cirrus",
-			Optional:            true,
-		},
 		"deployment_details": schema.SingleNestedAttribute{
 			MarkdownDescription: "Details of the deployment",
 			Description:         "Details of the deployment",
@@ -372,6 +372,11 @@ var StorageDataSourceSchema schema.Schema = schema.Schema{
 							MarkdownDescription: "Minimum capacity requested during the deployment time - Unit: bytes",
 							Computed:            true,
 						},
+						"raw_capacity": schema.StringAttribute{
+							Description:         "Raw capacity requested during the deployment time - Unit: bytes",
+							MarkdownDescription: "Raw capacity requested during the deployment time - Unit: bytes",
+							Optional:            true,
+						},
 						"tier_type": schema.StringAttribute{
 							Description:         "Tier type requested during the deployment time",
 							MarkdownDescription: "Tier type requested during the deployment time",
@@ -379,6 +384,11 @@ var StorageDataSourceSchema schema.Schema = schema.Schema{
 						},
 						"ssh_key_name": schema.StringAttribute{
 							Computed: true,
+						},
+						"iam_instance_profile": schema.StringAttribute{
+							Description:         "Raw capacity requested during the deployment time - Unit: bytes",
+							MarkdownDescription: "Raw capacity requested during the deployment time - Unit: bytes",
+							Optional:            true,
 						},
 						"vpc": schema.SingleNestedAttribute{
 							Description:         "VPC",

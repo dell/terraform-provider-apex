@@ -45,8 +45,8 @@ func GetStorageInstance(client *client.APIClient, id string) (*client.StorageSys
 	return client.StorageSystemsAPI.StorageSystemsInstance(context.Background(), id).Execute()
 }
 
-// CreateBlockStorage creates block storage
-func CreateBlockStorage(client client.ApiStorageSystemsCreateRequest, systemCreateInput client.StorageSystemDeploymentRequest) (*client.Job, *http.Response, error) {
+// CreateStorageSystem creates a storage system
+func CreateStorageSystem(client client.ApiStorageSystemsCreateRequest, systemCreateInput client.StorageSystemDeploymentRequest) (*client.Job, *http.Response, error) {
 	return client.StorageSystemDeploymentRequest(systemCreateInput).Async(true).Execute()
 }
 
@@ -116,7 +116,6 @@ func GetStorageSystem(storageSystem client.StorageSystemsInstance) (storageState
 		UsedSize:                        types.Int64PointerValue(storageSystem.UsedSize),
 		Vendor:                          types.StringPointerValue(storageSystem.Vendor),
 		Version:                         types.StringPointerValue(storageSystem.Version),
-		CirrusDeployed:                  types.BoolPointerValue(storageSystem.CirrusDeployed),
 	}
 
 	switch {
@@ -157,7 +156,7 @@ func GetStorageSystem(storageSystem client.StorageSystemsInstance) (storageState
 		}
 
 	default:
-		fmt.Printf(constants.UnexpectedSysteType)
+		fmt.Printf(constants.UnexpectedSystemType)
 	}
 
 	return storageState
@@ -213,7 +212,6 @@ func GetStorageSystemDs(storageSystem client.StorageSystemsInstance) (storageSta
 		UsedSize:                        types.Int64PointerValue(storageSystem.UsedSize),
 		Vendor:                          types.StringPointerValue(storageSystem.Vendor),
 		Version:                         types.StringPointerValue(storageSystem.Version),
-		CirrusDeployed:                  types.BoolPointerValue(storageSystem.CirrusDeployed),
 	}
 
 	switch {
@@ -254,7 +252,7 @@ func GetStorageSystemDs(storageSystem client.StorageSystemsInstance) (storageSta
 		}
 
 	default:
-		fmt.Printf(constants.UnexpectedSysteType)
+		fmt.Printf(constants.UnexpectedSystemType)
 	}
 
 	return storageState

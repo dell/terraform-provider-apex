@@ -15,44 +15,45 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_block_storage" "cloud_instance" {
+resource "apex_navigator_file_storage" "cloud_instance" {
   # Type of system you want to deploy
-  storage_system_type = "POWERFLEX"
+  storage_system_type = "POWERSCALE"
   # The name of the system.
-  name = "apex-navigator-terraform"
+  name = "apex-navigator-terraform-file"
 
-  product_version = "4.5.1"
+  product_version = "9.8"
+  # deployment_details (can be either system_on_prem or system_public_cloud)
   deployment_details = {
     system_public_cloud = {
       deployment_type            = "PUBLIC_CLOUD"
       cloud_type                 = "AWS"
-      cloud_account              = "123456789012"
+      cloud_account              = "012345678901"
       cloud_region               = "us-east-1"
       availability_zone_topology = "SINGLE_AVAILABILITY_ZONE"
-      minimum_iops               = "100"
-      minimum_capacity           = "8"
+      raw_capacity               = "20"
       tier_type                  = "BALANCED"
+      iam_instance_profile       = "IAMProfileTest"
       ssh_key_name               = "apex-navigator-terraform-key"
       vpc = {
         is_new_vpc = false
         vpc_id     = "vpc-12345678901234567"
-        # vpc_name                 = "my-vpc"
       }
       subnet_options = [
         {
-          subnet_id = "subnet-12345678901234567"
-          #cidr_block  = "30.0.8.0/22"
+          subnet_id   = "subnet-12345678901234567"
           subnet_type = "EXTERNAL"
         },
         {
-          #subnet_id   = "subnet-2"
-          cidr_block  = "10.0.16.0/21"
+          subnet_id   = "subnet-12345678901234567"
           subnet_type = "INTERNAL"
+        },
+        {
+          subnet_id   = "subnet-12345678901234567"
+          subnet_type = "SCG"
         }
       ]
     }
   }
-
   # This is only required when decomissioning the system
   # This should be the username and password of the powerflex.
   powerflex {
@@ -61,7 +62,7 @@ resource "apex_navigator_block_storage" "cloud_instance" {
   }
 }
 
-output "navigator_block_storage" {
+output "navigator_file_storage" {
   sensitive = true
-  value     = apex_navigator_block_storage.cloud_instance
+  value     = apex_navigator_file_storage.cloud_instance
 }
