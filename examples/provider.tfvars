@@ -17,4 +17,3 @@ limitations under the License.
 
 HOST         = "https://example.com"
 JMS_ENDPOINT = "https://example-JMS.com"
-JWT_TOKEN    = ""

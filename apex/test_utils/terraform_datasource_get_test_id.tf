@@ -29,13 +29,10 @@ terraform {
 
 provider "apex" {
   host  = var.HOST
-  token = var.JWT_TOKEN
+  
 }
 
-variable "JWT_TOKEN" {
-  type    = string
-  default = "insert-token-here"
-}
+
 
 variable "HOST" {
   type    = string

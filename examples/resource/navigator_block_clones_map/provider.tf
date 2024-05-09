@@ -24,7 +24,6 @@ terraform {
 
 provider "apex" {
   host         = var.HOST
-  token        = var.JWT_TOKEN
   jms_endpoint = var.JMS_ENDPOINT
   insecure     = true
 }
