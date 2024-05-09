@@ -32,15 +32,11 @@ limitations under the License.
 
 provider "apex" {
   host         = var.HOST
-  token        = var.JWT_TOKEN
   jms_endpoint = var.JMS_ENDPOINT
   insecure     = true
 }
 
-variable "JWT_TOKEN" {
-  type    = string
-  default = "insert-token-here"
-}
+
 
 variable "HOST" {
   type    = string

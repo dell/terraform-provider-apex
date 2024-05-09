@@ -23,6 +23,5 @@ terraform {
 }
 
 provider "apex" {
-  host  = var.HOST
-  token = var.JWT_TOKEN
+  host = var.HOST
 }
