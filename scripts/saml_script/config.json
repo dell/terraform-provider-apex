@@ -1,0 +1,8 @@
+{
+    "//": " do not change this url",
+    "okta": {
+        "saml_endpoint": "https://foo.okta.com/home/foo_testapp_1/abfgj00996/sso/saml",
+        "login_endpoint": "https://foo.okta.com/home/foo_premiertestapp_1/abhgjk789/abcde456D"
+    },
+    "Exchange_URL": "https://www.dell.com/di/v3/fp/oauth/token"
+}
