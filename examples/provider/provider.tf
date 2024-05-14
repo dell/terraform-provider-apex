@@ -25,10 +25,10 @@ provider "apex" {
 
 variable "HOST" {
   type    = string
-  default = "https://example-host.com"
+  default = "https://apex.apis.dell.com/apex"
 }
 
 variable "JMS_ENDPOINT" {
   type    = string
-  default = "https://example-jobs-endpoint.com"
+  default = "https://apex.apis.dell.com/apex"
 }

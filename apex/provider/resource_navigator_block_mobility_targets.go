@@ -100,8 +100,8 @@ func (r *mobilityTargetsResource) Schema(_ context.Context, _ resource.SchemaReq
 				Required:            true,
 			},
 			"creation_timestamp": schema.StringAttribute{
-				MarkdownDescription: "Timestamp from when the group was created",
-				Description:         "Timestamp from when the group was created",
+				MarkdownDescription: "Timestamp from when the target was created",
+				Description:         "Timestamp from when the target was created",
 				Optional:            false,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{

@@ -54,12 +54,6 @@ resource "apex_navigator_file_storage" "cloud_instance" {
       ]
     }
   }
-  # This is only required when decomissioning the system
-  # This should be the username and password of the powerflex.
-  powerflex {
-    username = "example-user"
-    password = "example-password"
-  }
 }
 
 output "navigator_file_storage" {

@@ -15,17 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-variable "JWT_TOKEN" {
-  type    = string
-  default = "token-example"
-}
-
 variable "HOST" {
   type    = string
-  default = "https://example-apex-host.com"
+  default = "https://apex.apis.dell.com/apex"
 }
 
 variable "JMS_ENDPOINT" {
   type    = string
-  default = "https://example-jms-endpoint.com"
+  default = "https://apex.apis.dell.com/apex"
 }
