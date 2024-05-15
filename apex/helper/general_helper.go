@@ -34,13 +34,14 @@ func ConvertTimeToString(pTime *time.Time) string {
 
 // GetErrorString returns the error string from the response
 func GetErrorString(err error, status *http.Response) string {
-	newErr := ""
+	var newErr string
 	if err != nil {
 		newErr = err.Error()
 	}
 	if status != nil {
-		bodyBytes, _ := io.ReadAll(status.Body)
-		newErr = newErr + " " + string(bodyBytes)
+		if bodyBytes, err := io.ReadAll(status.Body); err == nil {
+			newErr += " " + string(bodyBytes)
+		}
 	}
 	return newErr
 }

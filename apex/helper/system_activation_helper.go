@@ -159,7 +159,12 @@ func getApexActivationToken(ctx context.Context, clientAPI *apexClient.APIClient
 	accessToken := "test-dummy-token"
 
 	if storageType == apexClient.STORAGEPRODUCTENUM_POWERSCALE {
-		accessToken, _ = GetNewToken(ctx)
+		var err error
+		accessToken, err = GetNewToken(ctx)
+		if err != nil {
+			tflog.Error(ctx, "Error getting new patch token instance "+err.Error())
+			return ""
+		}
 	}
 
 	post = post.StorageSystemTokensCreateRequest(apexClient.StorageSystemTokensCreateRequest{
