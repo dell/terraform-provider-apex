@@ -1,0 +1,16 @@
+{
+    "//json comments": "Things procceded with // are the instructions on how to update the corresponding values in the okta block",
+    "//saml_endpoint": "Set based on the saml endpoint in your okta",
+    "//login_endpoint": "Set based on the saml endpoint in your okta",
+    "//username": "Username in okta",
+    "//password": "Password in okta",
+    "//saml_pipe": "Change the path to a local directory on your file path where you want to save the saml token, end with '/samlPipe' and create a file with name 'samlPipe'",
+    "okta": {
+        "saml_endpoint": "https://foo.okta.com/home/foo_testapp_1/abfgj00996/sso/saml",
+        "login_endpoint": "https://foo.okta.com/home/foo_premiertestapp_1/abhgjk789/abcde456D",
+        "username": "{username}",
+        "password": "{password}",
+        "saml_pipe": "/tmp/samlPipe"
+    },
+    "Exchange_URL": "https://www.dell.com/di/v3/fp/oauth/token"
+}

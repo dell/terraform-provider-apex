@@ -1,0 +1,19 @@
+{
+    "//json comments": "Things procceded with // are the instructions on how to update the corresponding values in the entra block",
+    "//saml_endpoint": "Add the tenant_id from your Azure Entra",
+    "//login_endpoint": "Do not change",
+    "//username": "Username in Azure Entra",
+    "//password": "Password in Azure Entra",
+    "//saml_pipe": "Change the path to a local directory on your machine where you want to save the saml token, end with '/samlPipe' and create a file with name 'samlPipe'",
+    "//assertion_consumer_service_url": "Should get from the Dell Premier Federation configuration example: https://idhub.dell.com/sp/ACS.saml2",
+    "//entra_app_client_secret": "Is the client secret for the App you created for Apex in Azure Entra",
+    "entra": {
+        "saml_endpoint": "https://login.microsoftonline.com/{tenant_id}/saml2",
+        "login_endpoint": "https://entra.microsoft.com/",
+        "username": "{username}",
+        "password": "{password}",
+        "saml_pipe": "/tmp/samlPipe",
+        "assertion_consumer_service_url": "{assertion_consumer_service_url}",
+        "entra_app_client_secret": "{entra_app_client_secret}"
+    }
+}

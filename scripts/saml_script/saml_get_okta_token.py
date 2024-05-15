@@ -4,18 +4,10 @@
 
 # THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
-import re
 import sys
-from urllib.parse import urlparse
 import subprocess
-from configparser import ConfigParser
-import base64
 import xml.etree.ElementTree as ET
-from bs4 import BeautifulSoup
-from os.path import expanduser
 import json
-# from urlparse import urlparse, urlunparse
-from requests_ntlm import HttpNtlmAuth
 
 # CONSTANTS
 # SSL certificate verification: Whether or not strict certificate
@@ -24,12 +16,15 @@ from requests_ntlm import HttpNtlmAuth
 # in case of self signed certs, path to the cert (pem format) has to be given to the sslverification variable
 # sslverification = 'apexiam-cert.pem'
 # read config json to load the idp and saml ur's
-config_file_path = "config.json"
+config_file_path = "config-okta.json"
 try:
     with open(config_file_path, encoding="utf8") as config_file:
         config_data = json.load(config_file)
     oktaloginendpoint = config_data["okta"]["login_endpoint"]
     oktasamlendpoint = config_data["okta"]["saml_endpoint"]
+    oktauser = config_data["okta"]["username"]
+    oktapassword = config_data["okta"]["password"]
+    oktasamlpipe = config_data["okta"]["saml_pipe"]
     diurl = config_data["Exchange_URL"]
 except FileNotFoundError:
     print("Config file not found.")
@@ -62,11 +57,6 @@ if options[res] in config_data:
     idp_config = config_data[options[res]]
     if "okta"  in options[res].lower():
        print(f"The below are example parameters vaules for okta saml_endpoint and login_endpoint:")
-       print()
-       print(f"login_endpoint:" +" https://foo.okta.com/home/foo_premiertestapp_1/abhgjk789/abcde456D")
-       print()
-       print(f"saml_endpoint:"+"  https://foo.okta.com/home/foo_testapp_1/abfgj00996/sso/saml")
-       print()
        print(f"Current configuration for the url's:")
        print()
        print(f"IDP URL: {idp_config['login_endpoint']}")
@@ -93,8 +83,8 @@ if options[res] in config_data:
             def handler():
                 """main handler"""
                 if "okta" in options[res].lower():
-                    #subprocess.run(["python", "saml_get_token_okta_idp.py"], input=idpentryurl, text=True, stdout=subprocess.PIPE)
-                    subprocess.run(["python", "saml_get_token_okta_idp.py",oktaloginendpoint,oktasamlendpoint,diurl])
+                    # saml_get_token_okta_idp.py should be updated to either saml_get_token_okta_idp_lin or saml_get_token_okta_idp_win
+                    subprocess.run(["python", "saml_get_token_okta_idp.py",oktaloginendpoint,oktasamlendpoint,diurl, oktauser, oktapassword, oktasamlpipe])
                     quit()   
 
     handler()

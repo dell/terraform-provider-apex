@@ -19,3 +19,4 @@ soupsieve==2.4
 urllib3==1.26.15
 python-dotenv==1.0.1
 pywin32==306
+selenium==4.20.0
