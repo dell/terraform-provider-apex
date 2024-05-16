@@ -30,7 +30,15 @@ Add - POWERSCALE to the StorageProductEnum (This is temperary until we have the 
 Add - ISILON and POWERSCALE to the StorageSystemTypeEnum
 Remove -oneOf: from TargetSystemOptions and update indentation
 Remove -oneOf: from UpdateMobilityGroupInput and update indentation
+Remove - ID as a Required field from StorageProductInstance since it is not always returned in the REST Request
+Remove - ID as a Required field from SupportMap since it is not always returned in the REST Request
 
 ## PowerFlex Client
  
 1. Change LogininResponseYaml (expires_in, refresh_expires_in) from string to int64
+
+
+## Example openapi-generator-cli command (we are using 7.5.0 version of the generator)
+```
+openapi-generator-cli generate -g go -i apex-client-openapi-1.1.0.yaml --additional-properties=enumClassPrefix=true
+```

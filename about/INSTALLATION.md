@@ -54,3 +54,7 @@ For SSL verifcation on RHEL, below steps can be performed:
 ```
 update-ca-trust extract
 ```
+
+## Setup Auth Scripts
+ 
+**Follow the instrctions in the https://github.com/dell/terraform-provider-apex/blob/main/scripts/saml_script/README.md to setup the authentication scripts**

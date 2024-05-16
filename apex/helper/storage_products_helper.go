@@ -53,7 +53,7 @@ func MapStorageProduct(storageProducts *client.StorageProductsCollection200Respo
 
 		for _, supportmap := range storageProduct.SupportMap {
 			storageProductState.SupportMaps = append(storageProductState.SupportMaps, models.SupportMapModel{
-				ID:                        types.StringValue(supportmap.Id),
+				ID:                        types.StringPointerValue(supportmap.Id),
 				SupportedEvaluationPeriod: types.Int64Value(int64(supportmap.SupportedEvaluationPeriod)),
 				Version:                   types.StringValue(supportmap.Version),
 				SupportedActions:          []client.StorageProductActionEnum{},
