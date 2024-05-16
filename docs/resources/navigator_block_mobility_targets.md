@@ -32,7 +32,7 @@ This Terraform resource is used to manage Mobility Targets on Apex Navigator. We
 
 ### Read-Only
 
-- `creation_timestamp` (String) Timestamp from when the group was created
+- `creation_timestamp` (String) Timestamp from when the target was created
 - `id` (String) Idenifier of this target mobility group
 - `image_timestamp` (String) Timestamp of the last source image copied to this target
 - `last_copy_job_id` (String) Last copy job ID
