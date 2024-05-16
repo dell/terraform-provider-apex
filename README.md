@@ -45,6 +45,8 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 
 ## Prerequisites
 
+- [Apex_Auth_Scripts](https://github.com/dell/terraform-provider-apex/blob/main/scripts/saml_script/README.md) This must be configured ahead of running any terraform commands in order to authenticate with Apex.
+
 | **Terraform Provider**  | **OS**                    | **Terraform**               | **Golang** |
 |------------------------ |:-----------------------   |:--------------------------  |------------|
 | v1.0.0-beta             | ubuntu22.04 <br>  rhel9.x | 1.5.x <br> 1.6.x            | 1.21       |

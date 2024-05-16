@@ -38,10 +38,10 @@ if len (sys.argv) >=3:
  DEFAULT_LOGIN_ENDPOINT = sys.argv[1]
  DEFAULT_SAML_ENDPOINT = sys.argv[2]
  DI_URL = sys.argv[3]
+ USERNAME = sys.argv[4]
+ PASSWORD = sys.argv[5]
+ SAML_PIPE = sys.argv[6]
  
-
-USERNAME = 'IDP_USERNAME'
-PASSWORD = 'IDP_PASSWORD'
 
 class OktaSamlResponse:
 
@@ -53,7 +53,9 @@ class OktaSamlResponse:
             OKTA_LOGIN_ENDPOINT) or DEFAULT_LOGIN_ENDPOINT
         self.saml_endpoint = self.options.get(
             OKTA_SAML_ENDPOINT) or DEFAULT_SAML_ENDPOINT
-
+        self.username = USERNAME
+        self.password = PASSWORD
+        self.saml_pipe = SAML_PIPE
         load_dotenv()
 
     def value(self):
@@ -75,16 +77,13 @@ class OktaSamlResponse:
             sys.exit(0)
         # get the sign-in page
         sign_in_page = session.get(self.login_endpoint, verify=None)
-        # Username and password should be substituted with right values
-        username = "username"
-        password = "password"
 
-        if username is None or password is None:
+        if self.username is None or self.password is None:
             raise Exception("Environment variables " + USERNAME + " and/or "
                             + PASSWORD + " are missing.")
 
-        sign_in_payload = self.__parse_sign_in_page(sign_in_page, username,
-                                                    password)
+        sign_in_payload = self.__parse_sign_in_page(sign_in_page, self.username,
+                                                    self.password)
 
         # find the action of the form to submit the form
         
@@ -102,8 +101,8 @@ class OktaSamlResponse:
     
         authn_url = idp_base_url + '/api/v1/authn'
         authn_response = session.post(authn_url,
-                                      json={'username': username,
-                                            'password': password})
+                                      json={'username': self.username,
+                                            'password': self.password})
 
         #validate user credentials
         session_token =self.validate_session_token(authn_response)
@@ -137,7 +136,7 @@ class OktaSamlResponse:
 
        # print("==== Retreiving DI Bearer token ===")
        # print()
-        pipeName = "/tmp/samlPipe"
+        pipeName = self.saml_pipe 
         try:
             pipe1 = win32pipe.CreateNamedPipe(pipeName, win32pipe.PIPE_ACCESS_DUPLEX,
                               win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE,
