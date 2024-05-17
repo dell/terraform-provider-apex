@@ -43,7 +43,7 @@ const (
 	UpdateJobErrorMsg = "Error occurred during update job: "
 
 	// GeneralJobError is the Error message for general job failure
-	GeneralJobError = "Error occurred during job"
+	GeneralJobError = "Error occurred during job: "
 
 	// ErrorGettingJob is the Error message for getting job failure
 	ErrorGettingJob = "Error getting job"

@@ -3993,7 +3993,6 @@ components:
           items:
             $ref: '#/components/schemas/SupportMap'
       required:
-        - id
         - name
         - system_type
         - storage_type
@@ -4383,7 +4382,6 @@ components:
           items:
             $ref: '#/components/schemas/StorageProductActionEnum'
       required:
-        - id
         - supported_evaluation_period
         - version
         - supported_actions
