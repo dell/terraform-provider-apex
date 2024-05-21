@@ -80,6 +80,9 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 ## Installation and execution of Terraform Provider for Dell Apex
 The installation and execution steps of Terraform Provider for Dell Apex can be found [here](about/INSTALLATION.md).
 
+## Other useful provider information
+Once you have utilized the Terraform APEX Provider for the deployment of APEX Block Storage and/or APEX File Storage in the public cloud, subsequent automation of block and file storage workflows via the respective storage end-points can be achieved by employing the [Terraform PowerFlex Provider](https://registry.terraform.io/providers/dell/powerflex/latest) and/or the [Terraform PowerScale Provider](https://registry.terraform.io/providers/dell/powerscale/latest).
+
 ## Releasing, Maintenance and Deprecation
 
 Terraform Provider for Dell Technnologies Apex follows [Semantic Versioning](https://semver.org/).
