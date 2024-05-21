@@ -30,6 +30,7 @@ resource "apex_navigator_block_clones" "example" {
       host_id = "POWERFLEX-ABCD1234567890__HOST__12345678901234"
     }
   ]
+  # Note: PowerFlex credentials are required to activate the system for clones related operations.
   powerflex {
     username = "example-username"
     password = "example-pass"

@@ -27,6 +27,8 @@ resource "apex_navigator_block_mobility_targets" "example" {
   # Storage pool id to use for allocating target volumes
   target_system_options = "POWERFLEX-ABCD1234567890_STORAGE_POOL__1234567890123456"
 
+  # Note: PowerFlex credentials are required to activate the system for mobility related operations.
+
   # The source mobility group Powerflex
   powerflex_source {
     username = "example-source-username"

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Installation of Terraform Provider for Dell PowerStore
+# Installation of Terraform Provider for Dell Apex
 
 ## Installation from public repository
 
@@ -57,4 +57,4 @@ update-ca-trust extract
 
 ## Setup Auth Scripts
  
-**Follow the instrctions in the https://github.com/dell/terraform-provider-apex/blob/main/scripts/saml_script/README.md to setup the authentication scripts**
+**Follow the instructions in the https://github.com/dell/terraform-provider-apex/blob/main/scripts/saml_script/README.md to setup the authentication scripts**

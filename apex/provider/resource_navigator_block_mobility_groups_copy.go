@@ -61,8 +61,8 @@ func (r *mobilityGroupsCopyResource) Metadata(_ context.Context, req resource.Me
 // Schema defines the acceptable configuration and state attribute names and types.
 func (r *mobilityGroupsCopyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen, dupl
 	resp.Schema = schema.Schema{
-		Description:         "This Terraform resource is used to copy source Data Mobility Group to target on Apex Navigator.",
-		MarkdownDescription: "This Terraform resource is used to copy source Data Mobility Group to target on Apex Navigator.",
+		Description:         "This Terraform resource is used in the process of copying data from one storage group (the source) to another storage group (the target) within the APEX Navigator environment.",
+		MarkdownDescription: "This Terraform resource is used in the process of copying data from one storage group (the source) to another storage group (the target) within the APEX Navigator environment.",
 		Attributes: map[string]schema.Attribute{
 			"mobility_source_id": schema.StringAttribute{
 				MarkdownDescription: "Source ID of the Mobility Group",

@@ -24,6 +24,7 @@ resource "apex_navigator_block_mobility_groups_copy" "example" {
   mobility_source_id = each.value.mobility_source_id
   mobility_target_id = each.value.mobility_target_id
 
+  # Note: PowerFlex credentials are required to activate the system for mobility related operations.
   powerflex_source {
     username = each.value.powerflex_source_user
     password = each.value.powerflex_source_password

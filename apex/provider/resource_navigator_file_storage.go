@@ -63,7 +63,9 @@ func (r *fileStorageResource) Metadata(_ context.Context, req resource.MetadataR
 func (r *fileStorageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 
 	resp.Schema = schema.Schema{
-		Attributes: GetStorageSystemSchema("file"),
+		Description:         "This Terraform resource is used to manage File Storage on Apex Navigator. We can create, read, update, delete File Storage on Apex Navigator.We can also import existing File Storage from Apex Navigator.",
+		MarkdownDescription: "This Terraform resource is used to manage File Storage on Apex Navigator. We can create, read, update, delete File Storage on Apex Navigator.We can also import existing File Storage from Apex Navigator.",
+		Attributes:          GetStorageSystemSchema("file"),
 		Blocks: map[string]schema.Block{
 			"powerflex": schema.SingleNestedBlock{
 				Attributes: PowerflexInfo.Attributes,

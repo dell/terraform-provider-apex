@@ -68,6 +68,8 @@ func (p *myProvider) Metadata(_ context.Context, _ provider.MetadataRequest, res
 // Schema defines the provider-level schema for configuration data.
 func (p *myProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "The Terraform provider for Dell APEX Navigator.",
+		MarkdownDescription: "The Terraform provider for Dell APEX Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
 				Optional: true,

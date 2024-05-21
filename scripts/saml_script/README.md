@@ -36,3 +36,5 @@ python saml_get_okta_token.py         # outputs token and debug messages
 ```
 python saml_get_entra_token.py
 ```
+
+Note: If 'python' is not found create a soft link for python to python3

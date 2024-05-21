@@ -52,9 +52,8 @@ resource "apex_navigator_block_storage" "cloud_instance" {
       ]
     }
   }
-
+  # Note: PowerFlex credentials are required to activate the system for block storage related operations.
   # This is only required when decomissioning the system
-  # This should be the username and password of the powerflex.
   powerflex {
     username = "example-user"
     password = "example-password"

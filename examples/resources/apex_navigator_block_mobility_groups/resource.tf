@@ -26,7 +26,7 @@ resource "apex_navigator_block_mobility_groups" "example" {
   volume_id = [
     "POWERFLEX-ABCD1234567890__VOLUME__1234567890123456"
   ]
-
+  # Note: PowerFlex credentials are required to activate the system for mobility related operations.
   powerflex {
     username = "example-user"
     password = "example-pass"
