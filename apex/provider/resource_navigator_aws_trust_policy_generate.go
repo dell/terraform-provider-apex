@@ -265,6 +265,6 @@ func (r *policyGenerateResource) Update(ctx context.Context, req resource.Update
 func (r *policyGenerateResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	resp.Diagnostics.AddWarning(
 		constants.DeleteIsNotSupportedErrorMsg,
-		constants.DeleteIsNotSupportedErrorMsg,
+		constants.AwsDeleteGeneratePolicyErrorMsg,
 	)
 }

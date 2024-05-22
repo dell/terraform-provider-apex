@@ -35,8 +35,8 @@ func GenerateAwsTrustPolicy(clientAPI *client.APIClient, accountID string) (*cli
 }
 
 // ConnectAccount connects an aws account
-func ConnectAccount(clientAPI *client.APIClient, account client.AwsAccountsCreateInput) (*client.RedactedAwsAccountInstance, *http.Response, error) {
-	return clientAPI.AwsAccountsAPI.AwsAccountsCreate(context.Background()).AwsAccountsCreateInput(account).Execute()
+func ConnectAccount(clientAPI *client.APIClient, arn string) (*client.RedactedAwsAccountInstance, *http.Response, error) {
+	return clientAPI.AwsAccountsAPI.AwsAccountsCreate(context.Background()).AwsAccountsCreateInput(client.AwsAccountsCreateInput{RoleArn: arn}).Execute()
 }
 
 // GetAccountInstance gets an aws account
