@@ -197,22 +197,12 @@ func (r *awsAccountResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Update the account
-	updateJob, status, err := helper.UpdateAccount(r.client, plan.AccountID.ValueString(), plan.RoleArn.ValueString())
-	if err != nil || status == nil || status.StatusCode != http.StatusOK {
+	_, status, err := helper.UpdateAccount(r.client, plan.AccountID.ValueString(), plan.RoleArn.ValueString())
+	if err != nil || status == nil || status.StatusCode != http.StatusNoContent {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
 			constants.AwsAccountUpdateErrorMsg,
 			constants.AwsAccountUpdateErrorMsg+newErr,
-		)
-		return
-	}
-
-	// Fetching Job Status
-	_, jobErr := helper.WaitForJobToComplete(ctx, r.jobsClient, updateJob.Id)
-	if jobErr != nil {
-		resp.Diagnostics.AddError(
-			constants.UpdateJobErrorMsg,
-			constants.GeneralJobError+jobErr.Error(),
 		)
 		return
 	}

@@ -93,17 +93,6 @@ func TestAccResourceAwsAccountErrorTesting(t *testing.T) {
 				Config:      ProviderConfig + awsAccountResourceUpdateConfig,
 				ExpectError: regexp.MustCompile(".*Unable to Read Apex Navigator Aws Accounts*"),
 			},
-			// Job Error
-			{
-				PreConfig: func() {
-					if FunctionMocker != nil {
-						FunctionMocker.UnPatch()
-					}
-					FunctionMocker = Mock(helper.WaitForJobToComplete).Return(nil, fmt.Errorf("Mock error")).Build()
-				},
-				Config:      ProviderConfig + awsAccountResourceUpdateConfig,
-				ExpectError: regexp.MustCompile(".*Error occurred during update job*"),
-			},
 			// Update Error
 			{
 				PreConfig: func() {
