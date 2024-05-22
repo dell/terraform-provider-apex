@@ -118,11 +118,8 @@ func (r *awsAccountResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	// Create the resource
-	accountPost := *client.NewAwsAccountsCreateInput(plan.AccountID.ValueString())
-
-	account, status, err := helper.ConnectAccount(r.client, accountPost)
-	if err != nil || status == nil || status.StatusCode != http.StatusAccepted {
+	account, status, err := helper.ConnectAccount(r.client, plan.RoleArn.ValueString())
+	if err != nil || status == nil || status.StatusCode != http.StatusCreated {
 		newErr := helper.GetErrorString(err, status)
 		resp.Diagnostics.AddError(
 			constants.AwsConnectionErrorMsg,

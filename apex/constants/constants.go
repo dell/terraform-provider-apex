@@ -117,6 +117,9 @@ const (
 	// AwsUpdateInvalidFieldUpdateErrorMsg is the Error message for update failure
 	AwsUpdateInvalidFieldUpdateErrorMsg = "[account_id] cannot be updated, please use the lifecycle block to make sure this is run as a new create each terraform apply"
 
+	//AwsDeleteGeneratePolicyErrorMsg is the Error message since deleting the generated policy does nothing
+	AwsDeleteGeneratePolicyErrorMsg = "Deleting the AWS Generated trust policy does nothing, please regenerate for a new policy"
+
 	// Block Clone Messages ####################################################//
 
 	// BlockCloneReadErrorMsg is the Error message for read failure
