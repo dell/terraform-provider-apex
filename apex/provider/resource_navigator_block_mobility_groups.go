@@ -62,8 +62,8 @@ func (r *mobilityGroupsResource) Metadata(_ context.Context, req resource.Metada
 // Schema defines the acceptable configuration and state attribute names and types.
 func (r *mobilityGroupsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
-		Description:         "This Terraform resource is used to manage SOurce Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.",
-		MarkdownDescription: "This Terraform resource is used to manage Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.",
+		Description:         "This Terraform resource is used to manage Source Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.",
+		MarkdownDescription: "This Terraform resource is used to manage Source Data Mobility Groups on Apex Navigator.We can create, read, update, delete Data Mobility Groups on Apex Navigator.We can also import existing Data Mobility Groups from Apex Navigator.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Mobility group identifier",

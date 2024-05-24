@@ -62,7 +62,9 @@ func (r *blockStorageResource) Metadata(_ context.Context, req resource.Metadata
 // Schema defines the acceptable configuration and state attribute names and types.
 func (r *blockStorageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) { // nolint:funlen
 	resp.Schema = schema.Schema{
-		Attributes: GetStorageSystemSchema("block"),
+		Description:         "This Terraform resource is used to manage Block Storage on Apex Navigator. We can create, read, update, delete Block Storage on Apex Navigator.We can also import existing Block Storage from Apex Navigator.",
+		MarkdownDescription: "This Terraform resource is used to manage Block Storage on Apex Navigator. We can create, read, update, delete Block Storage on Apex Navigator.We can also import existing Block Storage from Apex Navigator.",
+		Attributes:          GetStorageSystemSchema("block"),
 		Blocks: map[string]schema.Block{
 			"powerflex": schema.SingleNestedBlock{
 				Attributes: PowerflexInfo.Attributes,
