@@ -33,9 +33,6 @@ description: |-
 
 provider.tf
 {{ tffile ( printf "%s" .ExampleFile) }}
-
-env.sh
-{{ tffile "examples/provider/env.sh" }}
 {{- end }}
 
 {{ .SchemaMarkdown | trimspace }}
