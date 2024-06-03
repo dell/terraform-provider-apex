@@ -94,3 +94,9 @@ Released code versions are located on tags in the form of "vx.y.z" where x.y.z c
 ## Documentation
 
 For more detailed information, please refer to [Dell Terraform Providers Documentation](https://dell.github.io/terraform-docs/).
+
+## Terraform Apex Modeles
+
+**Check the following links for the terraform-modules repository and registry**
+[Terraform Apex Modules Github](https://github.com/dell/terraform-apex-modules)
+[Terraform Apex Modules Registry](https://registry.terraform.io/modules/dell/modules/apex/latest)
