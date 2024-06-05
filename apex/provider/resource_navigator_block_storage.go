@@ -111,7 +111,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		minIops := int32(plan.DeploymentDetails.SystemPublicCloud.MinimumIops.ValueInt64())
 		minUC := int32(plan.DeploymentDetails.SystemPublicCloud.MinimumCapacity.ValueInt64())
 
-		storageParams := client.StorageSystemDeploymentRequestStorageOptions{
+		storageParams := client.StorageOptions{
 			PowerFlexStorageOptions: &client.PowerFlexStorageOptions{
 				SystemType:            plan.StorageSystemType.ValueString(),
 				Version:               plan.ProductVersion.ValueStringPointer(),
@@ -137,7 +137,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 			subnetOptions = append(subnetOptions, newOption)
 		}
 
-		cloudParams := client.StorageSystemDeploymentRequestCloudOptions{
+		cloudParams := client.CloudOptions{
 			AWSCloudOptions: &client.AWSCloudOptions{
 				CloudType:                string(*plan.DeploymentDetails.SystemPublicCloud.CloudType),
 				AccountId:                plan.DeploymentDetails.SystemPublicCloud.CloudAccount.ValueString(),
@@ -156,7 +156,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	case plan.DeploymentDetails.SystemOnPrem != nil:
 		defaultValue := "default"
 		minValue := int32(1)
-		storageOptions := client.StorageSystemDeploymentRequestStorageOptions{
+		storageOptions := client.StorageOptions{
 			PowerFlexStorageOptions: &client.PowerFlexStorageOptions{
 				SystemType:            defaultValue,
 				Version:               &defaultValue,
@@ -175,7 +175,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		subnetOptions = append(subnetOptions, newOption)
 
 		falseBool := false
-		cloudOptions := client.StorageSystemDeploymentRequestCloudOptions{
+		cloudOptions := client.CloudOptions{
 			AWSCloudOptions: &client.AWSCloudOptions{
 				CloudType:                "default",
 				AccountId:                "default",

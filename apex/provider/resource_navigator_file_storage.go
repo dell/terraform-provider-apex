@@ -113,7 +113,7 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 		tier := client.PowerScaleTierEnum(plan.DeploymentDetails.SystemPublicCloud.TierType.ValueString())
 		rawCapacity := plan.DeploymentDetails.SystemPublicCloud.RawCapacity.ValueStringPointer()
 
-		storageParams := client.StorageSystemDeploymentRequestStorageOptions{
+		storageParams := client.StorageOptions{
 			PowerScaleStorageOptions: &client.PowerScaleStorageOptions{
 				SystemType:  plan.StorageSystemType.ValueString(),
 				Version:     plan.ProductVersion.ValueStringPointer(),
@@ -138,7 +138,7 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 			subnetOptions = append(subnetOptions, newOption)
 		}
 
-		cloudParams := client.StorageSystemDeploymentRequestCloudOptions{
+		cloudParams := client.CloudOptions{
 			AWSCloudOptions: &client.AWSCloudOptions{
 				CloudType:                string(*plan.DeploymentDetails.SystemPublicCloud.CloudType),
 				AccountId:                plan.DeploymentDetails.SystemPublicCloud.CloudAccount.ValueString(),
@@ -157,7 +157,7 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 	case plan.DeploymentDetails.SystemOnPrem != nil:
 		defaultValue := "default"
 		rawCapacity := "1"
-		storageOptions := client.StorageSystemDeploymentRequestStorageOptions{
+		storageOptions := client.StorageOptions{
 			PowerScaleStorageOptions: &client.PowerScaleStorageOptions{
 				SystemType:  defaultValue,
 				Version:     &defaultValue,
@@ -176,7 +176,7 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 
 		falseBool := false
 		defaultProfile := "profile"
-		cloudOptions := client.StorageSystemDeploymentRequestCloudOptions{
+		cloudOptions := client.CloudOptions{
 			AWSCloudOptions: &client.AWSCloudOptions{
 				CloudType:                "default",
 				AccountId:                "default",

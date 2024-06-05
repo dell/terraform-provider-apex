@@ -62,15 +62,10 @@ type AwsPermissionsFilterType struct {
 
 // AwsPermissionsModel maps the Aws Permissions schema data.
 type AwsPermissionsModel struct {
-	ID                types.String      `tfsdk:"id"`
-	Version           types.String      `tfsdk:"version"`
-	PermissionsPolicy PermissionsPolicy `tfsdk:"permission_policy"`
-}
-
-// PermissionsPolicy describes the permissions policy data model.
-type PermissionsPolicy struct {
-	Version   types.String `tfsdk:"version"`
-	Statement []Statement  `tfsdk:"statement"`
+	ID      types.String `tfsdk:"id"`
+	Version types.String `tfsdk:"version"`
+	// This is the JSON Stringified version of the permissions object
+	PermissionsPolicy types.String `tfsdk:"permission_policy"`
 }
 
 // Statement describes the statement data model.

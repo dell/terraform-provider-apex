@@ -93,26 +93,4 @@ Optional:
 
 Read-Only:
 
-- `permission_policy` (Attributes) Details of the Policy (see [below for nested schema](#nestedatt--permissions--permission_policy))
-
-<a id="nestedatt--permissions--permission_policy"></a>
-### Nested Schema for `permissions.permission_policy`
-
-Optional:
-
-- `version` (String) Version of the AWS Permission Policy
-
-Read-Only:
-
-- `statement` (Attributes List) The Permission Policy Statement. (see [below for nested schema](#nestedatt--permissions--permission_policy--statement))
-
-<a id="nestedatt--permissions--permission_policy--statement"></a>
-### Nested Schema for `permissions.permission_policy.statement`
-
-Read-Only:
-
-- `action` (List of String) action of the AWS Permission Policy
-- `effect` (String) effect of the AWS Permission Policy
-- `iam_aws_service_name` (List of String) IAM AWS Service Name of the AWS Permission Policy
-- `resource` (String) resource of the AWS Permission Policy
-- `sid` (String) Statement identifier of the AWS Permission Policy
+- `permission_policy` (String) The JSON stringified details of the Permissions Policy
