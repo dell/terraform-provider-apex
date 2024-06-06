@@ -33,6 +33,13 @@ Remove -oneOf: from UpdateMobilityGroupInput and update indentation
 Remove - ID as a Required field from StorageProductInstance since it is not always returned in the REST Request
 Remove - ID as a Required field from SupportMap since it is not always returned in the REST Request
 
+## Apex Client 1.1.1
+
+Add - ISILON to the StorageSystemTypeEnum
+Remove `x-internal: true` from CreateTargetBaseInput
+Remove - ID as a Required field from StorageProductsInstance since it is not always returned in the REST Request
+Remove - ID as a Required field from SupportMap since it is not always returned in the REST Request
+
 ## PowerFlex Client
  
 1. Change LogininResponseYaml (expires_in, refresh_expires_in) from string to int64

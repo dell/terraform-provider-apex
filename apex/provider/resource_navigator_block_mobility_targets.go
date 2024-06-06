@@ -236,7 +236,9 @@ func (r *mobilityTargetsResource) Create(ctx context.Context, req resource.Creat
 	createReq := r.client.MobilityTargetsAPI.MobilityTargetsCreate(ctx)
 
 	targetSystemOptions := client.TargetSystemOptions{
-		StoragePool: plan.TargetSystemOptions.ValueStringPointer(),
+		TargetSystemOptionsOneOf1: &client.TargetSystemOptionsOneOf1{
+			StoragePool: plan.TargetSystemOptions.ValueStringPointer(),
+		},
 	}
 
 	mobilityTargetsInput := *client.NewCreateTargetInput(plan.SourceMobilityGroupID.ValueString(), plan.Name.ValueString(), plan.SystemID.ValueString(), *plan.SystemType.Ptr(), targetSystemOptions)

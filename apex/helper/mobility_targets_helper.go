@@ -87,8 +87,8 @@ func GetMobilityTargetModel(mobilityTarget client.MobilityTarget) (model models.
 			attrValues := map[string]attr.Value{
 				"id":        types.StringValue(target.Id),
 				"parent_id": types.StringValue(target.ParentId),
-				"name":      types.StringValue(target.Name),
-				"size":      types.StringValue(target.Size),
+				"name":      types.StringPointerValue(target.Name),
+				"size":      types.StringPointerValue(target.Size),
 			}
 			// TF Object representing a target member
 			object, _ := types.ObjectValue(attrTypes, attrValues)
@@ -139,8 +139,8 @@ func GetMobilityTargetModelDs(mobilityTarget client.MobilityTarget) (model model
 			attrValues := map[string]attr.Value{
 				"id":        types.StringValue(target.Id),
 				"parent_id": types.StringValue(target.ParentId),
-				"name":      types.StringValue(target.Name),
-				"size":      types.StringValue(target.Size),
+				"name":      types.StringPointerValue(target.Name),
+				"size":      types.StringPointerValue(target.Size),
 			}
 			// TF Object representing a target member
 			object, _ := types.ObjectValue(attrTypes, attrValues)

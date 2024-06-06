@@ -19,6 +19,7 @@ package helper
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	client "dell/apex-client"
@@ -111,41 +112,16 @@ func GetAwsPermssionCollection(clientAPI *client.APIClient, filter []basetypes.S
 // MapAwsPermission maps the AWS permission policy
 func MapAwsPermission(permission client.AwsPermissionPoliciesInstance) models.AwsPermissionsModel {
 	return models.AwsPermissionsModel{
-		ID:      types.StringPointerValue(permission.Id),
-		Version: types.StringPointerValue(permission.Version),
-		PermissionsPolicy: models.PermissionsPolicy{
-			Version:   types.StringPointerValue(permission.PermissionPolicy.Version),
-			Statement: mapStatements(permission.PermissionPolicy.Statement),
-		},
+		ID:                types.StringPointerValue(permission.Id),
+		Version:           types.StringPointerValue(permission.Version),
+		PermissionsPolicy: types.StringValue(marshalPermissionPolicy(permission.PermissionPolicy)),
 	}
 }
 
-// mapStatements maps the AWS permssions statements
-func mapStatements(statements []client.AwsPermissionPoliciesInstancePermissionPolicyStatementInner) []models.Statement {
-	response := make([]models.Statement, 0)
-	for _, state := range statements {
-		actions := make([]types.String, 0)
-		iams := make([]types.String, 0)
-
-		for _, action := range state.Action {
-			actions = append(actions, types.StringValue(action))
-		}
-
-		if state.Condition != nil && state.Condition.StringLike != nil && state.Condition.StringLike.IamAWSServiceName != nil {
-			for _, iam := range state.Condition.StringLike.IamAWSServiceName {
-				iams = append(iams, types.StringValue(iam))
-			}
-		}
-
-		response = append(response, models.Statement{
-			Sid:               types.StringPointerValue(state.Sid),
-			Effect:            types.StringPointerValue(state.Effect),
-			Action:            actions,
-			Resource:          types.StringPointerValue(state.Resource),
-			IamAwsServiceName: iams,
-		})
-	}
-	return response
+// marshalPermissionPolicy creates the marshal string of the permission policy
+func marshalPermissionPolicy(permissionPolicy map[string]interface{}) string {
+	b, _ := json.Marshal(permissionPolicy)
+	return string(b)
 }
 
 // MapGeneratedStatements maps the AWS permssions statements to terraform state

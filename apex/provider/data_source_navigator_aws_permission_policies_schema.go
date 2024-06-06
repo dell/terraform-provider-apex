@@ -18,7 +18,6 @@ package provider
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // AwsPermissionPoliciesDataSourceSchema defines tha acceptable confirguation and state attribute names and types
@@ -34,53 +33,10 @@ var AwsPermissionPoliciesDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Version of the AWS Permission Policy",
 			Optional:            true,
 		},
-		"permission_policy": schema.SingleNestedAttribute{
-			MarkdownDescription: "Details of the Policy",
-			Description:         "Details of the Policy",
+		"permission_policy": schema.StringAttribute{
+			MarkdownDescription: "The JSON stringified details of the Permissions Policy",
+			Description:         "The JSON stringified details of the Permissions Policy",
 			Computed:            true,
-			Attributes: map[string]schema.Attribute{
-				"version": schema.StringAttribute{
-					Description:         "Version of the AWS Permission Policy",
-					MarkdownDescription: "Version of the AWS Permission Policy",
-					Optional:            true,
-				},
-				"statement": schema.ListNestedAttribute{
-					Computed:            true,
-					Description:         "The Permission Policy Statement",
-					MarkdownDescription: "The Permission Policy Statement.",
-					NestedObject: schema.NestedAttributeObject{
-						Attributes: map[string]schema.Attribute{
-							"sid": schema.StringAttribute{
-								Description:         "Statement identifier of the AWS Permission Policy",
-								MarkdownDescription: "Statement identifier of the AWS Permission Policy",
-								Computed:            true,
-							},
-							"effect": schema.StringAttribute{
-								Description:         "effect of the AWS Permission Policy",
-								MarkdownDescription: "effect of the AWS Permission Policy",
-								Computed:            true,
-							},
-							"action": schema.ListAttribute{
-								Description:         "action of the AWS Permission Policy",
-								MarkdownDescription: "action of the AWS Permission Policy",
-								Computed:            true,
-								ElementType:         types.StringType,
-							},
-							"resource": schema.StringAttribute{
-								Description:         "resource of the AWS Permission Policy",
-								MarkdownDescription: "resource of the AWS Permission Policy",
-								Computed:            true,
-							},
-							"iam_aws_service_name": schema.ListAttribute{
-								Description:         "IAM AWS Service Name of the AWS Permission Policy",
-								MarkdownDescription: "IAM AWS Service Name of the AWS Permission Policy",
-								Computed:            true,
-								ElementType:         types.StringType,
-							},
-						},
-					},
-				},
-			},
 		},
 	},
 }

@@ -79,7 +79,10 @@ func UpdateMobilityGroup(ctx context.Context, clientAPI *client.APIClient, plan 
 		}
 	}
 
-	req2 = req2.Body(updateBlockMobilityInput)
+	req2 = req2.UpdateMobilityGroupInput(client.UpdateMobilityGroupInput{
+		UpdateMobilityGroupBlockInput: &updateBlockMobilityInput,
+	})
+
 	return req2.Async(true).Execute()
 
 }
@@ -105,8 +108,8 @@ func GetMobilityGroupModel(mobilityGroup client.MobilityGroup) (model models.Mob
 		for _, member := range mobilityGroup.Members {
 			attrValues := map[string]attr.Value{
 				"id":   types.StringValue(member.Id),
-				"name": types.StringValue(member.Name),
-				"size": types.StringValue(member.Size),
+				"name": types.StringPointerValue(member.Name),
+				"size": types.StringPointerValue(member.Size),
 			}
 			// TF Object representing a group member
 			object, _ := types.ObjectValue(attrTypes, attrValues)
@@ -145,8 +148,8 @@ func GetMobilityGroupModelDs(mobilityGroup client.MobilityGroup) (model models.M
 		for _, member := range mobilityGroup.Members {
 			attrValues := map[string]attr.Value{
 				"id":   types.StringValue(member.Id),
-				"name": types.StringValue(member.Name),
-				"size": types.StringValue(member.Size),
+				"name": types.StringPointerValue(member.Name),
+				"size": types.StringPointerValue(member.Size),
 			}
 			// TF Object representing a group member
 			object, _ := types.ObjectValue(attrTypes, attrValues)
