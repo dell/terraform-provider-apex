@@ -102,6 +102,15 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	validationErr := helper.ValidateCreateStorageParams(plan)
+	if validationErr != nil {
+		resp.Diagnostics.AddError(
+			constants.BlockStorageCreateErrorMsg,
+			validationErr.Error(),
+		)
+		return
+	}
+
 	var systemCreateInput client.StorageSystemDeploymentRequest
 	switch {
 	case plan.DeploymentDetails == nil:

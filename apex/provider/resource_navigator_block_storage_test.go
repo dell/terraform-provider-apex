@@ -95,6 +95,16 @@ func TestAccResourceBlockStorageErrorCases(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
+					FunctionMocker = Mock(helper.CreateStorageSystem).Return(nil, nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfig + blockResourceCloudExistingVpcErr,
+				ExpectError: regexp.MustCompile(`.*Error creating Apex Navigator Block Storage*.`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
 					FunctionMocker = Mock(helper.GetStorageInstance).Return(nil, &http.Response{StatusCode: 400, Body: http.NoBody}, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfig + blockResourceCloudConfig,
@@ -317,6 +327,52 @@ resource "apex_navigator_block_storage" "cloud_instance" {
 		ssh_key_name               = "name"
 		vpc = {
 		  is_new_vpc               = true
+		  vpc_name                 = "my-storage-vpc"
+		}
+		subnet_options = [
+		  {
+		  subnet_id   = "id-1"
+		  # cidr_block  = "10.10.10/21"
+		  subnet_type = "EXTERNAL"
+		},
+		{
+		  # subnet_id   = "id-2"
+		  cidr_block  = "10.10.10/22"
+		  subnet_type = "INTERNAL"
+		}
+		]
+	  }
+	}
+	powerflex {
+		username = "test-username"
+		password = "test-pass"
+		scheme   = "` + powerflexScheme + `"
+	}
+  }
+  
+  output "instance_block_storage_cloud" {
+	sensitive = true
+	value = apex_navigator_block_storage.cloud_instance
+  }`
+
+var blockResourceCloudExistingVpcErr = `
+resource "apex_navigator_block_storage" "cloud_instance" {
+	storage_system_type                = "POWERFLEX"
+	name                               = "Create Block Cloud"
+	product_version                    = "1.0"
+	deployment_details = {
+	  system_public_cloud = {
+		deployment_type            = "PUBLIC_CLOUD"
+		cloud_type                 = "AWS"
+		cloud_account              = "CloudAccount"
+		cloud_region               = "CloudRegion"
+		availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
+		minimum_iops               = "1"
+		minimum_capacity           = "2"
+		tier_type                  = "TierType"
+		ssh_key_name               = "name"
+		vpc = {
+		  is_new_vpc               = false
 		  vpc_name                 = "my-storage-vpc"
 		}
 		subnet_options = [
