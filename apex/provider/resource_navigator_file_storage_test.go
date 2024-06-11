@@ -71,14 +71,6 @@ func TestAccResourceFileStorageCloud(t *testing.T) {
 				Check:       resource.ComposeAggregateTestCheckFunc(),
 				ExpectError: regexp.MustCompile(`.*Error updating Apex Navigator File Storage*.`),
 			},
-			// Update powerflex activation file should be successful
-			{
-				Config: ProviderConfig + fileResourceCloudUpdatePowerScaleActivationConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("apex_navigator_file_storage.cloud_instance", "powerflex.username", "test-username"),
-					resource.TestCheckResourceAttr("apex_navigator_file_storage.cloud_instance", "powerflex.password", "test-pass"),
-				),
-			},
 			// Update back to original powerflex username and password
 			{
 				Config: ProviderConfig + fileResourceCloudConfig,
@@ -203,11 +195,6 @@ var fileResourceOnPremConfig = `resource "apex_navigator_file_storage" "onprem_i
 		zip_code         = "ZipCode"
 	  }
 	}
-	powerflex {
-		username = "` + powerflexUser + `"
-		password = "` + powerflexPass + `"
-		scheme   = "` + powerflexScheme + `"
-	}
   }
 
   output "instance_file_storage_onprem" {
@@ -250,11 +237,6 @@ var fileResourceCloudConfig = `resource "apex_navigator_file_storage" "cloud_ins
 		]
 	  }
 	}
-	powerflex {
-		username = "` + powerflexUser + `"
-		password = "` + powerflexPass + `"
-		scheme   = "` + powerflexScheme + `"
-	}
   }
 
   output "instance_file_storage_cloud" {
@@ -296,58 +278,6 @@ var fileResourceCloudUpdateErrorConfig = `resource "apex_navigator_file_storage"
 		  }
 		]
 	  }
-	}
-	powerflex {
-		username = "` + powerflexUser + `"
-		password = "` + powerflexPass + `"
-		scheme   = "` + powerflexScheme + `"
-	}
-  }
-
-  output "instance_file_storage_cloud" {
-	sensitive = true
-	value = apex_navigator_file_storage.cloud_instance
-  }`
-
-var fileResourceCloudUpdatePowerScaleActivationConfig = `resource "apex_navigator_file_storage" "cloud_instance" {
-	storage_system_type                = "POWERSCALE"
-	name                               = "Create File Cloud"
-	product_version                    = "1.0"
-	deployment_details = {
-	  system_public_cloud = {
-		deployment_type            = "PUBLIC_CLOUD"
-		cloud_type                 = "AWS"
-		cloud_account              = "CloudAccount"
-		cloud_region               = "CloudRegion"
-		availability_zone_topology = "MULTIPLE_AVAILABILITY_ZONE"
-		raw_capacity 			   = "20"
-		tier_type                  = "TierType"
-		ssh_key_name               = "name"
-		iam_instance_profile 	   = "CreateRole"
-		vpc = {
-		  is_new_vpc               = true
-		  vpc_name                 = "my-storage-vpc"
-		}
-		subnet_options = [
-		  {
-		  subnet_id   = "id-1"
-		  subnet_type = "EXTERNAL"
-		},
-		{
-		  # subnet_id   = "id-2"
-		  subnet_type = "INTERNAL"
-		},
-		{
-			# subnet_id   = "id-2"
-			subnet_type = "SCG"
-		  }
-		]
-	  }
-	}
-	powerflex {
-		username = "test-username"
-		password = "test-pass"
-		scheme   = "` + powerflexScheme + `"
 	}
   }
 

@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // StorageSystemResource is a resource that represents a storage system
@@ -212,14 +213,21 @@ func GetStorageSystemSchema(systemType string) map[string]schema.Attribute {
 			Optional:            true,
 		}
 		var iamProfile schema.StringAttribute = schema.StringAttribute{
-			Description:         "IAM instance profile requested during the deployment time - Unit: string",
-			MarkdownDescription: "IAM instance profile requested during the deployment time - Unit: string",
+			Description:         "IAM instance Role name requested during the deployment time.This Role should already be created on the IAM instance.",
+			MarkdownDescription: "IAM instance Role name requested during the deployment time.This Role should already be created on the IAM instance.",
+			Optional:            true,
+		}
+		var availabilityZones schema.ListAttribute = schema.ListAttribute{
+			Description:         "For deployments in an existing VPC, this option is not required as APEX Navigator deploys the storage system to the availability zone of the subnets provided in the subnet_options. For deployments in a new VPC, APEX Navigator deploys APEX File Storage to this specific availability zone.",
+			MarkdownDescription: "For deployments in an existing VPC, this option is not required as APEX Navigator deploys the storage system to the availability zone of the subnets provided in the subnet_options. For deployments in a new VPC, APEX Navigator deploys APEX File Storage to this specific availability zone.",
+			ElementType:         types.StringType,
 			Optional:            true,
 		}
 		publicCloudDetails["minimum_iops"] = minIops
 		publicCloudDetails["minimum_capacity"] = minCapacity
 		publicCloudDetails["raw_capacity"] = rawCapacity
 		publicCloudDetails["iam_instance_profile"] = iamProfile
+		publicCloudDetails["availability_zones"] = availabilityZones
 
 	case "file":
 		var minIops schema.Int64Attribute = schema.Int64Attribute{
@@ -240,14 +248,21 @@ func GetStorageSystemSchema(systemType string) map[string]schema.Attribute {
 			Required:            true,
 		}
 		var iamProfile schema.StringAttribute = schema.StringAttribute{
-			Description:         "IAM instance profile requested during the deployment time - Unit: string",
-			MarkdownDescription: "IAM instance profile requested during the deployment time - Unit: string",
+			Description:         "IAM instance Role name requested during the deployment time.This Role should already be created on the IAM instance.",
+			MarkdownDescription: "IAM instance profile requested during the deployment time.This Role should already be created on the IAM instance.",
 			Required:            true,
+		}
+		var availabilityZones schema.ListAttribute = schema.ListAttribute{
+			Description:         "For deployments in an existing VPC, this option is not required as APEX Navigator deploys the storage system to the availability zone of the subnets provided in the subnet_options. For deployments in a new VPC, APEX Navigator deploys APEX File Storage to this specific availability zone.",
+			MarkdownDescription: "For deployments in an existing VPC, this option is not required as APEX Navigator deploys the storage system to the availability zone of the subnets provided in the subnet_options. For deployments in a new VPC, APEX Navigator deploys APEX File Storage to this specific availability zone.",
+			ElementType:         types.StringType,
+			Optional:            true,
 		}
 		publicCloudDetails["minimum_iops"] = minIops
 		publicCloudDetails["minimum_capacity"] = minCapacity
 		publicCloudDetails["raw_capacity"] = rawCapacity
 		publicCloudDetails["iam_instance_profile"] = iamProfile
+		publicCloudDetails["availability_zones"] = availabilityZones
 
 	default:
 		// error to provide valid system type

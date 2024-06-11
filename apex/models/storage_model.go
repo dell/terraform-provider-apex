@@ -69,6 +69,7 @@ type SystemPublicCloudDeploymentDetailsModel struct {
 	TierType                 types.String                         `tfsdk:"tier_type"`
 	SSHKeyName               types.String                         `tfsdk:"ssh_key_name"`
 	IAMInstanceProfile       types.String                         `tfsdk:"iam_instance_profile"`
+	AvailabilityZones        []types.String                       `tfsdk:"availability_zones"`
 	Vpc                      *vpcModel                            `tfsdk:"vpc"`
 	SubnetOptions            []SubnetOptionModel                  `tfsdk:"subnet_options"`
 }
@@ -139,6 +140,60 @@ type StorageModel struct {
 	Version                         types.String            `tfsdk:"version"`
 	DeploymentDetails               *DeploymentDetailsModel `tfsdk:"deployment_details"`
 	ActivationClientModel           *ActivationClientModel  `tfsdk:"powerflex"`
+}
+
+// StorageModelFile maps storage system schema data.
+type StorageModelFile struct {
+	ID                              types.String            `tfsdk:"id"`
+	SystemID                        types.String            `tfsdk:"system_id"`
+	StorageSystemType               types.String            `tfsdk:"storage_system_type"`
+	SystemType                      types.String            `tfsdk:"system_type"`
+	Bandwidth                       types.Int64             `tfsdk:"bandwidth"`
+	CapacityImpact                  types.Int64             `tfsdk:"capacity_impact"`
+	CapacityIssueCount              types.Int64             `tfsdk:"capacity_issue_count"`
+	CompressionSavings              types.Float64           `tfsdk:"compression_savings"`
+	ConfigurationImpact             types.Int64             `tfsdk:"configuration_impact"`
+	ConfigurationIssueCount         types.Int64             `tfsdk:"configuration_issue_count"`
+	ConfiguredSize                  types.Int64             `tfsdk:"configured_size"`
+	ConnectivityStatus              types.String            `tfsdk:"connectivity_status"`
+	LicenseType                     types.String            `tfsdk:"license_type"`
+	LicenseExpirationDateTimestamp  types.String            `tfsdk:"license_expiration_date_timestamp"`
+	ContractCoverageType            types.String            `tfsdk:"contract_coverage_type"`
+	ContractExpirationDateTimestamp types.String            `tfsdk:"contract_expiration_date_timestamp"`
+	DataProtectionImpact            types.Int64             `tfsdk:"data_protection_impact"`
+	DataProtectionIssueCount        types.Int64             `tfsdk:"data_protection_issue_count"`
+	DisplayIdentifier               types.String            `tfsdk:"display_identifier"`
+	FreePercent                     types.Float64           `tfsdk:"free_percent"`
+	FreeSize                        types.Int64             `tfsdk:"free_size"`
+	HealthConnectivityStatus        types.String            `tfsdk:"health_connectivity_status"`
+	HealthIssueCount                types.Int64             `tfsdk:"health_issue_count"`
+	HealthScore                     types.Int64             `tfsdk:"health_score"`
+	HealthState                     types.String            `tfsdk:"health_state"`
+	Iops                            types.Int64             `tfsdk:"iops"`
+	Ipv4Address                     types.String            `tfsdk:"ipv4_address"`
+	Ipv6Address                     types.String            `tfsdk:"ipv6_address"`
+	LastContactTimestamp            types.String            `tfsdk:"last_contact_timestamp"`
+	Latency                         types.Int64             `tfsdk:"latency"`
+	LogicalSize                     types.Int64             `tfsdk:"logical_size"`
+	Model                           types.String            `tfsdk:"model"`
+	Name                            types.String            `tfsdk:"name"`
+	OverallEfficiency               types.Float64           `tfsdk:"overall_efficiency"`
+	PerformanceImpact               types.Int64             `tfsdk:"performance_impact"`
+	PerformanceIssueCount           types.Int64             `tfsdk:"performance_issue_count"`
+	SerialNumber                    types.String            `tfsdk:"serial_number"`
+	SiteName                        types.String            `tfsdk:"site_name"`
+	SnapsSavings                    types.Float64           `tfsdk:"snaps_savings"`
+	SystemHealthImpact              types.Int64             `tfsdk:"system_health_impact"`
+	SystemHealthIssueCount          types.Int64             `tfsdk:"system_health_issue_count"`
+	ThinSavings                     types.Float64           `tfsdk:"thin_savings"`
+	TotalSize                       types.Int64             `tfsdk:"total_size"`
+	UnconfiguredSize                types.Int64             `tfsdk:"unconfigured_size"`
+	UsedPercent                     types.Float64           `tfsdk:"used_percent"`
+	UsedSize                        types.Int64             `tfsdk:"used_size"`
+	Vendor                          types.String            `tfsdk:"vendor"`
+	ProductVersion                  types.String            `tfsdk:"product_version"`
+	Version                         types.String            `tfsdk:"version"`
+	DeploymentDetails               *DeploymentDetailsModel `tfsdk:"deployment_details"`
 }
 
 // StorageModelDs maps storage system schema data.

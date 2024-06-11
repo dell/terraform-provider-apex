@@ -138,7 +138,6 @@ output "navigator_file_storage" {
 - `overall_efficiency` (Number) The overall system-level storage efficiency ratio based on Thin, Snapshots, Deduplication, and Data Reduction.
 - `performance_impact` (Number) Impact point of highest impacting issue in the performance health category.
 - `performance_issue_count` (Number) Total number of issues in the performance health category.
-- `powerflex` (Block, Optional) (see [below for nested schema](#nestedblock--powerflex))
 - `serial_number` (String) The serial number for this system.
 - `site_name` (String) Name of the site where the system is registered to.
 - `snaps_savings` (Number) The snaps savings for this system.
@@ -189,7 +188,7 @@ Required:
 - `cloud_account` (String) Cloud provider account where the storage system resides
 - `cloud_region` (String) Cloud provider region where the storage system resides
 - `cloud_type` (String) Enum for all the supported cloud providers * AWS - Amazon Web Services
-- `iam_instance_profile` (String) IAM instance profile requested during the deployment time - Unit: string
+- `iam_instance_profile` (String) IAM instance profile requested during the deployment time.This Role should already be created on the IAM instance.
 - `raw_capacity` (String) Raw capacity requested during the deployment time - Unit: bytes
 - `ssh_key_name` (String)
 - `subnet_options` (Attributes List) Subnet options (see [below for nested schema](#nestedatt--deployment_details--system_public_cloud--subnet_options))
@@ -199,6 +198,7 @@ Required:
 Optional:
 
 - `availability_zone_topology` (String) This enum represents all the availability zone topology * SINGLE_AVAILABILITY_ZONE * MULTIPLE_AVAILABILITY_ZONE
+- `availability_zones` (List of String) For deployments in an existing VPC, this option is not required as APEX Navigator deploys the storage system to the availability zone of the subnets provided in the subnet_options. For deployments in a new VPC, APEX Navigator deploys APEX File Storage to this specific availability zone.
 - `cloud_management_address` (String) Management IPv4 or IPv6 address or DNS name of the storage system in cloud
 - `deployment_type` (String) System deployment types (e.g. PUBLIC_CLOUD)
 - `minimum_capacity` (Number) Minimum capacity requested during the deployment time - Unit: bytes
@@ -223,23 +223,6 @@ Optional:
 - `is_new_vpc` (Boolean)
 - `vpc_id` (String)
 - `vpc_name` (String)
-
-
-
-
-<a id="nestedblock--powerflex"></a>
-### Nested Schema for `powerflex`
-
-Required:
-
-- `password` (String, Sensitive) Password of the powerflex
-- `username` (String) Username of the powerflex
-
-Optional:
-
-- `host` (String) Host, ip or hostname of the powerflex. If left empty we will attempt to get the ip through Apex from the ID
-- `insecure` (Boolean) Validated the certificate when connecting to the powerflex, defaults if unset to true
-- `scheme` (String) Scheme of the powerflex, defaults if unset to https
 
 ## Import
 

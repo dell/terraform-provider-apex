@@ -175,6 +175,7 @@ Read-Only:
 
 Optional:
 
+- `availability_zones` (List of String) List of availability zones
 - `iam_instance_profile` (String) Raw capacity requested during the deployment time - Unit: bytes
 - `raw_capacity` (String) Raw capacity requested during the deployment time - Unit: bytes
 

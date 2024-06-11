@@ -102,7 +102,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	validationErr := helper.ValidateCreateStorageParams(plan)
+	validationErr := helper.ValidateCreateStorageParamsBlock(plan)
 	if validationErr != nil {
 		resp.Diagnostics.AddError(
 			constants.BlockStorageCreateErrorMsg,
@@ -258,7 +258,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Updating TFState with Block Storage info
-	result := helper.GetStorageSystem(*storageSystem)
+	result := helper.GetStorageSystemBlock(*storageSystem)
 
 	if result.SystemType.ValueString() == plan.StorageSystemType.ValueString() {
 		result.StorageSystemType = plan.StorageSystemType
@@ -270,7 +270,7 @@ func (r *blockStorageResource) Create(ctx context.Context, req resource.CreateRe
 	// Need to check for cloud deployment details
 	if plan.DeploymentDetails != nil &&
 		plan.DeploymentDetails.SystemPublicCloud != nil {
-		helper.SetCloudConfigSubnetAndVpc(plan, result)
+		helper.SetCloudConfigSubnetAndVpcBlock(plan, result)
 	}
 
 	if result.DeploymentDetails == nil {
@@ -312,7 +312,7 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	// Overwrite items with refreshed state
-	result := helper.GetStorageSystem(*storageSystem)
+	result := helper.GetStorageSystemBlock(*storageSystem)
 	if result.SystemType.ValueString() == state.StorageSystemType.ValueString() {
 		result.StorageSystemType = state.StorageSystemType
 	}
@@ -324,7 +324,7 @@ func (r *blockStorageResource) Read(ctx context.Context, req resource.ReadReques
 	// Need to check for on prem deployment details
 	if state.DeploymentDetails != nil &&
 		state.DeploymentDetails.SystemPublicCloud != nil {
-		helper.SetCloudConfigSubnetAndVpc(state, result)
+		helper.SetCloudConfigSubnetAndVpcBlock(state, result)
 	}
 
 	if state.DeploymentDetails == nil {
@@ -378,7 +378,7 @@ func (r *blockStorageResource) Update(ctx context.Context, req resource.UpdateRe
 			ioOps := state.DeploymentDetails.SystemPublicCloud.MinimumIops
 			minCap := state.DeploymentDetails.SystemPublicCloud.MinimumCapacity
 			if len(plan.DeploymentDetails.SystemPublicCloud.SubnetOptions) == 0 {
-				helper.SetCloudConfigSubnetAndVpc(plan, state)
+				helper.SetCloudConfigSubnetAndVpcBlock(plan, state)
 
 			}
 			state.DeploymentDetails.SystemPublicCloud.MinimumIops = ioOps
@@ -478,7 +478,7 @@ func (r *blockStorageResource) ImportState(ctx context.Context, req resource.Imp
 		return
 	}
 
-	result := helper.GetStorageSystem(*storageSystem)
+	result := helper.GetStorageSystemBlock(*storageSystem)
 	result.ActivationClientModel = &models.ActivationClientModel{
 		Username: types.StringValue(p.Username),
 		Password: types.StringValue(p.Password),
