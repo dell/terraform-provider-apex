@@ -198,6 +198,12 @@ const (
 	// BlockMobilityGroupCopyDetailMsg is the Error message for copy failure
 	BlockMobilityGroupCopyDetailMsg = "Could not copy mobility group, unexpected error: "
 
+	// CidrBlockNotSupportedErrorMsg is the Error message for create failure
+	CidrBlockNotSupportedErrorMsg = "cidr_block is not supported for existing vpc"
+
+	// DeploymentDetailsRequiredErrorMsg is the Error message for create failure
+	DeploymentDetailsRequiredErrorMsg = "deployment_details is required"
+
 	// MobilityGroupCreateErrorMsg is the Error message for create failure
 	MobilityGroupCreateErrorMsg = "Error creating Apex Navigator Mobility Groups"
 

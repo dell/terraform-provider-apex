@@ -25,11 +25,13 @@ import (
 
 	"github.com/dell/terraform-provider-apex/apex/helper"
 	"github.com/dell/terraform-provider-apex/apex/models"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // StorageSystemResource is a resource that represents a storage system
@@ -173,10 +175,19 @@ func GetStorageSystemSchema(systemType string) map[string]schema.Attribute {
 						Optional: true,
 					},
 					"cidr_block": schema.StringAttribute{
-						Optional: true,
+						Description:         "CIDR block for subnet. It is not supported when existing vpc is used to create block storage",
+						MarkdownDescription: "CIDR block for subnet. It is not supported when existing vpc is used to create block storage",
+						Optional:            true,
 					},
 					"subnet_type": schema.StringAttribute{
-						Optional: true,
+						Description:         "subnet type is one of EXTERNAL, INTERNAL, SCG",
+						MarkdownDescription: "subnet type is one of EXTERNAL, INTERNAL, SCG",
+						Optional:            true,
+						Validators: []validator.String{stringvalidator.OneOf(
+							"EXTERNAL",
+							"INTERNAL",
+							"SCG",
+						)},
 					},
 				},
 			},

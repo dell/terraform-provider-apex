@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "apex_navigator_block_storage" "cloud_instance" {
+resource "apex_navigator_block_storage" "cloud_instance_newvpc" {
   # Type of system you want to deploy
   storage_system_type = "POWERFLEX"
   # The name of the system.
@@ -34,19 +34,16 @@ resource "apex_navigator_block_storage" "cloud_instance" {
       tier_type                  = "BALANCED"
       ssh_key_name               = "apex-navigator-terraform-key"
       vpc = {
-        is_new_vpc = false
-        vpc_id     = "vpc-12345678901234567"
-        # vpc_name                 = "my-vpc"
+        is_new_vpc = true
+        vpc_name   = "my-vpc"
       }
       subnet_options = [
         {
-          subnet_id = "subnet-12345678901234567"
-          #cidr_block  = "30.0.8.0/22"
+          cidr_block  = "168.31.0.0/28"
           subnet_type = "EXTERNAL"
         },
         {
-          #subnet_id   = "subnet-2"
-          cidr_block  = "10.0.16.0/21"
+          cidr_block  = "10.0.0.0/22"
           subnet_type = "INTERNAL"
         }
       ]
@@ -60,7 +57,7 @@ resource "apex_navigator_block_storage" "cloud_instance" {
   }
 }
 
-output "navigator_block_storage" {
+output "navigator_block_storage1" {
   sensitive = true
-  value     = apex_navigator_block_storage.cloud_instance
+  value     = apex_navigator_block_storage.cloud_instance_newvpc
 }

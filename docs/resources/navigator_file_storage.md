@@ -210,9 +210,9 @@ Optional:
 
 Optional:
 
-- `cidr_block` (String)
+- `cidr_block` (String) CIDR block for subnet. It is not supported when existing vpc is used to create block storage
 - `subnet_id` (String)
-- `subnet_type` (String)
+- `subnet_type` (String) subnet type is one of EXTERNAL, INTERNAL, SCG
 
 
 <a id="nestedatt--deployment_details--system_public_cloud--vpc"></a>

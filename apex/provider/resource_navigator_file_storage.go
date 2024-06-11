@@ -105,6 +105,14 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	validationErr := helper.ValidateCreateStorageParams(plan)
+	if validationErr != nil {
+		resp.Diagnostics.AddError(
+			constants.FileStorageCreateErrorMsg,
+			validationErr.Error(),
+		)
+		return
+	}
 	var systemCreateInput client.StorageSystemDeploymentRequest
 	switch {
 	case plan.DeploymentDetails == nil:

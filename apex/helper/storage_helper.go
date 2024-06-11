@@ -257,3 +257,23 @@ func GetStorageSystemDs(storageSystem client.StorageSystemsInstance) (storageSta
 
 	return storageState
 }
+
+// ValidateCreateStorageParams validates the parameters for the create function.
+// It checks for any errors in the plan.
+// If there are errors, it returns the error.
+func ValidateCreateStorageParams(plan models.StorageModel) error {
+	if plan.DeploymentDetails == nil {
+		return fmt.Errorf(constants.DeploymentDetailsRequiredErrorMsg)
+	}
+	if plan.DeploymentDetails.SystemPublicCloud != nil && plan.DeploymentDetails.SystemPublicCloud.Vpc.IsNewVpc.ValueBoolPointer() != nil {
+		isNewVpc := plan.DeploymentDetails.SystemPublicCloud.Vpc.IsNewVpc.ValueBoolPointer()
+		for _, subnetOption := range plan.DeploymentDetails.SystemPublicCloud.SubnetOptions {
+			// Cidr block is not supported for existing VPC
+			cidrBlock := subnetOption.CidrBlock.ValueStringPointer()
+			if cidrBlock != nil && isNewVpc != nil && !*isNewVpc {
+				return fmt.Errorf(constants.CidrBlockNotSupportedErrorMsg)
+			}
+		}
+	}
+	return nil
+}
