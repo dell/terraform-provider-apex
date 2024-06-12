@@ -18,6 +18,7 @@ package provider
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // StorageDataSourceSchema defines the schema for a storage system instance data source and
@@ -389,6 +390,12 @@ var StorageDataSourceSchema schema.Schema = schema.Schema{
 							Description:         "Raw capacity requested during the deployment time - Unit: bytes",
 							MarkdownDescription: "Raw capacity requested during the deployment time - Unit: bytes",
 							Optional:            true,
+						},
+						"availability_zones": schema.ListAttribute{
+							Description:         "List of availability zones",
+							MarkdownDescription: "List of availability zones",
+							Optional:            true,
+							ElementType:         types.StringType,
 						},
 						"vpc": schema.SingleNestedAttribute{
 							Description:         "VPC",

@@ -21,6 +21,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // ConvertTimeToString converts time to string
@@ -57,4 +59,13 @@ func CreateFilter(filter []string, key string) string {
 		}
 	}
 	return filterString
+}
+
+// ConvertToStringSlice converts []types.String to []string
+func ConvertToStringSlice(typesSlice []types.String) []string {
+	result := make([]string, len(typesSlice))
+	for i, v := range typesSlice {
+		result[i] = v.ValueString()
+	}
+	return result
 }

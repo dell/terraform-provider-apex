@@ -134,9 +134,10 @@ Required:
 Optional:
 
 - `availability_zone_topology` (String) This enum represents all the availability zone topology * SINGLE_AVAILABILITY_ZONE * MULTIPLE_AVAILABILITY_ZONE
+- `availability_zones` (List of String) For deployments in an existing VPC, this option is not required as APEX Navigator deploys the storage system to the availability zone of the subnets provided in the subnet_options. For deployments in a new VPC, APEX Navigator deploys APEX File Storage to this specific availability zone.
 - `cloud_management_address` (String) Management IPv4 or IPv6 address or DNS name of the storage system in cloud
 - `deployment_type` (String) System deployment types (e.g. PUBLIC_CLOUD)
-- `iam_instance_profile` (String) IAM instance profile requested during the deployment time - Unit: string
+- `iam_instance_profile` (String) IAM instance Role name requested during the deployment time.This Role should already be created on the IAM instance.
 - `raw_capacity` (String) Raw capacity requested during the deployment time - Unit: bytes
 - `virtual_private_cloud` (String) Cloud virtual private environment identifier
 

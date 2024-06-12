@@ -32,7 +32,6 @@ import (
 	"github.com/dell/terraform-provider-apex/apex/models"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -66,11 +65,6 @@ func (r *fileStorageResource) Schema(_ context.Context, _ resource.SchemaRequest
 		Description:         "This Terraform resource is used to manage File Storage on Apex Navigator. We can create, read, update, delete File Storage on Apex Navigator.We can also import existing File Storage from Apex Navigator.",
 		MarkdownDescription: "This Terraform resource is used to manage File Storage on Apex Navigator. We can create, read, update, delete File Storage on Apex Navigator.We can also import existing File Storage from Apex Navigator.",
 		Attributes:          GetStorageSystemSchema("file"),
-		Blocks: map[string]schema.Block{
-			"powerflex": schema.SingleNestedBlock{
-				Attributes: PowerflexInfo.Attributes,
-			},
-		},
 	}
 }
 
@@ -98,14 +92,14 @@ func (r *fileStorageResource) Configure(ctx context.Context, req resource.Config
 // Create creates the resource and sets the initial Terraform state.
 func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) { // nolint:funlen, gocognit
 	// Retrieve values from plan
-	var plan models.StorageModel
+	var plan models.StorageModelFile
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	validationErr := helper.ValidateCreateStorageParams(plan)
+	validationErr := helper.ValidateCreateStorageParamsFile(plan)
 	if validationErr != nil {
 		resp.Diagnostics.AddError(
 			constants.FileStorageCreateErrorMsg,
@@ -158,7 +152,8 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 					Id:   plan.DeploymentDetails.SystemPublicCloud.Vpc.VpcID.ValueStringPointer(),
 					Name: plan.DeploymentDetails.SystemPublicCloud.Vpc.VpcName.ValueStringPointer(),
 				},
-				SubnetOptions: subnetOptions,
+				SubnetOptions:     subnetOptions,
+				AvailabilityZones: helper.ConvertToStringSlice(plan.DeploymentDetails.SystemPublicCloud.AvailabilityZones),
 			},
 		}
 		systemCreateInput = *client.NewStorageSystemDeploymentRequest(plan.Name.ValueString(), cloudParams, storageParams, true)
@@ -259,7 +254,7 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Updating TFState with File Storage info
-	result := helper.GetStorageSystem(*storageSystem)
+	result := helper.GetStorageSystemFile(*storageSystem)
 	if result.SystemType.ValueString() == "ISILON" {
 		result.StorageSystemType = plan.StorageSystemType
 	}
@@ -271,10 +266,10 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 	// Need to check for cloud deployment details
 	if plan.DeploymentDetails != nil &&
 		plan.DeploymentDetails.SystemPublicCloud != nil {
-		helper.SetCloudConfigSubnetAndVpc(plan, result)
+		helper.SetCloudConfigSubnetAndVpcFile(plan, result)
 		result.DeploymentDetails.SystemPublicCloud.RawCapacity = plan.DeploymentDetails.SystemPublicCloud.RawCapacity
 		result.DeploymentDetails.SystemPublicCloud.IAMInstanceProfile = plan.DeploymentDetails.SystemPublicCloud.IAMInstanceProfile
-
+		result.DeploymentDetails.SystemPublicCloud.AvailabilityZones = plan.DeploymentDetails.SystemPublicCloud.AvailabilityZones
 	}
 
 	if result.DeploymentDetails == nil {
@@ -283,8 +278,6 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 			constants.UnexpectedSystemType,
 		)
 	}
-
-	result.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, result)
@@ -297,7 +290,7 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 // Read method is used to refresh the Terraform state based on the schema data.
 func (r *fileStorageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state models.StorageModel
+	var state models.StorageModelFile
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -316,7 +309,7 @@ func (r *fileStorageResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	// Overwrite items with refreshed state
-	result := helper.GetStorageSystem(*storageSystem)
+	result := helper.GetStorageSystemFile(*storageSystem)
 	if result.SystemType.ValueString() == "ISILON" {
 		result.StorageSystemType = state.StorageSystemType
 	}
@@ -328,10 +321,10 @@ func (r *fileStorageResource) Read(ctx context.Context, req resource.ReadRequest
 	// Need to check for on prem deployment details
 	if state.DeploymentDetails != nil &&
 		state.DeploymentDetails.SystemPublicCloud != nil {
-		helper.SetCloudConfigSubnetAndVpc(state, result)
+		helper.SetCloudConfigSubnetAndVpcFile(state, result)
 		result.DeploymentDetails.SystemPublicCloud.RawCapacity = state.DeploymentDetails.SystemPublicCloud.RawCapacity
 		result.DeploymentDetails.SystemPublicCloud.IAMInstanceProfile = state.DeploymentDetails.SystemPublicCloud.IAMInstanceProfile
-
+		result.DeploymentDetails.SystemPublicCloud.AvailabilityZones = state.DeploymentDetails.SystemPublicCloud.AvailabilityZones
 	}
 
 	if state.DeploymentDetails == nil {
@@ -340,8 +333,6 @@ func (r *fileStorageResource) Read(ctx context.Context, req resource.ReadRequest
 			constants.UnexpectedSystemType,
 		)
 	}
-
-	result.ActivationClientModel = helper.SetPowerflexClientState(*state.ActivationClientModel)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &result)
@@ -354,49 +345,17 @@ func (r *fileStorageResource) Read(ctx context.Context, req resource.ReadRequest
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *fileStorageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan models.StorageModel
+	var plan models.StorageModelFile
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	// Retrieve values from state
-	var state models.StorageModel
+	var state models.StorageModelFile
 	diagsState := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diagsState...)
 	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Allow the user to update the activation user/password
-	if (plan.ActivationClientModel.Username.ValueString() != state.ActivationClientModel.Username.ValueString()) ||
-		(plan.ActivationClientModel.Password.ValueString() != state.ActivationClientModel.Password.ValueString()) ||
-		(plan.ActivationClientModel.Scheme.ValueString() != state.ActivationClientModel.Scheme.ValueString()) ||
-		(plan.ActivationClientModel.Host.ValueString() != state.ActivationClientModel.Host.ValueString()) {
-		state.ActivationClientModel = helper.SetPowerflexClientState(*plan.ActivationClientModel)
-		if strings.Contains(state.Version.ValueString(), plan.ProductVersion.ValueString()) {
-			state.ProductVersion = plan.ProductVersion
-		}
-		state.StorageSystemType = plan.StorageSystemType
-
-		// Need to check for on prem deployment details
-		if state.DeploymentDetails != nil &&
-			state.DeploymentDetails.SystemPublicCloud != nil {
-			ioOps := state.DeploymentDetails.SystemPublicCloud.MinimumIops
-			minCap := state.DeploymentDetails.SystemPublicCloud.MinimumCapacity
-			if len(plan.DeploymentDetails.SystemPublicCloud.SubnetOptions) == 0 {
-				helper.SetCloudConfigSubnetAndVpc(plan, state)
-			}
-			state.DeploymentDetails.SystemPublicCloud.MinimumIops = ioOps
-			state.DeploymentDetails.SystemPublicCloud.MinimumCapacity = minCap
-		}
-
-		// Set refresh the state with the updated poweflex client
-		diags = resp.State.Set(ctx, &state)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
 		return
 	}
 
@@ -413,7 +372,7 @@ func (r *fileStorageResource) Update(ctx context.Context, req resource.UpdateReq
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *fileStorageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) { // nolint:dupl
 	// Retrieve values from state
-	var plan models.StorageModel
+	var plan models.StorageModelFile
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -422,16 +381,6 @@ func (r *fileStorageResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	// Update the DI token for subsquent post calls to activate the system
 	_ = helper.UpdateToken(ctx, r.client, r.jobsClient)
-
-	// Activate PowerScale
-	actErr := helper.ActivateSystemClientSystem(ctx, r.client, plan.SystemID.ValueString(), *plan.ActivationClientModel, client.STORAGEPRODUCTENUM_POWERSCALE)
-	if actErr != nil {
-		resp.Diagnostics.AddError(
-			constants.ErrorActivatingPowerScaleSystem,
-			constants.ErrorActivatingPowerScaleSystemDetail+actErr.Error(),
-		)
-		return
-	}
 
 	// Delete existing storage system
 	req2 := r.client.StorageSystemsAPI.StorageSystemsDelete(ctx, plan.ID.ValueString())
@@ -491,15 +440,7 @@ func (r *fileStorageResource) ImportState(ctx context.Context, req resource.Impo
 		return
 	}
 
-	result := helper.GetStorageSystem(*storageSystem)
-
-	result.ActivationClientModel = &models.ActivationClientModel{
-		Username: types.StringValue(p.Username),
-		Password: types.StringValue(p.Password),
-		Host:     types.StringValue(p.Host),
-		Scheme:   types.StringValue(p.Scheme),
-		Insecure: types.BoolValue(p.Insecure),
-	}
+	result := helper.GetStorageSystemFile(*storageSystem)
 
 	diags := resp.State.Set(ctx, &result)
 	resp.Diagnostics.Append(diags...)
