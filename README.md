@@ -49,7 +49,7 @@ The Terraform Provider for Dell Apex is released and licensed under the MPL-2.0 
 
 | **Terraform Provider**  | **OS**                    | **Terraform**               | **Golang** |
 |------------------------ |:-----------------------   |:--------------------------  |------------|
-| v1.0.0-beta             | ubuntu22.04 <br>  rhel9.x | 1.5.x <br> 1.6.x            | 1.21       |
+| v1.0.0-beta.2            | ubuntu22.04 <br>  rhel9.x | 1.5.x <br> 1.6.x            | 1.21       |
 
 
 ## List of DataSources in Terraform Provider for Dell Apex
