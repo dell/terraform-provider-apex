@@ -26,7 +26,7 @@ Create a file called `main.tf` in your workspace with the following contents
 terraform {
   required_providers {
     powerstore = {
-      version = "1.0.0-beta"
+      version = "1.0.0-beta.2"
       source  = "registry.terraform.io/dell/apex"
     }
   }
@@ -57,4 +57,4 @@ update-ca-trust extract
 
 ## Setup Auth Scripts
  
-**Follow the instructions in the https://github.com/dell/terraform-provider-apex/blob/main/scripts/saml_script/README.md to setup the authentication scripts**
+**Follow the instructions in the [Script Documentation](https://github.com/dell/terraform-provider-apex/blob/main/scripts/saml_script/README.md) to setup the authentication scripts**
