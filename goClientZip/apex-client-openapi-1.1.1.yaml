@@ -2821,7 +2821,6 @@ components:
         - name
         - description
         - creation_timestamp
-        - refresh_timestamp
         - image_timestamp
         - clone_volumes
         - host_mappings
