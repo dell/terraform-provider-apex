@@ -48,7 +48,12 @@ resource "apex_navigator_block_storage" "cloud_instance" {
           subnet_id = "subnet-2"
           #cidr_block is not supported for existing vpc
           subnet_type = "INTERNAL"
-        }
+        },
+        {
+          subnet_id = "subnet-3"
+          #cidr_block is not supported for existing vpc
+          subnet_type = "SCG"
+        },
       ]
     }
   }
