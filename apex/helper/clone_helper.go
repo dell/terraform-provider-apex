@@ -93,7 +93,7 @@ func GetClonesModel(clone client.Clone, systemID string) (model models.ClonesMod
 		Description:       types.StringValue(clone.Description),
 		MobilityTargetID:  types.StringPointerValue(clone.MobilityTargetId),
 		CreationTimestamp: types.StringValue(clone.CreationTimestamp),
-		RefreshTimestamp:  types.StringValue(clone.RefreshTimestamp),
+		RefreshTimestamp:  types.StringPointerValue(clone.RefreshTimestamp),
 		ImageTimestamp:    types.StringValue(clone.ImageTimestamp),
 		SystemID:          types.StringValue(systemID),
 	}
@@ -176,7 +176,7 @@ func GetClonesModelDs(clone client.Clone) (model models.ClonesModelDs) {
 		Description:       types.StringValue(clone.Description),
 		MobilityTargetID:  types.StringPointerValue(clone.MobilityTargetId),
 		CreationTimestamp: types.StringValue(clone.CreationTimestamp),
-		RefreshTimestamp:  types.StringValue(clone.RefreshTimestamp),
+		RefreshTimestamp:  types.StringPointerValue(clone.RefreshTimestamp),
 		ImageTimestamp:    types.StringValue(clone.ImageTimestamp),
 	}
 	attrTypes := map[string]attr.Type{

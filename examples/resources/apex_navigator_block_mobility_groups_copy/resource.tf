@@ -28,13 +28,11 @@ resource "apex_navigator_block_mobility_groups_copy" "example" {
   powerflex_source {
     username = each.value.powerflex_source_user
     password = each.value.powerflex_source_password
-    host     = each.value.powerflex_source_host
     insecure = each.value.insecure
   }
   powerflex_target {
     username = each.value.powerflex_target_user
     password = each.value.powerflex_target_password
-    host     = each.value.powerflex_target_host
     insecure = each.value.insecure
   }
   // This will allow terraform create process to trigger each time we run terraform apply.

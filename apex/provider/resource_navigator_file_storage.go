@@ -149,8 +149,9 @@ func (r *fileStorageResource) Create(ctx context.Context, req resource.CreateReq
 				SshKeyName:               plan.DeploymentDetails.SystemPublicCloud.SSHKeyName.ValueString(),
 				IamInstanceProfile:       plan.DeploymentDetails.SystemPublicCloud.IAMInstanceProfile.ValueStringPointer(),
 				Vpc: client.Vpc{
-					Id:   plan.DeploymentDetails.SystemPublicCloud.Vpc.VpcID.ValueStringPointer(),
-					Name: plan.DeploymentDetails.SystemPublicCloud.Vpc.VpcName.ValueStringPointer(),
+					IsNewVpc: plan.DeploymentDetails.SystemPublicCloud.Vpc.IsNewVpc.ValueBoolPointer(),
+					Id:       plan.DeploymentDetails.SystemPublicCloud.Vpc.VpcID.ValueStringPointer(),
+					Name:     plan.DeploymentDetails.SystemPublicCloud.Vpc.VpcName.ValueStringPointer(),
 				},
 				SubnetOptions:     subnetOptions,
 				AvailabilityZones: helper.ConvertToStringSlice(plan.DeploymentDetails.SystemPublicCloud.AvailabilityZones),
