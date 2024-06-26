@@ -1,3 +1,21 @@
+# v1.0.0-beta.2
+## Release Summary
+This Beta.2 release consists of the enhancements mentioned below.
+## Features
+N/A
+
+### Others
+N/A
+
+## Enhancements
+AWS API changes 
+Update schema for Block Storage and File Storage Resources
+File Storage Resource Code Cleanup
+
+## Bug Fixes
+N/A
+
+
 # v1.0.0-beta
 ## Release Summary
 This Beta release supports resources and data sources mentioned in the Features section for Dell Apex.
@@ -31,23 +49,6 @@ N/A
 
 ## Enhancements
 N/A
-
-## Bug Fixes
-N/A
-
-# v1.0.0-beta.2
-## Release Summary
-This Beta.2 release consists of the enhancements mentioned below.
-## Features
-N/A
-
-### Others
-N/A
-
-## Enhancements
-AWS API changes 
-Update schema for Block Storage and File Storage Resources
-File Storage Resource Code Cleanup
 
 ## Bug Fixes
 N/A
