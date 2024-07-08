@@ -48,13 +48,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+data "apex_navigator_storage_products" "example" {}
+// Grabs the latest file version
+locals {
+  latest_file_ids = [
+    for k, v in data.apex_navigator_storage_products.example.storage_products :
+    v.storage_type == "FILE" && v.cloud_type == "AWS" ? v.latest_version : ""
+  ]
+  latest_file_id = compact(local.latest_file_id)[0]
+}
+
 resource "apex_navigator_file_storage" "cloud_instance" {
   # Type of system you want to deploy
   storage_system_type = "POWERSCALE"
   # The name of the system.
   name = "apex-navigator-terraform-file"
 
-  product_version = "9.8"
+  # This set to the latest file version. 
+  # If you want to set a specific version check the apex_navigator_storage_products datasource for more versions
+  product_version = local.latest_file_id
+
   # deployment_details (can be either system_on_prem or system_public_cloud)
   deployment_details = {
     system_public_cloud = {
@@ -87,6 +100,8 @@ resource "apex_navigator_file_storage" "cloud_instance" {
       ]
     }
   }
+
+  depends_on = [data.apex_navigator_storage_products.example]
 }
 
 output "navigator_file_storage" {
@@ -115,13 +130,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+data "apex_navigator_storage_products" "example" {}
+// Grabs the latest file version
+locals {
+  latest_file_ids = [
+    for k, v in data.apex_navigator_storage_products.example.storage_products :
+    v.storage_type == "FILE" && v.cloud_type == "AWS" ? v.latest_version : ""
+  ]
+  latest_file_id = compact(local.latest_file_id)[0]
+}
+
 resource "apex_navigator_file_storage" "cloud_instance" {
   # Type of system you want to deploy
   storage_system_type = "POWERSCALE"
   # The name of the system.
   name = "apex-navigator-terraform-file"
 
-  product_version = "9.8"
+  # This set to the latest file version. 
+  # If you want to set a specific version check the apex_navigator_storage_products datasource for more versions
+  product_version = local.latest_file_id
   # deployment_details (can be either system_on_prem or system_public_cloud)
   deployment_details = {
     system_public_cloud = {
@@ -151,6 +178,7 @@ resource "apex_navigator_file_storage" "cloud_instance" {
       ]
     }
   }
+  depends_on = [data.apex_navigator_storage_products.example]
 }
 
 output "navigator_file_storage" {
