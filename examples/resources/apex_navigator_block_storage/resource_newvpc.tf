@@ -15,13 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+data "apex_navigator_storage_products" "example" {}
+
+locals {
+  latest_file_id = [
+    for k, v in data.apex_navigator_storage_products.example.storage_products :
+    v.storage_type == "BLOCK" && v.cloud_type == "AWS" ? v.latest_version : ""
+  ]
+  latest_file_ids = compact(local.latest_file_id)[0]
+}
+
 resource "apex_navigator_block_storage" "cloud_instance_newvpc" {
   # Type of system you want to deploy
   storage_system_type = "POWERFLEX"
   # The name of the system.
   name = "apex-navigator-terraform"
 
-  product_version = "4.5.1"
+  # This set to the latest block version. 
+  # If you want to set a specific version check the apex_navigator_storage_products datasource for more versions
+  product_version = local.latest_file_id
+
   deployment_details = {
     system_public_cloud = {
       deployment_type            = "PUBLIC_CLOUD"
@@ -55,6 +68,8 @@ resource "apex_navigator_block_storage" "cloud_instance_newvpc" {
     username = "example-user"
     password = "example-password"
   }
+
+  depends_on = [data.apex_navigator_storage_products.example]
 }
 
 output "navigator_block_storage1" {
