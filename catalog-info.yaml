@@ -1,0 +1,29 @@
+# nonk8s
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: dell-terraform-provider-apex
+  description: "Ansible Modules for Dell Apex Navigator"
+  tags:
+    - devops
+    - automation
+    - terraform
+    - dell
+    - infrastructure-as-code
+    - terraform-provider
+    - apex
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: dell/terraform-provider-apex
+  links:   
+    - url: 'https://dell.github.io/terraform-docs/docs/storage/platforms/apex/'
+      title: 'Dell Terraform Providers Documentation'
+      icon: 'web'
+    - url: 'https://github.com/dell/terraform-provider-apex/issues'
+      title: 'Contact Technical Support'
+      icon: 'help'
+spec:
+  type: service
+  lifecycle: production
+  owner: user:default/varun.chinta
+  visibility: all
